@@ -1,0 +1,22 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8faf9;
+  --foreground: #152417;
+}
+
+body {
+  background: #f8faf9;
+  color: #152417;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  overflow-x: hidden;
+}
+
+@keyframes floatSlow {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-6px); }
+}
+
+.animate-float-slow {
+  animation: floatSlow 4s ease-in-out infinite;
+}
