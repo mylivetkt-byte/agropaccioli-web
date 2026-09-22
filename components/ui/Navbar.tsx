@@ -21,14 +21,18 @@ import {
   Bell,
   LineChart,
   Sliders,
-  ChevronRight,
-  Users2,
-  Sparkles,
-  Search
+  Users2
 } from 'lucide-react';
 import { TRM_DATA, ALERTAS_NOTIFICACIONES_DATA } from '@/lib/agro-data';
 import NotificacionesDropdown from '@/components/alertas/NotificacionesDropdown';
 import ConfiguradorAlertasModal from '@/components/alertas/ConfiguradorAlertasModal';
+
+interface NavModuleItem {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  badge?: string;
+}
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -38,21 +42,27 @@ export default function Navbar() {
 
   const noLeidas = ALERTAS_NOTIFICACIONES_DATA.filter(n => !n.leido).length;
 
-  // Todos los módulos visibles para que ningún usuario se los pierda
-  const visibleModules = [
+  // FILA 1 DE MÓDULOS: Mercado, Cosechas, Precios y Negocios
+  const fila1Modulos: NavModuleItem[] = [
     { href: '/', label: 'Inicio', icon: Sprout },
-    { href: '/mapa-cosechas', label: 'Mapa de Cosechas', icon: MapPin, badge: 'En Vivo' },
+    { href: '/mapa-cosechas', label: 'Mapa Cosechas', icon: MapPin, badge: 'En Vivo' },
     { href: '/inteligencia-mercado', label: 'Inteligencia IA', icon: LineChart, badge: 'Nuevo' },
     { href: '/empleos', label: 'Bolsa de Empleo', icon: Briefcase, badge: '47 Ofertas' },
-    { href: '/precios-mercado', label: 'Precios SIPSA/DANE', icon: TrendingUp },
-    { href: '/mi-escaparate', label: 'Mi Escaparate', icon: Store, badge: 'Productor' },
+    { href: '/precios-mercado', label: 'Precios SIPSA / DANE', icon: TrendingUp },
+    { href: '/mi-escaparate', label: 'Mi Escaparate', icon: Store, badge: 'Productor' }
+  ];
+
+  // FILA 2 DE MÓDULOS: Favoritos, B2B, Logística y Apoyo
+  const fila2Modulos: NavModuleItem[] = [
     { href: '/mis-intereses', label: 'Mis Favoritos', icon: ShoppingBag },
     { href: '/almacenes-b2b', label: 'Almacenes B2B', icon: Store },
     { href: '/transportistas', label: 'Transportistas', icon: Truck },
     { href: '/academia-ia', label: 'Academia IA', icon: Bot },
     { href: '/agremiaciones', label: 'Gremios & ONGs', icon: Users2 },
-    { href: '/admin', label: 'Admin', icon: ShieldCheck }
+    { href: '/admin', label: 'Panel Admin', icon: ShieldCheck }
   ];
+
+  const todosModulos: NavModuleItem[] = [...fila1Modulos, ...fila2Modulos];
 
   return (
     <header className="sticky top-0 z-50 w-full font-sans shadow-md">
@@ -96,11 +106,11 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* 2. FILA PRINCIPAL: LOGO GRANDE DESPEJADO + ACCIONES CLAVE */}
-      <div className="bg-white border-b border-emerald-100 py-3 px-4 sm:px-6">
+      {/* 2. CABECERA PRINCIPAL: LOGO GRANDE + ACCIONES CLAVE */}
+      <div className="bg-white border-b border-emerald-100 py-2.5 px-4 sm:px-6">
         <div className="container mx-auto flex items-center justify-between gap-4">
           
-          {/* LOGOTIPO Y NOMBRE GRANDE — NUNCA SE TAPA */}
+          {/* LOGOTIPO Y NOMBRE — 100% DESPEJADO Y PROTAGONISTA */}
           <Link href="/" className="flex items-center gap-3 shrink-0 group">
             <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-green-400 flex items-center justify-center shadow-md shadow-emerald-500/25 group-hover:scale-105 transition-transform">
               <Sprout className="w-6 h-6 text-white" />
@@ -122,7 +132,7 @@ export default function Navbar() {
             {/* Mensajes / Chat */}
             <Link
               href="/chat"
-              className="inline-flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-bold px-3.5 py-2 rounded-xl border border-emerald-200 transition-colors shadow-2xs"
+              className="inline-flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-bold px-3 py-2 rounded-xl border border-emerald-200 transition-colors shadow-2xs"
             >
               <MessageSquare className="w-4 h-4 text-emerald-600" />
               <span className="hidden sm:inline">Mensajes</span>
@@ -132,7 +142,7 @@ export default function Navbar() {
             {/* Mis Favoritos */}
             <Link
               href="/mis-intereses"
-              className="hidden lg:inline-flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-bold px-3 py-2 rounded-xl border border-emerald-200 transition-colors"
+              className="hidden md:inline-flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-bold px-3 py-2 rounded-xl border border-emerald-200 transition-colors"
             >
               <ShoppingBag className="w-3.5 h-3.5 text-emerald-600" />
               <span>Mis Favoritos</span>
@@ -169,38 +179,78 @@ export default function Navbar() {
         </div>
       </div>
 
-      {/* 3. FILA SECUNDARIA: TODOS LOS MÓDULOS 100% VISIBLES EN PANTALLA */}
-      <div className="bg-gradient-to-r from-white via-emerald-50/40 to-white border-b border-emerald-200/80 py-1.5 px-4 overflow-x-auto scrollbar-none">
-        <div className="container mx-auto flex items-center gap-1 sm:gap-2 whitespace-nowrap">
-          {visibleModules.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 ${
-                  isActive
-                    ? 'bg-emerald-800 text-white shadow-sm ring-1 ring-emerald-700'
-                    : 'text-zinc-700 hover:text-emerald-900 hover:bg-emerald-100/70 border border-transparent hover:border-emerald-200'
-                }`}
-              >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-emerald-700'}`} />
-                <span>{item.label}</span>
-                {item.badge && (
-                  <span className={`text-[9px] px-1.5 py-0.2 rounded-md font-black uppercase ${
+      {/* 3. BARRA DE MÓDULOS EN 2 FILAS COMPACTAS (TODO 100% VISIBLE Y SIN DESBORDES) */}
+      <div className="bg-gradient-to-b from-white to-emerald-50/40 border-b border-emerald-200/80 py-1.5 px-4 sm:px-6">
+        <div className="container mx-auto space-y-1.5">
+          
+          {/* FILA 1: Mercado & Cosechas */}
+          <div className="flex items-center justify-between sm:justify-start gap-1 sm:gap-2 overflow-x-auto pb-0.5 scrollbar-none">
+            <span className="text-[10px] font-black uppercase text-emerald-950 bg-emerald-100/90 px-2 py-0.5 rounded-md shrink-0 hidden lg:inline">
+              🌾 Mercado:
+            </span>
+            {fila1Modulos.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all shrink-0 ${
                     isActive
-                      ? 'bg-emerald-600 text-white'
-                      : item.badge.includes('Ofertas')
-                      ? 'bg-amber-100 text-amber-900'
-                      : 'bg-emerald-200 text-emerald-950'
-                  }`}>
-                    {item.badge}
-                  </span>
-                )}
-              </Link>
-            );
-          })}
+                      ? 'bg-emerald-800 text-white shadow-xs'
+                      : 'text-zinc-700 hover:text-emerald-950 hover:bg-emerald-100/60 bg-white/80 border border-zinc-200/70'
+                  }`}
+                >
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-emerald-600'}`} />
+                  <span>{item.label}</span>
+                  {item.badge && (
+                    <span className={`text-[8px] px-1.5 py-0.2 rounded font-black uppercase ${
+                      isActive
+                        ? 'bg-emerald-600 text-white'
+                        : item.badge.includes('Ofertas')
+                        ? 'bg-amber-100 text-amber-900'
+                        : 'bg-emerald-100 text-emerald-800'
+                    }`}>
+                      {item.badge}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+
+          {/* FILA 2: B2B, Logística & Comunidad */}
+          <div className="flex items-center justify-between sm:justify-start gap-1 sm:gap-2 overflow-x-auto pt-0.5 scrollbar-none">
+            <span className="text-[10px] font-black uppercase text-emerald-950 bg-emerald-100/90 px-2 py-0.5 rounded-md shrink-0 hidden lg:inline">
+              🏢 Servicios:
+            </span>
+            {fila2Modulos.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all shrink-0 ${
+                    isActive
+                      ? 'bg-emerald-800 text-white shadow-xs'
+                      : 'text-zinc-700 hover:text-emerald-950 hover:bg-emerald-100/60 bg-white/80 border border-zinc-200/70'
+                  }`}
+                >
+                  <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-emerald-600'}`} />
+                  <span>{item.label}</span>
+                  {item.badge && (
+                    <span className={`text-[8px] px-1.5 py-0.2 rounded font-black uppercase ${
+                      isActive ? 'bg-emerald-600 text-white' : 'bg-emerald-100 text-emerald-800'
+                    }`}>
+                      {item.badge}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+
         </div>
       </div>
 
@@ -211,7 +261,7 @@ export default function Navbar() {
             Módulos del Sistema:
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
-            {visibleModules.map((item) => {
+            {todosModulos.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
               return (
