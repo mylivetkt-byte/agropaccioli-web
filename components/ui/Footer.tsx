@@ -47,6 +47,26 @@ export default function Footer() {
           </p>
         </div>
 
+        <div className="flex flex-wrap items-center justify-center gap-4 text-xs font-semibold text-emerald-800 mb-6">
+          <Link href="/" className="hover:underline">Inicio</Link>
+          <span>•</span>
+          <Link href="/mapa-cosechas" className="hover:underline">Mapa de Cosechas</Link>
+          <span>•</span>
+          <Link href="/empleos" className="hover:underline text-emerald-900 font-bold">Bolsa de Empleo Rural</Link>
+          <span>•</span>
+          <Link href="/precios-mercado" className="hover:underline">Precios DANE/SIPSA</Link>
+          <span>•</span>
+          <Link href="/almacenes-b2b" className="hover:underline">Almacenes B2B</Link>
+          <span>•</span>
+          <Link href="/academia-ia" className="hover:underline">Academia IA</Link>
+          <span>•</span>
+          <Link href="/transportistas" className="hover:underline">Transportistas</Link>
+          <span>•</span>
+          <Link href="/agremiaciones" className="hover:underline">Gremios & ONGs</Link>
+          <span>•</span>
+          <Link href="/admin" className="hover:underline">Admin</Link>
+        </div>
+
         <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-emerald-900 border-t border-emerald-200/60 pt-6">
           <p>© 2026 AGROPACCIOLI S.A.S. - Colombia. Todos los derechos reservados.</p>
           <span className="text-emerald-700 font-semibold">Hecho con ❤️ para el Campo Colombiano</span>

@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sprout, MapPin, TrendingUp, Store, Bot, Truck, Users2, ShieldCheck, PlusCircle, Menu, X, DollarSign } from 'lucide-react';
+import { Sprout, MapPin, TrendingUp, Store, Bot, Truck, Users2, ShieldCheck, PlusCircle, Menu, X, DollarSign, Briefcase } from 'lucide-react';
 import { TRM_DATA } from '@/lib/agro-data';
 
 export default function Navbar() {
@@ -13,6 +13,7 @@ export default function Navbar() {
   const links = [
     { href: '/', label: 'Inicio', icon: Sprout },
     { href: '/mapa-cosechas', label: 'Mapa Nacional', icon: MapPin, badge: 'En Vivo' },
+    { href: '/empleos', label: 'Bolsa de Empleo', icon: Briefcase, badge: 'Nuevo' },
     { href: '/precios-mercado', label: 'Precios DANE/SIPSA', icon: TrendingUp },
     { href: '/almacenes-b2b', label: 'Almacenes & Insumos', icon: Store, badge: 'B2B' },
     { href: '/academia-ia', label: 'Academia IA', icon: Bot, badge: 'Gratis' },
@@ -20,6 +21,7 @@ export default function Navbar() {
     { href: '/agremiaciones', label: 'Gremios & ONGs', icon: Users2 },
     { href: '/admin', label: 'Admin', icon: ShieldCheck }
   ];
+
 
   return (
     <header className="sticky top-0 z-50 w-full">
@@ -82,11 +84,19 @@ export default function Navbar() {
 
           <div className="hidden sm:flex items-center gap-2">
             <Link
+              href="/empleos"
+              className="inline-flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-2.5 rounded-xl border border-emerald-200 transition-colors"
+            >
+              <Briefcase className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Publicar Empleo</span>
+            </Link>
+
+            <Link
               href="/mapa-cosechas?publicar=true"
-              className="inline-flex items-center gap-2 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-lg shadow-emerald-600/25"
+              className="inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 text-white text-xs font-bold px-3.5 py-2.5 rounded-xl shadow-lg shadow-emerald-600/25 transition-all"
             >
               <PlusCircle className="w-4 h-4" />
-              <span>Publica Tu Cosecha</span>
+              <span>Publica Cosecha</span>
             </Link>
           </div>
 

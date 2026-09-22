@@ -118,3 +118,33 @@ export interface NoticiaAgraria {
   destacada: boolean;
   fuenteOficial: string;
 }
+
+export type TipoContrato = 'jornal' | 'mensual' | 'temporada' | 'prestacion_servicios';
+
+export interface EmpleoItem {
+  id: string;
+  titulo: string;
+  empresaOFinca: string;
+  sector: SectorType | 'profesional';
+  cargo: string;
+  tipoContrato: TipoContrato;
+  departamento: string;
+  municipio: string;
+  vereda?: string;
+  salarioTexto: string;
+  salarioNumerico?: number;
+  incluyeVivienda: boolean;
+  incluyeAlimentacion: boolean;
+  vacantesDisponibles: number;
+  experienciaRequerida: string;
+  descripcion: string;
+  requisitos: string[];
+  beneficios: string[];
+  contactoNombre: string;
+  contactoTelefono: string;
+  contactoWhatsapp: string;
+  fechaPublicacion: string;
+  verificadoKYC: boolean;
+  urgente?: boolean;
+}
+

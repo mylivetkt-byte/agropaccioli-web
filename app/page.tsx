@@ -4,6 +4,7 @@ import Footer from '@/components/ui/Footer';
 import ClimaWidget from '@/components/home/ClimaWidget';
 import HeroSection from '@/components/home/HeroSection';
 import BuscadorCosechas from '@/components/home/BuscadorCosechas';
+import BolsaEmpleosPreview from '@/components/home/BolsaEmpleosPreview';
 import PortalAlmacenesB2B from '@/components/home/PortalAlmacenesB2B';
 import BuscadorPreciosNacional from '@/components/home/BuscadorPreciosNacional';
 import AcademiaAgroIA from '@/components/home/AcademiaAgroIA';
@@ -19,6 +20,7 @@ export default function HomePage() {
         </div>
         <HeroSection />
         <BuscadorCosechas />
+        <BolsaEmpleosPreview />
         <BuscadorPreciosNacional />
         <PortalAlmacenesB2B />
         <AcademiaAgroIA />
@@ -28,3 +30,4 @@ export default function HomePage() {
     </div>
   );
 }
+

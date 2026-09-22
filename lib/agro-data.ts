@@ -1,4 +1,4 @@
-import { CosechaItem, PrecioMercado, AlmacenInsumos, Transportista, Agremiacion, NoticiaAgraria } from '@/types/agro';
+import { CosechaItem, PrecioMercado, AlmacenInsumos, Transportista, Agremiacion, NoticiaAgraria, EmpleoItem } from '@/types/agro';
 
 export const COSECHAS_DATA: CosechaItem[] = [
   // ==================== SECTOR AGRÍCOLA ====================
@@ -1392,3 +1392,280 @@ export const TRM_DATA = {
   variacionDolar: -12.30,
   fecha: '10 de Septiembre, 2026'
 };
+
+// ==================== BOLSA DE EMPLEO RURAL & AGROPECUARIO ====================
+export const EMPLEOS_DATA: EmpleoItem[] = [
+  {
+    id: 'emp-001',
+    titulo: 'Administrador de Finca Cafetera Especial',
+    empresaOFinca: 'Hacienda El Cafetal & Café Los Andes',
+    sector: 'agricola',
+    cargo: 'Administrador General de Predio',
+    tipoContrato: 'mensual',
+    departamento: 'Huila',
+    municipio: 'Pitalito',
+    vereda: 'Criollo',
+    salarioTexto: '$2.800.000 COP / mes + Bonos de Cosecha',
+    salarioNumerico: 2800000,
+    incluyeVivienda: true,
+    incluyeAlimentacion: true,
+    vacantesDisponibles: 1,
+    experienciaRequerida: 'Mínimo 3 años administrando fincas cafeteras tecnificadas.',
+    descripcion: 'Buscamos persona o pareja con experiencia comprobada en manejo de personal de recolección, beneficio ecológico por vía húmeda, curvas de secado solar y control de inventarios de fertilizantes.',
+    requisitos: [
+      'Conocimiento en procesos de beneficio y tostión de cafés especiales',
+      'Manejo de nómina de recolectores (hasta 40 personas en cosecha)',
+      'Buenas Prácticas Agrícolas (BPA ICA)',
+      'Referencias laborales verificables'
+    ],
+    beneficios: [
+      'Casa independiente amoblada con servicios incluidos',
+      'Alimentación en la finca',
+      'Seguridad social integral (Salud, Pensión, ARL Riesgo IV)',
+      'Bonificación trimestral por rendimiento en tasa limpia'
+    ],
+    contactoNombre: 'Don Carlos Eduardo Ramírez (Propietario)',
+    contactoTelefono: '+573138901234',
+    contactoWhatsapp: '573138901234',
+    fechaPublicacion: '18 de Septiembre, 2026',
+    verificadoKYC: true,
+    urgente: true
+  },
+  {
+    id: 'emp-002',
+    titulo: 'Mayordomo Ganadero y Encargado de Lotes de Ceba',
+    empresaOFinca: 'Ganadería La Pradera S.A.S.',
+    sector: 'ganadero',
+    cargo: 'Mayordomo Ganadero Residente',
+    tipoContrato: 'mensual',
+    departamento: 'Córdoba',
+    municipio: 'Montería',
+    vereda: 'El Sabanal',
+    salarioTexto: '$2.200.000 COP / mes + Prestaciones',
+    salarioNumerico: 2200000,
+    incluyeVivienda: true,
+    incluyeAlimentacion: false,
+    vacantesDisponibles: 1,
+    experienciaRequerida: '2 años en manejo de ganado Brahman y pastoreo rotacional Voisin.',
+    descripcion: 'Se requiere mayordomo de confianza para coordinar el manejo de 250 cabezas de ganado de ceba y cría, pesaje mensual, planes de vacunación oficial ICA y mantenimiento de cercas eléctricas.',
+    requisitos: [
+      'Experiencia en inseminación artificial o monta controlada',
+      'Manejo de registros de ganancia de peso diaria',
+      'Mantenimiento básico de guadaña y motobomba'
+    ],
+    beneficios: [
+      'Vivienda familiar en material con energía solar y agua potable',
+      'Espacio para huerta casera y animales menores',
+      'Contrato a término indefinido con todas las prestaciones'
+    ],
+    contactoNombre: 'Dr. Álvaro Restrepo (Administración)',
+    contactoTelefono: '+573105556677',
+    contactoWhatsapp: '573105556677',
+    fechaPublicacion: '19 de Septiembre, 2026',
+    verificadoKYC: true,
+    urgente: false
+  },
+  {
+    id: 'emp-003',
+    titulo: 'Operario Tractorista y Maquinaria Agrícola',
+    empresaOFinca: 'Agroinsumos & Siembras del Llano',
+    sector: 'agricola',
+    cargo: 'Operario de Tractor y Cosechadora',
+    tipoContrato: 'mensual',
+    departamento: 'Meta',
+    municipio: 'Villavicencio',
+    vereda: 'Apiay',
+    salarioTexto: '$2.400.000 COP / mes + Horas Extras',
+    salarioNumerico: 2400000,
+    incluyeVivienda: true,
+    incluyeAlimentacion: true,
+    vacantesDisponibles: 2,
+    experienciaRequerida: 'Mínimo 2 años operando tractores agrícolas New Holland / John Deere.',
+    descripcion: 'Operación de maquinaria pesada para preparación de tierras de arroz y maíz, arado, rastrillada, siembra mecanizada y fumigación con aguilón.',
+    requisitos: [
+      'Licencia de conducción C2 vigente',
+      'Conocimientos en mecánica diésel preventiva y cambio de implementos',
+      'Disponibilidad para turnos en temporada de preparación'
+    ],
+    beneficios: [
+      'Campamento con aire acondicionado y alimentación completa',
+      'Pago oportuno quincenal con recargos',
+      'Capacitación en agricultura de precisión con GPS'
+    ],
+    contactoNombre: 'Ing. Sandra Milena Torres',
+    contactoTelefono: '+573142223344',
+    contactoWhatsapp: '573142223344',
+    fechaPublicacion: '20 de Septiembre, 2026',
+    verificadoKYC: true,
+    urgente: true
+  },
+  {
+    id: 'emp-004',
+    titulo: 'Técnico Piscícola en Cultivo de Tilapia Roja y Trucha',
+    empresaOFinca: 'Piscícola San Jerónimo & AcuaBetania',
+    sector: 'acuicola',
+    cargo: 'Técnico de Producción Acuícola',
+    tipoContrato: 'mensual',
+    departamento: 'Huila',
+    municipio: 'Yaguará',
+    vereda: 'Embalse de Betania',
+    salarioTexto: '$2.300.000 COP / mes + Bonos de Crecimiento',
+    salarioNumerico: 2300000,
+    incluyeVivienda: true,
+    incluyeAlimentacion: false,
+    vacantesDisponibles: 2,
+    experienciaRequerida: 'Técnico o tecnólogo SENA en Acuicultura o 3 años de experiencia en jaulas flotantes.',
+    descripcion: 'Monitoreo de parámetros físico-químicos del agua (oxígeno disuelto, pH, amonio, temperatura), tablas de alimentación por biomasa, biometrías semanales y despachos a plantas de eviscerado.',
+    requisitos: [
+      'Saber nadar y manejo básico de embarcación con motor fuera de borda',
+      'Manejo de oxímetros digitales y sondas multiparamétricas',
+      'Conocimiento en normas de inocuidad piscícola INVIMA'
+    ],
+    beneficios: [
+      'Habitación privada en campamento flotante / base terrestre',
+      'Dotación completa y elementos de protección náutica',
+      'Plan de bonos por factor de conversión alimenticia (FCA)'
+    ],
+    contactoNombre: 'Biol. Javier Ocampo',
+    contactoTelefono: '+573129998877',
+    contactoWhatsapp: '573129998877',
+    fechaPublicacion: '17 de Septiembre, 2026',
+    verificadoKYC: true,
+    urgente: false
+  },
+  {
+    id: 'emp-005',
+    titulo: 'Cuadrilla de Recolectores de Aguacate Hass de Exportación',
+    empresaOFinca: 'Finca La Esmeralda GlobalGAP',
+    sector: 'agricola',
+    cargo: 'Recolectores Especializados de Fruta',
+    tipoContrato: 'jornal',
+    departamento: 'Antioquia',
+    municipio: 'Sonsón',
+    vereda: 'La Soledad',
+    salarioTexto: '$75.000 COP / Jornal Diario + Incentivos',
+    salarioNumerico: 75000,
+    incluyeVivienda: false,
+    incluyeAlimentacion: true,
+    vacantesDisponibles: 15,
+    experienciaRequerida: 'Cosecha con tijera podadora y canastillas sin golpear el fruto.',
+    descripcion: 'Temporada de cosecha principal de aguacate Hass. Corte con pedúnculo adecuado, selección por calibre y cargue ordenado a camiones refrigerados.',
+    requisitos: [
+      'Manejo cuidadoso de la fruta de exportación',
+      'Disponibilidad para iniciar labores a las 6:00 AM',
+      'Documento de identidad al día'
+    ],
+    beneficios: [
+      'Pago semanal todos los sábados',
+      'Refrigerio matutino y almuerzo en campo incluido',
+      'Ruta de transporte desde el parque principal de Sonsón'
+    ],
+    contactoNombre: 'Don Hernando Gómez',
+    contactoTelefono: '+573114567890',
+    contactoWhatsapp: '573114567890',
+    fechaPublicacion: '21 de Septiembre, 2026',
+    verificadoKYC: true,
+    urgente: true
+  },
+  {
+    id: 'emp-006',
+    titulo: 'Ingeniero Agrónomo - Asistente Técnico en Cítricos y Aguacate',
+    empresaOFinca: 'Consorcio Frutícola del Valle',
+    sector: 'profesional',
+    cargo: 'Agrónomo de Campo / Fitosanitarista',
+    tipoContrato: 'prestacion_servicios',
+    departamento: 'Valle del Cauca',
+    municipio: 'Roldanillo',
+    vereda: 'La Tulia',
+    salarioTexto: '$3.800.000 COP / mes + Rodamiento',
+    salarioNumerico: 3800000,
+    incluyeVivienda: false,
+    incluyeAlimentacion: false,
+    vacantesDisponibles: 1,
+    experienciaRequerida: 'Profesional en Agronomía con tarjeta profesional y 2 años de experiencia.',
+    descripcion: 'Diseño y supervisión de planes de fertilización edáfica y foliar, monitoreo de HLB en cítricos y trips en aguacate, formulación de bioinsumos y auditoría para recertificación Rainforest Alliance.',
+    requisitos: [
+      'Tarjeta profesional vigente',
+      'Vehículo o motocicleta propia (se cubre auxilio de rodamiento)',
+      'Manejo de software GIS o levantamientos satelitales'
+    ],
+    beneficios: [
+      'Horarios flexibles con visitas programadas',
+      'Auxilio de transporte y combustible ($600.000 COP adicionales)',
+      'Excelente ambiente en empresa de exportación'
+    ],
+    contactoNombre: 'Dra. Marcela Cardona',
+    contactoTelefono: '+573157778899',
+    contactoWhatsapp: '573157778899',
+    fechaPublicacion: '16 de Septiembre, 2026',
+    verificadoKYC: true,
+    urgente: false
+  },
+  {
+    id: 'emp-007',
+    titulo: 'Encargado de Invernadero Hidropónico (Tomate & Pimentón)',
+    empresaOFinca: 'AgroEco Boyacá Cultivos Protegidos',
+    sector: 'agricola',
+    cargo: 'Operario Encargado de Invernadero',
+    tipoContrato: 'mensual',
+    departamento: 'Boyacá',
+    municipio: 'Villa de Leyva',
+    vereda: 'Roba',
+    salarioTexto: '$2.000.000 COP / mes + Vivienda',
+    salarioNumerico: 2000000,
+    incluyeVivienda: true,
+    incluyeAlimentacion: false,
+    vacantesDisponibles: 1,
+    experienciaRequerida: '1 año en labores de tutorado, poda, deschuponado y cosecha en invernaderos.',
+    descripcion: 'Manejo diario de invernadero de 5.000 m2 con fertirriego computarizado. Limpieza, control biológico de plagas con extractos botánicos y empaque de tomate chonto gourmet.',
+    requisitos: [
+      'Puntualidad y atención al detalle',
+      'Conocimiento en lectura de conductividad eléctrica y pH en sustrato de cascarilla'
+    ],
+    beneficios: [
+      'Alojamiento campestre en la finca con todos los servicios',
+      'Contrato laboral directo con prestaciones de ley',
+      'Bonificación por porcentaje de fruta tipo primera'
+    ],
+    contactoNombre: 'Ing. Pedro Pablo Cárdenas',
+    contactoTelefono: '+573164445566',
+    contactoWhatsapp: '573164445566',
+    fechaPublicacion: '19 de Septiembre, 2026',
+    verificadoKYC: true,
+    urgente: false
+  },
+  {
+    id: 'emp-008',
+    titulo: 'Médico Veterinario Zootecnista para Hato Lechero Especializado',
+    empresaOFinca: 'Hacienda La Alquería del Norte',
+    sector: 'profesional',
+    cargo: 'Veterinario Residente de Hato',
+    tipoContrato: 'mensual',
+    departamento: 'Antioquia',
+    municipio: 'Santa Rosa de Osos',
+    vereda: 'Llanos de Cuivá',
+    salarioTexto: '$4.200.000 COP / mes + Habitación Suite',
+    salarioNumerico: 4200000,
+    incluyeVivienda: true,
+    incluyeAlimentacion: true,
+    vacantesDisponibles: 1,
+    experienciaRequerida: 'Mínimo 3 años en reproducción bovina, ecografía y sanidad en vacas Holstein.',
+    descripcion: 'Dirección médica y reproductiva de lechería de 180 vacas en ordeño mecánico con tanque frío. Transferencia de embriones, control de mastitis, balanceo de raciones TMR y salud de terneraje.',
+    requisitos: [
+      'Título profesional y matrícula profesional COMVEZCOL',
+      'Experiencia demostrable en ecografía reproductiva',
+      'Manejo de software ganadero (ej. TaurusWeb o Ganadero SG)'
+    ],
+    beneficios: [
+      'Habitación privada amoblada en la casona principal con alimentación',
+      'Contrato a término indefinido con prima extralegal anual',
+      'Laboratorio clínico veterinario equipado en la finca'
+    ],
+    contactoNombre: 'Sr. Jorge Mario Montoya',
+    contactoTelefono: '+573181112233',
+    contactoWhatsapp: '573181112233',
+    fechaPublicacion: '15 de Septiembre, 2026',
+    verificadoKYC: true,
+    urgente: true
+  }
+];
