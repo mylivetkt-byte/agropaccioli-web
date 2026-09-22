@@ -1,4 +1,4 @@
-import { CosechaItem, PrecioMercado, AlmacenInsumos, Transportista, Agremiacion, NoticiaAgraria, EmpleoItem, Conversacion, PropuestaFormal, ChatMessage, EstadoLote } from '@/types/agro';
+import { CosechaItem, PrecioMercado, AlmacenInsumos, Transportista, Agremiacion, NoticiaAgraria, EmpleoItem, Conversacion, PropuestaFormal, ChatMessage, EstadoLote, TemporadaCosecha, PostulacionItem, EstadoOfertaEmpleo } from '@/types/agro';
 
 export const COSECHAS_DATA: CosechaItem[] = [
   // ==================== SECTOR AGRÍCOLA ====================
@@ -1918,5 +1918,106 @@ export const CONVERSACIONES_MOCK_DATA: Conversacion[] = [
         propuestaId: 'AGP-PROP-2026-0512'
       }
     ]
+  }
+];
+
+// ==================== FASE 3: TEMPORADAS DE COSECHA ====================
+export const TEMPORADAS_COSECHA_DATA: TemporadaCosecha[] = [
+  {
+    id: 'temp-001',
+    nombre: 'Recolección de Café Especial',
+    cultivo: 'Café (Castillo, Caturra, Borbón)',
+    region: 'Eje Cafetero, Huila & Tolima',
+    meses: 'Septiembre – Diciembre 2026',
+    ofertasActivas: 42,
+    vacantesTotales: 310,
+    imagen: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=800&q=80',
+    cosechaSlug: 'cafe'
+  },
+  {
+    id: 'temp-002',
+    nombre: 'Cosecha Principal Aguacate Hass',
+    cultivo: 'Aguacate Hass de Exportación',
+    region: 'Antioquia, Caldas & Tolima',
+    meses: 'Septiembre – Noviembre 2026',
+    ofertasActivas: 18,
+    vacantesTotales: 95,
+    imagen: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=800&q=80',
+    cosechaSlug: 'aguacate'
+  },
+  {
+    id: 'temp-003',
+    nombre: 'Zafra de Cacao Fino de Aroma',
+    cultivo: 'Cacao Criollo e Híbridos',
+    region: 'Santander, Huila & Nariño',
+    meses: 'Octubre – Enero 2027',
+    ofertasActivas: 7,
+    vacantesTotales: 40,
+    imagen: 'https://images.unsplash.com/photo-1541832676-9b763b0239ab?auto=format&fit=crop&w=800&q=80',
+    cosechaSlug: 'cacao'
+  },
+  {
+    id: 'temp-004',
+    nombre: 'Corte y Empaque de Plátano & Frutales',
+    cultivo: 'Plátano Dominico, Banano & Cítricos',
+    region: 'Valle del Cauca, Córdoba & Urabá',
+    meses: 'Todo el año / Pico Octubre',
+    ofertasActivas: 12,
+    vacantesTotales: 70,
+    imagen: 'https://images.unsplash.com/photo-1571771894821-ce9b6c11b08e?auto=format&fit=crop&w=800&q=80',
+    cosechaSlug: 'platano_frutas'
+  }
+];
+
+// ==================== FASE 3: POSTULACIONES DE TRABAJADORES ====================
+export const POSTULACIONES_MOCK_DATA: PostulacionItem[] = [
+  {
+    id: 'post-001',
+    ofertaId: 'emp-001',
+    ofertaTitulo: 'Administrador de Finca Cafetera Especial',
+    postulante: {
+      nombre: 'José Pérez Morales',
+      telefono: '+573124567890',
+      whatsapp: '573124567890',
+      departamento: 'Quindío',
+      municipio: 'Armenia',
+      calificacion: 4.8,
+      trabajosCompletados: 12,
+      experienciaResumen: [
+        'Recolección y beneficio café — 6 temporadas',
+        'Manejo de curvas de secado solar y humedad',
+        'Manejo de personal de recolección (hasta 30 personas)',
+        'Disponibilidad inmediata y referencias al día'
+      ],
+      calendarioDisponible: 'Septiembre – Diciembre 2026',
+      requiereAlojamiento: true
+    },
+    mensaje: 'Hola Don Carlos, me interesa la vacante de Administrador. Cuento con 6 años de experiencia en fincas de café especial del Eje Cafetero y Huila, referencias verificables de comités cafeteros y disponibilidad inmediata con alojamiento.',
+    fechaPostulacion: 'Hoy 8:30 AM',
+    estado: 'en_revision'
+  },
+  {
+    id: 'post-002',
+    ofertaId: 'emp-005',
+    ofertaTitulo: 'Cuadrilla de Recolectores de Aguacate Hass de Exportación',
+    postulante: {
+      nombre: 'Cuadrilla Los Arrieros (Rep. Carlos Mario Henao)',
+      telefono: '+573145678901',
+      whatsapp: '573145678901',
+      departamento: 'Antioquia',
+      municipio: 'Abejorral',
+      calificacion: 5.0,
+      trabajosCompletados: 18,
+      experienciaResumen: [
+        'Corte de aguacate Hass con tijera neumática y canastilla',
+        'Cuadrilla de 12 recolectores con experiencia GlobalGAP',
+        'Transporte propio veredal para desplazamientos'
+      ],
+      calendarioDisponible: 'Temporada actual completa',
+      requiereAlojamiento: false
+    },
+    mensaje: 'Buenas tardes. Somos una cuadrilla de 12 recolectores certificados en Buenas Prácticas Agrícolas con experiencia en Sonsón y Rionegro. Disponibles para inicio de labores de inmediato.',
+    fechaPostulacion: 'Ayer 2:15 PM',
+    estado: 'aceptada'
   }
 ];

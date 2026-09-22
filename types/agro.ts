@@ -38,7 +38,7 @@ export interface CosechaItem {
 export type EstadoPropuesta = 'pendiente' | 'contraofertada' | 'aceptada' | 'rechazada' | 'cerrada_vendida';
 
 export interface PropuestaFormal {
-  id: string; // ej: AGP-PROP-2026-0842
+  id: string;
   loteId: string;
   loteTitulo: string;
   compradorId: string;
@@ -64,7 +64,7 @@ export interface PropuestaFormal {
   };
   fechaCreacion: string;
   estampaTiempoIso: string;
-  hashIntegridadLegal: string; // Hash SHA-256 de validez Ley 527/1999
+  hashIntegridadLegal: string;
   calificacionComprador?: { estrellas: number; comentario: string };
   calificacionProductor?: { estrellas: number; comentario: string };
 }
@@ -201,6 +201,45 @@ export interface NoticiaAgraria {
   fuenteOficial: string;
 }
 
+// ==================== FASE 3: BOLSA DE TRABAJO AGROPECUARIA ====================
+
+export type EstadoOfertaEmpleo = 'activa' | 'cerrada' | 'en_proceso' | 'ocupada' | 'vencida';
+
+export type AreaTrabajo = 
+  | 'agricultura' 
+  | 'ganaderia' 
+  | 'acuicultura' 
+  | 'logistica' 
+  | 'tecnica_asistencia' 
+  | 'administracion';
+
+export type CargoAgro = 
+  | 'Jornalero' 
+  | 'Capataz' 
+  | 'Técnico Agrónomo' 
+  | 'Médico Veterinario' 
+  | 'Conductor' 
+  | 'Administrativo' 
+  | 'Operario' 
+  | 'Otro';
+
+export type ModalidadEmpleo = 
+  | 'Tiempo Completo' 
+  | 'Temporal / Por Temporada' 
+  | 'Jornal' 
+  | 'Medio Tiempo' 
+  | 'Por Obra';
+
+export type CosechaEspecifica = 
+  | 'cafe' 
+  | 'aguacate' 
+  | 'cacao' 
+  | 'cana' 
+  | 'platano_frutas' 
+  | 'cultivos_varios' 
+  | 'ganaderia' 
+  | 'acuicultura';
+
 export type TipoContrato = 'jornal' | 'mensual' | 'temporada' | 'prestacion_servicios';
 
 export interface EmpleoItem {
@@ -208,8 +247,12 @@ export interface EmpleoItem {
   titulo: string;
   empresaOFinca: string;
   sector: SectorType | 'profesional';
+  areaTrabajo?: AreaTrabajo;
   cargo: string;
+  cargoTipo?: CargoAgro;
   tipoContrato: TipoContrato;
+  modalidad?: ModalidadEmpleo;
+  cosechaEspecifica?: CosechaEspecifica;
   departamento: string;
   municipio: string;
   vereda?: string;
@@ -217,6 +260,7 @@ export interface EmpleoItem {
   salarioNumerico?: number;
   incluyeVivienda: boolean;
   incluyeAlimentacion: boolean;
+  incluyeTransporte?: boolean;
   vacantesDisponibles: number;
   experienciaRequerida: string;
   descripcion: string;
@@ -226,6 +270,46 @@ export interface EmpleoItem {
   contactoTelefono: string;
   contactoWhatsapp: string;
   fechaPublicacion: string;
+  fechaInicio?: string;
+  duracionEstimada?: string;
+  fechaLimite?: string;
   verificadoKYC: boolean;
+  estado?: EstadoOfertaEmpleo;
+  postulacionesRecibidas?: number;
+  calificacionEmpleador?: number;
   urgente?: boolean;
+  confidencial?: boolean;
+}
+
+export interface PostulacionItem {
+  id: string;
+  ofertaId: string;
+  ofertaTitulo: string;
+  postulante: {
+    nombre: string;
+    telefono: string;
+    whatsapp: string;
+    departamento: string;
+    municipio: string;
+    calificacion: number;
+    trabajosCompletados: number;
+    experienciaResumen: string[];
+    calendarioDisponible: string;
+    requiereAlojamiento: boolean;
+  };
+  mensaje: string;
+  fechaPostulacion: string;
+  estado: 'enviada' | 'en_revision' | 'aceptada' | 'favorito' | 'rechazada';
+}
+
+export interface TemporadaCosecha {
+  id: string;
+  nombre: string;
+  cultivo: string;
+  region: string;
+  meses: string;
+  ofertasActivas: number;
+  vacantesTotales: number;
+  imagen: string;
+  cosechaSlug: CosechaEspecifica;
 }
