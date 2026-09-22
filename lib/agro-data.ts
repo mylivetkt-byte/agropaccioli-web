@@ -1,9 +1,11 @@
-import { CosechaItem, PrecioMercado, AlmacenInsumos, Transportista, Agremiacion, NoticiaAgraria, EmpleoItem } from '@/types/agro';
+import { CosechaItem, PrecioMercado, AlmacenInsumos, Transportista, Agremiacion, NoticiaAgraria, EmpleoItem, Conversacion, PropuestaFormal, ChatMessage, EstadoLote } from '@/types/agro';
 
 export const COSECHAS_DATA: CosechaItem[] = [
   // ==================== SECTOR AGRÍCOLA ====================
   {
     id: 'cos-001',
+    estado: 'en_negociacion',
+    propuestasPendientes: 2,
     titulo: 'Aguacate Hass Calibre 14-22 de Exportación',
     sector: 'agricola',
     categoria: 'Frutas Frescas',
@@ -33,6 +35,8 @@ export const COSECHAS_DATA: CosechaItem[] = [
   },
   {
     id: 'cos-002',
+    estado: 'disponible',
+    propuestasPendientes: 0,
     titulo: 'Café Especial Castillo - Taza Limpia 86+',
     sector: 'agricola',
     categoria: 'Cafés Especiales',
@@ -354,6 +358,8 @@ export const COSECHAS_DATA: CosechaItem[] = [
   // ==================== SECTOR GANADERO ====================
   {
     id: 'cos-003',
+    estado: 'reservado',
+    propuestasPendientes: 1,
     titulo: 'Lote de Novillos de Ceba Brahman Blanco Comercial',
     sector: 'ganadero',
     categoria: 'Bovinos de Ceba',
@@ -1667,5 +1673,250 @@ export const EMPLEOS_DATA: EmpleoItem[] = [
     fechaPublicacion: '15 de Septiembre, 2026',
     verificadoKYC: true,
     urgente: true
+  }
+];
+
+// ==================== PROPUESTAS FORMALES (LEY 527/1999) ====================
+export const PROPUESTAS_MOCK_DATA: PropuestaFormal[] = [
+  {
+    id: 'AGP-PROP-2026-0452',
+    loteId: 'cos-001',
+    loteTitulo: 'Aguacate Hass Calibre 14-22 de Exportación',
+    compradorId: 'usr-buyer-88',
+    compradorNombre: 'Comercializadora AgroCaribe S.A.S. (Comprador #452)',
+    compradorKYC: true,
+    productorId: 'prod-001',
+    productorNombre: 'Don Hernando Gómez',
+    productorFinca: 'Finca La Esmeralda (Sonsón, Antioquia)',
+    cantidadDeseada: 15,
+    unidad: 'Toneladas',
+    precioOfrecidoUnitario: 4900,
+    precioTotalEstimado: 73500000,
+    fechaEntregaDeseada: '28 de Septiembre, 2026',
+    lugarEntrega: 'Transporte a cargo del comprador (Cargue en finca)',
+    comentarios: 'Requerimos calibre 16-20 homogéneo con certificación GlobalGAP para exportación vía Buenaventura.',
+    estado: 'contraofertada',
+    contraoferta: {
+      cantidad: 15,
+      precioUnitario: 5100,
+      fechaEntrega: '29 de Septiembre, 2026',
+      comentarios: 'Podemos despachar las 15 Ton con empaque en canastillas ventiladas. Precio base de $5.100/Kg.',
+      fechaContraoferta: '21 de Septiembre, 2026 - 10:30 AM'
+    },
+    fechaCreacion: '21 de Septiembre, 2026 - 09:15 AM',
+    estampaTiempoIso: '2026-09-21T14:15:00.000Z',
+    hashIntegridadLegal: '7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284addd200126d9069'
+  },
+  {
+    id: 'AGP-PROP-2026-0389',
+    loteId: 'cos-003',
+    loteTitulo: 'Lote de 45 Novillos Brahman Comercial de Ceba',
+    compradorId: 'usr-buyer-92',
+    compradorNombre: 'Frigoríficos del Sinú Ltda.',
+    compradorKYC: true,
+    productorId: 'prod-003',
+    productorNombre: 'Ganadería La Pradera',
+    productorFinca: 'Hacienda La Pradera (Montería, Córdoba)',
+    cantidadDeseada: 45,
+    unidad: 'Cabezas',
+    precioOfrecidoUnitario: 3850000,
+    precioTotalEstimado: 173250000,
+    fechaEntregaDeseada: '30 de Septiembre, 2026',
+    lugarEntrega: 'En báscula ganadera de la finca (Pesaje en ayuno)',
+    comentarios: 'Se realiza verificación de guía sanitaria ICA y pesaje conjunto el día del cargue.',
+    estado: 'aceptada',
+    fechaCreacion: '20 de Septiembre, 2026 - 15:40 PM',
+    estampaTiempoIso: '2026-09-20T20:40:00.000Z',
+    hashIntegridadLegal: '8c94a2876bf2ed64c83eb29259b2e76efd3e5c2fa4e788395beef311237e9180'
+  },
+  {
+    id: 'AGP-PROP-2026-0512',
+    loteId: 'cos-002',
+    loteTitulo: 'Café Especial Castillo - Taza Limpia 86+',
+    compradorId: 'usr-buyer-77',
+    compradorNombre: 'Cafés de Origen Andino Specialty',
+    compradorKYC: true,
+    productorId: 'prod-002',
+    productorNombre: 'Asociación Cafetera El Mirador',
+    productorFinca: 'Hacienda El Cafetal (Pitalito, Huila)',
+    cantidadDeseada: 20,
+    unidad: 'Cargas',
+    precioOfrecidoUnitario: 2400000,
+    precioTotalEstimado: 48000000,
+    fechaEntregaDeseada: '05 de Octubre, 2026',
+    lugarEntrega: 'En bodega del productor en Pitalito',
+    comentarios: 'Incluye catación previa de muestra de 500g antes del desembolso.',
+    estado: 'pendiente',
+    fechaCreacion: '21 de Septiembre, 2026 - 11:20 AM',
+    estampaTiempoIso: '2026-09-21T16:20:00.000Z',
+    hashIntegridadLegal: '9d05b3987cf3fe75d94fc30360c3f87fae4f6d3fb5f899406cfff422348f0291'
+  }
+];
+
+// ==================== CONVERSACIONES ACTIVAS DE CHAT ====================
+export const CONVERSACIONES_MOCK_DATA: Conversacion[] = [
+  {
+    id: 'conv-001',
+    loteId: 'cos-001',
+    loteTitulo: 'Aguacate Hass Calibre 14-22 — 28 Ton',
+    loteImagen: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=600&q=80',
+    loteEstado: 'en_negociacion',
+    comprador: {
+      id: 'usr-buyer-88',
+      nombre: 'Comercializadora AgroCaribe (Tú)',
+      verificadoKYC: true,
+      transaccionesPrevias: 14,
+      calificacion: 4.9
+    },
+    productor: {
+      id: 'prod-001',
+      nombre: 'Don Hernando Gómez',
+      finca: 'Finca La Esmeralda · Sonsón, Antioquia',
+      municipio: 'Sonsón',
+      departamento: 'Antioquia',
+      verificadoKYC: true,
+      calificacion: 4.9,
+      activoHoy: true
+    },
+    ultimoMensaje: 'Contraoferta enviada: $5.100/Kg por 15 Toneladas',
+    fechaUltimoMensaje: 'Hoy 10:30 AM',
+    mensajesNoLeidos: 1,
+    propuestaActivaId: 'AGP-PROP-2026-0452',
+    mensajes: [
+      {
+        id: 'msg-001',
+        conversacionId: 'conv-001',
+        remitente: 'comprador',
+        remitenteNombre: 'Tú',
+        texto: 'Hola Don Hernando, ¿el precio base publicado incluye flete o es puesto en finca?',
+        timestamp: 'Hoy 9:15 AM',
+        leido: true,
+        tipo: 'texto'
+      },
+      {
+        id: 'msg-002',
+        conversacionId: 'conv-001',
+        remitente: 'productor',
+        remitenteNombre: 'Don Hernando Gómez',
+        texto: 'Hola. El precio es en finca. El flete corre a cargo del comprador, pero tenemos vía pavimentada hasta el portón para camiones de 2 y 3 ejes.',
+        timestamp: 'Hoy 9:20 AM',
+        leido: true,
+        tipo: 'texto'
+      },
+      {
+        id: 'msg-003',
+        conversacionId: 'conv-001',
+        remitente: 'comprador',
+        remitenteNombre: 'Tú',
+        texto: 'Perfecto. Acabo de formalizar una Propuesta Formal de compra por 15 Toneladas a $4.900/Kg con fecha 28 de septiembre.',
+        timestamp: 'Hoy 9:25 AM',
+        leido: true,
+        tipo: 'propuesta',
+        propuestaId: 'AGP-PROP-2026-0452'
+      },
+      {
+        id: 'msg-004',
+        conversacionId: 'conv-001',
+        remitente: 'productor',
+        remitenteNombre: 'Don Hernando Gómez',
+        texto: 'He revisado tu propuesta. Como el aguacate está recién cosechado y con materia seca superior a 24%, te envié una contraoferta formal a $5.100/Kg para entrega el 29 de septiembre.',
+        timestamp: 'Hoy 10:30 AM',
+        leido: false,
+        tipo: 'contraoferta',
+        propuestaId: 'AGP-PROP-2026-0452'
+      }
+    ]
+  },
+  {
+    id: 'conv-002',
+    loteId: 'cos-003',
+    loteTitulo: 'Lote 45 Novillos Brahman — 480 Kg prom',
+    loteImagen: 'https://images.unsplash.com/photo-1546445317-29f4545e9d53?auto=format&fit=crop&w=600&q=80',
+    loteEstado: 'reservado',
+    comprador: {
+      id: 'usr-buyer-92',
+      nombre: 'Frigoríficos del Sinú Ltda.',
+      verificadoKYC: true,
+      transaccionesPrevias: 8,
+      calificacion: 5.0
+    },
+    productor: {
+      id: 'prod-003',
+      nombre: 'Ganadería La Pradera',
+      finca: 'Hacienda La Pradera · Montería, Córdoba',
+      municipio: 'Montería',
+      departamento: 'Córdoba',
+      verificadoKYC: true,
+      calificacion: 4.8,
+      activoHoy: false
+    },
+    ultimoMensaje: '✅ Propuesta Formal aceptada. Lote reservado para el 30 de Septiembre.',
+    fechaUltimoMensaje: 'Ayer 3:45 PM',
+    mensajesNoLeidos: 0,
+    propuestaActivaId: 'AGP-PROP-2026-0389',
+    mensajes: [
+      {
+        id: 'msg-101',
+        conversacionId: 'conv-002',
+        remitente: 'comprador',
+        remitenteNombre: 'Frigoríficos del Sinú',
+        texto: 'Buenas tardes. Confirmamos interés por el lote completo de 45 novillos con pesaje en báscula electrónica.',
+        timestamp: 'Ayer 3:10 PM',
+        leido: true,
+        tipo: 'texto'
+      },
+      {
+        id: 'msg-102',
+        conversacionId: 'conv-002',
+        remitente: 'productor',
+        remitenteNombre: 'Ganadería La Pradera',
+        texto: 'Buenas tardes. De acuerdo, aceptamos la propuesta formal #AGP-PROP-2026-0389. El lote queda en estado RESERVADO.',
+        timestamp: 'Ayer 3:45 PM',
+        leido: true,
+        tipo: 'aceptacion',
+        propuestaId: 'AGP-PROP-2026-0389'
+      }
+    ]
+  },
+  {
+    id: 'conv-003',
+    loteId: 'cos-002',
+    loteTitulo: 'Café Especial Castillo Taza 86+ — 65 Cargas',
+    loteImagen: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
+    loteEstado: 'disponible',
+    comprador: {
+      id: 'usr-buyer-77',
+      nombre: 'Cafés de Origen Andino Specialty',
+      verificadoKYC: true,
+      transaccionesPrevias: 22,
+      calificacion: 4.9
+    },
+    productor: {
+      id: 'prod-002',
+      nombre: 'Asociación Cafetera El Mirador',
+      finca: 'Hacienda El Cafetal · Pitalito, Huila',
+      municipio: 'Pitalito',
+      departamento: 'Huila',
+      verificadoKYC: true,
+      calificacion: 5.0,
+      activoHoy: true
+    },
+    ultimoMensaje: 'Propuesta formal #AGP-PROP-2026-0512 recibida (20 Cargas a $2.400.000)',
+    fechaUltimoMensaje: 'Hoy 11:20 AM',
+    mensajesNoLeidos: 1,
+    propuestaActivaId: 'AGP-PROP-2026-0512',
+    mensajes: [
+      {
+        id: 'msg-201',
+        conversacionId: 'conv-003',
+        remitente: 'comprador',
+        remitenteNombre: 'Tú',
+        texto: 'Hola Don Carlos, envié propuesta formal para adquirir 20 cargas de su lote con perfil panela y frutos rojos.',
+        timestamp: 'Hoy 11:20 AM',
+        leido: true,
+        tipo: 'propuesta',
+        propuestaId: 'AGP-PROP-2026-0512'
+      }
+    ]
   }
 ];

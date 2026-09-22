@@ -64,49 +64,90 @@ export default function BuscadorCosechas() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filtrados.map((item) => (
-            <div key={item.id} className="bg-white rounded-2xl border border-emerald-100 shadow-sm hover:shadow-xl transition-all flex flex-col overflow-hidden">
-              <div className="relative h-44 w-full bg-zinc-100">
-                <img src={item.imagenes[0]} alt={item.titulo} className="w-full h-full object-cover" />
-                <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm text-emerald-950 text-[10px] font-bold px-2 py-0.5 rounded-full">
-                  {item.sector === 'agricola' ? '🟢 Agrícola' : item.sector === 'ganadero' ? '🟠 Ganadero' : '🔵 Acuícola'}
-                </div>
-                <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] px-2 py-0.5 rounded">
-                  {item.departamento}, {item.municipio}
-                </div>
-              </div>
-              <div className="p-4 flex-1 flex flex-col justify-between">
-                <div>
-                  <h3 className="font-bold text-emerald-950 text-sm leading-snug line-clamp-2">{item.titulo}</h3>
-                  <div className="text-xs text-zinc-500 mt-1">{item.productor.finca} • {item.productor.nombre}</div>
-                  <div className="mt-3 p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-100">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-zinc-500">Disponible:</span>
-                      <span className="font-bold text-emerald-950">{item.cantidadDisponible} {item.unidad}</span>
+          {filtrados.map((item) => {
+            const estado = item.estado || 'disponible';
+            return (
+              <div key={item.id} className="bg-white rounded-2xl border border-emerald-100 shadow-sm hover:shadow-xl transition-all flex flex-col overflow-hidden group">
+                <div className="relative h-44 w-full bg-zinc-100">
+                  <img src={item.imagenes[0]} alt={item.titulo} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                  
+                  <div className="absolute top-3 left-3 flex flex-col gap-1 items-start">
+                    <div className="bg-white/95 backdrop-blur-sm text-emerald-950 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+                      {item.sector === 'agricola' ? '🟢 Agrícola' : item.sector === 'ganadero' ? '🟠 Ganadero' : '🔵 Acuícola'}
                     </div>
-                    <div className="flex justify-between text-xs mt-1 pt-1 border-t border-emerald-200/50">
-                      <span className="text-zinc-500">Precio base:</span>
-                      <span className="font-black text-emerald-700">${item.precioUnitario.toLocaleString('es-CO')}</span>
+                  </div>
+
+                  {/* Badge de Estado del Lote */}
+                  <div className="absolute top-3 right-3">
+                    {estado === 'disponible' && (
+                      <span className="bg-emerald-600/90 backdrop-blur-sm text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-sm">
+                        🟢 DISPONIBLE
+                      </span>
+                    )}
+                    {estado === 'en_negociacion' && (
+                      <span className="bg-amber-400/95 backdrop-blur-sm text-amber-950 text-[9px] font-black px-2 py-0.5 rounded-full shadow-sm animate-pulse">
+                        🟡 EN NEGOCIACIÓN
+                      </span>
+                    )}
+                    {estado === 'reservado' && (
+                      <span className="bg-orange-500/95 backdrop-blur-sm text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-sm">
+                        🟠 RESERVADO
+                      </span>
+                    )}
+                    {estado === 'vendido' && (
+                      <span className="bg-rose-600/95 backdrop-blur-sm text-white text-[9px] font-black px-2 py-0.5 rounded-full shadow-sm">
+                        🔴 VENDIDO
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-xs text-white text-[10px] px-2 py-0.5 rounded flex items-center gap-1">
+                    <MapPin className="w-3 h-3 text-emerald-400" />
+                    <span>{item.departamento}, {item.municipio}</span>
+                  </div>
+                </div>
+
+                <div className="p-4 flex-1 flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-bold text-emerald-950 text-sm leading-snug line-clamp-2">{item.titulo}</h3>
+                    
+                    <div className="flex items-center justify-between text-xs text-zinc-500 mt-1">
+                      <div className="flex items-center gap-1 truncate font-medium text-zinc-700">
+                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span className="truncate">{item.productor.nombre}</span>
+                      </div>
+                      <span className="text-[10px] text-emerald-700 font-bold shrink-0">🟢 Activo</span>
+                    </div>
+
+                    <div className="mt-3 p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-100">
+                      <div className="flex justify-between text-xs">
+                        <span className="text-zinc-500">Disponible:</span>
+                        <span className="font-bold text-emerald-950">{item.cantidadDisponible} {item.unidad}</span>
+                      </div>
+                      <div className="flex justify-between text-xs mt-1 pt-1 border-t border-emerald-200/50">
+                        <span className="text-zinc-500">Precio base:</span>
+                        <span className="font-black text-emerald-700">${item.precioUnitario.toLocaleString('es-CO')} /{item.unidad}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Botón de Chat Interno en Plataforma */}
+                  <div className="mt-4 pt-3 border-t border-zinc-100 flex flex-col gap-1.5">
+                    <Link
+                      href="/chat"
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black py-2.5 rounded-xl text-center flex items-center justify-center gap-2 shadow-md transition-all hover:shadow-emerald-600/30"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      <span>Chatear con el Productor</span>
+                    </Link>
+                    <div className="text-[10px] text-center text-zinc-400 font-medium">
+                      🔒 Acuerdo y Propuesta Legal en Plataforma
                     </div>
                   </div>
                 </div>
-                <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center gap-2">
-                  <a
-                    href={`https://wa.me/${item.productor.whatsapp}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold py-2 rounded-xl text-center flex items-center justify-center gap-1.5 shadow-sm"
-                  >
-                    <MessageCircle className="w-3.5 h-3.5" />
-                    <span>WhatsApp</span>
-                  </a>
-                  <a href={`tel:${item.productor.telefono}`} className="p-2 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-200">
-                    <Phone className="w-3.5 h-3.5" />
-                  </a>
-                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </section>

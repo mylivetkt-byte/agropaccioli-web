@@ -1,5 +1,7 @@
 export type SectorType = 'agricola' | 'ganadero' | 'acuicola';
 
+export type EstadoLote = 'disponible' | 'en_negociacion' | 'reservado' | 'vendido';
+
 export interface CosechaItem {
   id: string;
   titulo: string;
@@ -22,12 +24,92 @@ export interface CosechaItem {
     telefono: string;
     whatsapp: string;
     experienciaAnos: number;
+    enLinea?: boolean;
   };
   fechaCosechaEstimada: string;
   fechaPublicacion: string;
   imagenes: string[];
   descripcion: string;
   certificaciones?: string[];
+  estado?: EstadoLote;
+  propuestasPendientes?: number;
+}
+
+export type EstadoPropuesta = 'pendiente' | 'contraofertada' | 'aceptada' | 'rechazada' | 'cerrada_vendida';
+
+export interface PropuestaFormal {
+  id: string; // ej: AGP-PROP-2026-0842
+  loteId: string;
+  loteTitulo: string;
+  compradorId: string;
+  compradorNombre: string;
+  compradorKYC: boolean;
+  productorId: string;
+  productorNombre: string;
+  productorFinca: string;
+  cantidadDeseada: number;
+  unidad: 'Kg' | 'Toneladas' | 'Cabezas' | 'Bultos' | 'Cargas';
+  precioOfrecidoUnitario: number;
+  precioTotalEstimado: number;
+  fechaEntregaDeseada: string;
+  lugarEntrega: 'En finca del productor' | 'Transporte a cargo del comprador' | 'Centro de acopio / Bodega convenida' | string;
+  comentarios?: string;
+  estado: EstadoPropuesta;
+  contraoferta?: {
+    cantidad: number;
+    precioUnitario: number;
+    fechaEntrega: string;
+    comentarios?: string;
+    fechaContraoferta: string;
+  };
+  fechaCreacion: string;
+  estampaTiempoIso: string;
+  hashIntegridadLegal: string; // Hash SHA-256 de validez Ley 527/1999
+  calificacionComprador?: { estrellas: number; comentario: string };
+  calificacionProductor?: { estrellas: number; comentario: string };
+}
+
+export interface ChatMessage {
+  id: string;
+  conversacionId: string;
+  remitente: 'comprador' | 'productor' | 'sistema';
+  remitenteNombre: string;
+  texto: string;
+  timestamp: string;
+  leido: boolean;
+  tipo: 'texto' | 'propuesta' | 'contraoferta' | 'aceptacion' | 'rechazo' | 'sistema';
+  propuestaId?: string;
+  propuestaData?: Partial<PropuestaFormal>;
+}
+
+export interface Conversacion {
+  id: string;
+  loteId: string;
+  loteTitulo: string;
+  loteImagen: string;
+  loteEstado: EstadoLote;
+  comprador: {
+    id: string;
+    nombre: string;
+    verificadoKYC: boolean;
+    transaccionesPrevias: number;
+    calificacion: number;
+  };
+  productor: {
+    id: string;
+    nombre: string;
+    finca: string;
+    municipio: string;
+    departamento: string;
+    verificadoKYC: boolean;
+    calificacion: number;
+    activoHoy: boolean;
+  };
+  ultimoMensaje: string;
+  fechaUltimoMensaje: string;
+  mensajesNoLeidos: number;
+  propuestaActivaId?: string;
+  mensajes: ChatMessage[];
 }
 
 export interface PrecioMercado {
@@ -147,4 +229,3 @@ export interface EmpleoItem {
   verificadoKYC: boolean;
   urgente?: boolean;
 }
-

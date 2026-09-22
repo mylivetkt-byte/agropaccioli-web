@@ -313,16 +313,15 @@ export default function MapaCosechasViewer() {
 
           <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center gap-2">
             <a
-              href={`https://wa.me/${selected.productor.whatsapp}?text=Hola%20${encodeURIComponent(selected.productor.nombre)},%20te%20contacto%20desde%20el%20Mapa%20de%20AGROPACCIOLI%20por:%20${encodeURIComponent(selected.titulo)}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md transition-colors"
+              href="/chat"
+              className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-black py-2.5 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md transition-colors"
             >
               <MessageCircle className="w-4 h-4" />
-              <span>Contactar Productor</span>
+              <span>Chatear en Plataforma</span>
             </a>
             <a
               href={`tel:${selected.productor.telefono}`}
+              title="Llamada directa"
               className="p-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl border border-emerald-200"
             >
               <Phone className="w-4 h-4" />
