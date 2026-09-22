@@ -2021,3 +2021,352 @@ export const POSTULACIONES_MOCK_DATA: PostulacionItem[] = [
     estado: 'aceptada'
   }
 ];
+
+
+// ==================== FASE 4: INTELIGENCIA Y ALERTAS DATA ====================
+
+import {
+  PreferenciaAlertas,
+  AlertaNotificacionItem,
+  TendenciaMercadoItem,
+  HistoricoPrecioProducto,
+  FavoritoSeguimientoItem,
+  SelloVerificacionInfo
+} from '@/types/agro';
+
+export const PREFERENCIAS_ALERTAS_DEFAULT: PreferenciaAlertas = {
+  id: 'pref-user-001',
+  usuarioId: 'usr-demo-01',
+  rolPrincipal: 'comprador',
+  canales: {
+    inApp: true,
+    email: true,
+    whatsapp: true,
+    telefonoWhatsapp: '+57 312 456 7890',
+    emailDestino: 'comprador.mayorista@colombiaagro.com'
+  },
+  compradorFiltros: {
+    aguacateHass: true,
+    cafeEspecial: true,
+    papaParamo: false,
+    cacaoFino: true,
+    tilapia: true,
+    trmVariacion2Porciento: true,
+    regionesInteres: ['Antioquia', 'Huila', 'Caldas', 'Tolima', 'Santander', 'Meta']
+  },
+  productorFiltros: {
+    cafeVariacion3Porciento: true,
+    precioDaneSipsaCambie: true,
+    notificarCompradoresBuscandoMiCosecha: true,
+    nuevaOfertaTransporteEnRegion: true,
+    alertaClimaFinca: true
+  },
+  empleoFiltros: {
+    recoleccionValle: true,
+    aguacateCaldas: true,
+    conAlojamiento: true,
+    departamentosInteres: ['Antioquia', 'Caldas', 'Quindío', 'Valle del Cauca']
+  },
+  frecuenciaResumenEmail: 'diario'
+};
+
+export const ALERTAS_NOTIFICACIONES_DATA: AlertaNotificacionItem[] = [
+  {
+    id: 'alt-001',
+    tipo: 'lote_nuevo',
+    titulo: '🥑 Nuevo Lote Disponible: Aguacate Hass Extra',
+    descripcion: 'Finca La Esmeralda en Sonsón, Antioquia acaba de publicar 28 Toneladas a $5.200/Kg (Calibre 14-22).',
+    cultivoOCategoria: 'Aguacate Hass',
+    region: 'Sonsón, Antioquia',
+    precioRef: '$5.200 / Kg',
+    enlace: '/mapa-cosechas?lote=cos-001',
+    enlaceTexto: 'Ver Lote y Negociar',
+    timestamp: 'Hace 15 min',
+    leido: false,
+    prioridad: 'alta',
+    tiempoLimiteHoras: 72
+  },
+  {
+    id: 'alt-002',
+    tipo: 'cambio_precio',
+    titulo: '📈 Alza de Precio Café Especial (+3.8%)',
+    descripcion: 'El precio de referencia FNC subió a $2.380.000 / carga en Eje Cafetero y Huila.',
+    cultivoOCategoria: 'Café Especial',
+    region: 'Huila / Caldas',
+    precioRef: '$2.380.000 / Carga',
+    enlace: '/precios-mercado',
+    enlaceTexto: 'Ver Gráfico y Tendencia',
+    timestamp: 'Hoy 08:30 AM',
+    leido: false,
+    prioridad: 'media'
+  },
+  {
+    id: 'alt-003',
+    tipo: 'clima_alerta',
+    titulo: '🌦️ Alerta Climática: Lluvias Fuertes en Huila y Tolima',
+    descripcion: 'IDEAM proyecta precipitaciones del 85% durante los próximos 4 días. Recomendación: ajustar recolección y rutas de secado.',
+    region: 'Pitalito & Algeciras, Huila',
+    enlace: '/academia-ia',
+    enlaceTexto: 'Consultar Asistente Agronómico',
+    timestamp: 'Hoy 06:15 AM',
+    leido: true,
+    prioridad: 'media'
+  },
+  {
+    id: 'alt-004',
+    tipo: 'propuesta_recibida',
+    titulo: '📜 Propuesta Formal de Compra Recibida (#AGP-PROP-2026-0512)',
+    descripcion: 'Comercializadora Frutas del Eje te envió una oferta formal con firma digital por 20 Cargas de Café a $2.400.000.',
+    enlace: '/chat?conv=conv-003',
+    enlaceTexto: 'Revisar y Firmar en Chat',
+    timestamp: 'Hoy 11:20 AM',
+    leido: false,
+    prioridad: 'alta'
+  },
+  {
+    id: 'alt-005',
+    tipo: 'recordatorio_favorito',
+    titulo: '⏰ Recordatorio: Lote de Trucha Arcoíris vence en 48 horas',
+    descripcion: 'El lote en Lago de Tota tiene 2 compradores interesados negociando.',
+    enlace: '/mis-intereses',
+    enlaceTexto: 'Ir a Favoritos',
+    timestamp: 'Ayer',
+    leido: true,
+    prioridad: 'baja'
+  }
+];
+
+export const TENDENCIAS_MERCADO_HOY_DATA: TendenciaMercadoItem[] = [
+  {
+    id: 'tend-01',
+    producto: 'Aguacate Hass Extra',
+    icono: '🥑',
+    variacionPorcentaje: 3.8,
+    tipoTendencia: 'alza',
+    precioActual: '$5.400',
+    unidad: 'Kg',
+    resumen: 'Fuerte demanda de exportación hacia Europa y EE.UU.',
+    recomendacion: 'Si tienes cosecha lista en finca, es un excelente momento para publicar y fijar contratos de preventa.',
+    accionRecomendada: 'vender'
+  },
+  {
+    id: 'tend-02',
+    producto: 'Café Especial (Carga 125 Kg)',
+    icono: '☕',
+    variacionPorcentaje: 1.2,
+    tipoTendencia: 'alza',
+    precioActual: '$2.380.000',
+    unidad: 'Carga',
+    resumen: 'Mercado internacional estable con prima alta para cafés con puntaje SCA > 85.',
+    recomendacion: 'Destaca en tu ficha el perfil de taza (notas achocolatadas, panela o frutos rojos) para capturar sobreprecios.',
+    accionRecomendada: 'vender'
+  },
+  {
+    id: 'tend-03',
+    producto: 'Papa Criolla Lavada Primera',
+    icono: '🥔',
+    variacionPorcentaje: -4.5,
+    tipoTendencia: 'baja',
+    precioActual: '$120.000',
+    unidad: 'Bulto (50Kg)',
+    resumen: 'Alta oferta estacional proveniente del altiplano cundiboyacense en Corabastos.',
+    recomendacion: 'Evalúa escalonar el lavado y despacho hacia plazas del Caribe donde el precio se mantiene más firme.',
+    accionRecomendada: 'esperar'
+  },
+  {
+    id: 'tend-04',
+    producto: 'Ganado Macho de Ceba 1a',
+    icono: '🐂',
+    variacionPorcentaje: 0.5,
+    tipoTendencia: 'estable',
+    precioActual: '$9.650',
+    unidad: 'Kg en pie',
+    resumen: 'Subastas del Sinú y Magdalena Medio registran estabilidad sólida.',
+    recomendacion: 'Ideal para negociar lotes con báscula certificada en finca y transporte programado.',
+    accionRecomendada: 'comprar'
+  }
+];
+
+export const MAS_BUSCADOS_HOY_DATA = [
+  { puesto: 1, nombre: 'Tilapia Roja Entera', regiones: 'Meta / Valle del Cauca', icono: '🐟', busquedas24h: '+340 consultas' },
+  { puesto: 2, nombre: 'Novillos de Ceba Brahman', regiones: 'Córdoba / Casanare / Meta', icono: '🐂', busquedas24h: '+290 consultas' },
+  { puesto: 3, nombre: 'Uchuva de Exportación', regiones: 'Boyacá / Nariño', icono: '🫐', busquedas24h: '+215 consultas' },
+  { puesto: 4, nombre: 'Café Variedad Borbón Rosado', regiones: 'Huila / Cauca', icono: '☕', busquedas24h: '+180 consultas' },
+  { puesto: 5, nombre: 'Cacao Fino Criollo Seco', regiones: 'Santander / Arauca', icono: '🍫', busquedas24h: '+165 consultas' }
+];
+
+export const HISTORICOS_PRECIOS_DETALLE: Record<string, HistoricoPrecioProducto> = {
+  'aguacate-hass': {
+    id: 'aguacate-hass',
+    producto: 'Aguacate Hass Extra Exportación',
+    unidad: 'COP / Kg',
+    puntos3Meses: [
+      { mes: 'Jul 2026', precioPromedio: 4600, volumenToneladas: 120 },
+      { mes: 'Ago 2026', precioPromedio: 4900, volumenToneladas: 145 },
+      { mes: 'Sep 2026', precioPromedio: 5400, volumenToneladas: 190 }
+    ],
+    puntos6Meses: [
+      { mes: 'Abr 2026', precioPromedio: 4200, volumenToneladas: 90 },
+      { mes: 'May 2026', precioPromedio: 4350, volumenToneladas: 105 },
+      { mes: 'Jun 2026', precioPromedio: 4500, volumenToneladas: 110 },
+      { mes: 'Jul 2026', precioPromedio: 4600, volumenToneladas: 120 },
+      { mes: 'Ago 2026', precioPromedio: 4900, volumenToneladas: 145 },
+      { mes: 'Sep 2026', precioPromedio: 5400, volumenToneladas: 190 }
+    ],
+    puntos12Meses: [
+      { mes: 'Oct 2025', precioPromedio: 4100 },
+      { mes: 'Nov 2025', precioPromedio: 4800 },
+      { mes: 'Dic 2025', precioPromedio: 5200 },
+      { mes: 'Ene 2026', precioPromedio: 5600 },
+      { mes: 'Feb 2026', precioPromedio: 5100 },
+      { mes: 'Mar 2026', precioPromedio: 4400 },
+      { mes: 'Abr 2026', precioPromedio: 4200 },
+      { mes: 'May 2026', precioPromedio: 4350 },
+      { mes: 'Jun 2026', precioPromedio: 4500 },
+      { mes: 'Jul 2026', precioPromedio: 4600 },
+      { mes: 'Ago 2026', precioPromedio: 4900 },
+      { mes: 'Sep 2026', precioPromedio: 5400 }
+    ],
+    comparativaRegiones: [
+      { region: 'Caldas / Quindío', precioActual: 5450, variacionVsNacional: '+0.9%' },
+      { region: 'Antioquia (Oriente & Suroeste)', precioActual: 5200, variacionVsNacional: '-3.7%' },
+      { region: 'Tolima (Norte)', precioActual: 5350, variacionVsNacional: '-0.9%' },
+      { region: 'Santander', precioActual: 5100, variacionVsNacional: '-5.5%' }
+    ],
+    estacionalidadPicos: 'Históricamente entre Noviembre y Febrero los precios de exportación suben un +14% debido a la ventana comercial de invierno en Europa y EE.UU.'
+  },
+  'cafe-especial': {
+    id: 'cafe-especial',
+    producto: 'Café Pergamino Seco Especial (Carga 125Kg)',
+    unidad: 'COP / Carga',
+    puntos3Meses: [
+      { mes: 'Jul 2026', precioPromedio: 2250000 },
+      { mes: 'Ago 2026', precioPromedio: 2310000 },
+      { mes: 'Sep 2026', precioPromedio: 2380000 }
+    ],
+    puntos6Meses: [
+      { mes: 'Abr 2026', precioPromedio: 2180000 },
+      { mes: 'May 2026', precioPromedio: 2200000 },
+      { mes: 'Jun 2026', precioPromedio: 2220000 },
+      { mes: 'Jul 2026', precioPromedio: 2250000 },
+      { mes: 'Ago 2026', precioPromedio: 2310000 },
+      { mes: 'Sep 2026', precioPromedio: 2380000 }
+    ],
+    puntos12Meses: [
+      { mes: 'Oct 2025', precioPromedio: 2100000 },
+      { mes: 'Nov 2025', precioPromedio: 2150000 },
+      { mes: 'Dic 2025', precioPromedio: 2220000 },
+      { mes: 'Ene 2026', precioPromedio: 2280000 },
+      { mes: 'Feb 2026', precioPromedio: 2250000 },
+      { mes: 'Mar 2026', precioPromedio: 2190000 },
+      { mes: 'Abr 2026', precioPromedio: 2180000 },
+      { mes: 'May 2026', precioPromedio: 2200000 },
+      { mes: 'Jun 2026', precioPromedio: 2220000 },
+      { mes: 'Jul 2026', precioPromedio: 2250000 },
+      { mes: 'Ago 2026', precioPromedio: 2310000 },
+      { mes: 'Sep 2026', precioPromedio: 2380000 }
+    ],
+    comparativaRegiones: [
+      { region: 'Huila (Pitalito / Garzón)', precioActual: 2420000, variacionVsNacional: '+1.7%' },
+      { region: 'Eje Cafetero (Manizales/Armenia)', precioActual: 2380000, variacionVsNacional: '0.0%' },
+      { region: 'Nariño (La Unión)', precioActual: 2440000, variacionVsNacional: '+2.5%' },
+      { region: 'Sierra Nevada (Santa Marta)', precioActual: 2350000, variacionVsNacional: '-1.2%' }
+    ],
+    estacionalidadPicos: 'Los mejores precios para micro-lotes y cafés especiales con taza > 86 puntos ocurren en la zafra de Octubre a Diciembre.'
+  }
+};
+
+export const FAVORITOS_SEGUIMIENTO_DATA: FavoritoSeguimientoItem[] = [
+  {
+    id: 'fav-001',
+    tipo: 'lote',
+    referenciaId: 'cos-001',
+    titulo: 'Aguacate Hass Extra — 28 Toneladas',
+    subtitulo: 'Finca La Esmeralda · Sonsón, Antioquia',
+    ubicacion: 'Sonsón, Antioquia',
+    imagen: 'https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=600&q=80',
+    estadoVenta: 'vence_pronto',
+    diasParaVencer: 2,
+    precioActual: 5200,
+    precioAnterior: 5400,
+    precioTexto: '$5.200 / Kg',
+    actividadRecienteBadge: '⏰ Vence en 2 días · Baja de precio reciente (-$200)',
+    telefonoWhatsapp: '573124567890'
+  },
+  {
+    id: 'fav-002',
+    tipo: 'lote',
+    referenciaId: 'cos-002',
+    titulo: 'Café Especial Geisha & Borbón Rosado — 12 Toneladas',
+    subtitulo: 'Hacienda El Cafetal · Pitalito, Huila',
+    ubicacion: 'Pitalito, Huila',
+    imagen: 'https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?auto=format&fit=crop&w=600&q=80',
+    estadoVenta: 'en_negociacion',
+    precioActual: 2450000,
+    precioTexto: '$2.450.000 / Carga',
+    actividadRecienteBadge: '🤝 En negociación formal con 2 compradores',
+    telefonoWhatsapp: '573109876543'
+  },
+  {
+    id: 'fav-003',
+    tipo: 'lote',
+    referenciaId: 'cos-004',
+    titulo: 'Tilapia Roja Eviscerada Fresca — 18 Toneladas',
+    subtitulo: 'Piscícola Los Llanos · Villavicencio, Meta',
+    ubicacion: 'Villavicencio, Meta',
+    imagen: 'https://images.unsplash.com/photo-1534043464124-3be32fe000c9?auto=format&fit=crop&w=600&q=80',
+    estadoVenta: 'vendido',
+    precioActual: 14800,
+    precioTexto: '$14.800 / Kg',
+    actividadRecienteBadge: '🔴 Lote Vendido — Sugerencia: Buscar similares disponibles',
+    telefonoWhatsapp: '573159988776'
+  },
+  {
+    id: 'fav-004',
+    tipo: 'productor',
+    referenciaId: 'prod-001',
+    titulo: 'Don Carlos Restrepo (Finca La Esmeralda)',
+    subtitulo: 'Productor Verificado KYC · Calificación ⭐ 4.9 (12 transacciones)',
+    ubicacion: 'Sonsón, Antioquia',
+    imagen: 'https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=600&q=80',
+    actividadRecienteBadge: '🟢 Publicó nueva cosecha hoy a las 09:15 AM',
+    telefonoWhatsapp: '573124567890'
+  },
+  {
+    id: 'fav-005',
+    tipo: 'productor',
+    referenciaId: 'prod-002',
+    titulo: 'Dra. María Elena Gómez (Hacienda El Rodeo)',
+    subtitulo: 'Ganadería Sostenible · Calificación ⭐ 5.0 (24 transacciones)',
+    ubicacion: 'Puerto López, Meta',
+    imagen: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80',
+    actividadRecienteBadge: '⚪ Sin novedades esta semana',
+    telefonoWhatsapp: '573108899776'
+  },
+  {
+    id: 'fav-006',
+    tipo: 'transportista',
+    referenciaId: 'tra-001',
+    titulo: 'Logística Frigorífica de los Andes (Carlos Bedoya)',
+    subtitulo: 'Furgón Refrigerado Thermo King 10 Ton · Calificación ⭐ 4.98',
+    ubicacion: 'Rionegro / Medellín, Antioquia',
+    imagen: 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80',
+    disponibleInmediato: true,
+    actividadRecienteBadge: '🚚 Disponible Inmediato para despachos Oriente Antioqueño - Bogotá',
+    telefonoWhatsapp: '573154433221'
+  }
+];
+
+export const SELLO_VERIFICACION_MOCK: SelloVerificacionInfo = {
+  usuarioId: 'prod-001',
+  nombreFincaOEmpresa: 'Finca La Esmeralda (Don Carlos Restrepo)',
+  cedulaORutVerificado: true,
+  numeroRegistroIca: 'ICA-05-6789-BPA-2024',
+  fechaVerificacionKyc: '15 de Enero de 2026',
+  contratosLey527Cumplidos: 12,
+  tasaCumplimientoEntrega: 100,
+  calificacionPromedio: 4.9,
+  totalResenas: 12,
+  inspeccionSanitariaBpa: true,
+  garantiaCeroFraude: true
+};

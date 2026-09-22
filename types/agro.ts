@@ -313,3 +313,128 @@ export interface TemporadaCosecha {
   imagen: string;
   cosechaSlug: CosechaEspecifica;
 }
+
+
+// ==================== FASE 4: INTELIGENCIA Y ALERTAS + CIERRE DE PLATAFORMA ====================
+
+export type RolAlerta = 'comprador' | 'productor' | 'buscador_empleo';
+
+export interface PreferenciaAlertas {
+  id: string;
+  usuarioId: string;
+  rolPrincipal: RolAlerta;
+  canales: {
+    inApp: boolean;
+    email: boolean;
+    whatsapp: boolean;
+    telefonoWhatsapp?: string;
+    emailDestino?: string;
+  };
+  compradorFiltros: {
+    aguacateHass: boolean;
+    cafeEspecial: boolean;
+    papaParamo: boolean;
+    cacaoFino: boolean;
+    tilapia: boolean;
+    trmVariacion2Porciento: boolean;
+    regionesInteres: string[];
+  };
+  productorFiltros: {
+    cafeVariacion3Porciento: boolean;
+    precioDaneSipsaCambie: boolean;
+    notificarCompradoresBuscandoMiCosecha: boolean;
+    nuevaOfertaTransporteEnRegion: boolean;
+    alertaClimaFinca: boolean;
+  };
+  empleoFiltros: {
+    recoleccionValle: boolean;
+    aguacateCaldas: boolean;
+    conAlojamiento: boolean;
+    departamentosInteres: string[];
+  };
+  frecuenciaResumenEmail: 'inmediato' | 'diario' | 'semanal';
+}
+
+export interface AlertaNotificacionItem {
+  id: string;
+  tipo: 'lote_nuevo' | 'cambio_precio' | 'clima_alerta' | 'trm_cambio' | 'nueva_postulacion' | 'transporte_disponible' | 'recordatorio_favorito' | 'propuesta_recibida';
+  titulo: string;
+  descripcion: string;
+  detallesTexto?: string;
+  cultivoOCategoria?: string;
+  region?: string;
+  precioRef?: string;
+  enlace: string;
+  enlaceTexto: string;
+  timestamp: string;
+  leido: boolean;
+  prioridad: 'alta' | 'media' | 'baja';
+  icono?: string;
+  tiempoLimiteHoras?: number;
+}
+
+export interface TendenciaMercadoItem {
+  id: string;
+  producto: string;
+  icono: string;
+  variacionPorcentaje: number;
+  tipoTendencia: 'alza' | 'baja' | 'estable';
+  precioActual: string;
+  unidad: string;
+  resumen: string;
+  recomendacion: string;
+  accionRecomendada: 'vender' | 'esperar' | 'comprar' | 'ajustar_siembra';
+}
+
+export interface HistoricoPrecioPunto {
+  mes: string;
+  precioPromedio: number;
+  volumenToneladas?: number;
+}
+
+export interface HistoricoPrecioProducto {
+  id: string;
+  producto: string;
+  unidad: string;
+  puntos3Meses: HistoricoPrecioPunto[];
+  puntos6Meses: HistoricoPrecioPunto[];
+  puntos12Meses: HistoricoPrecioPunto[];
+  comparativaRegiones: {
+    region: string;
+    precioActual: number;
+    variacionVsNacional: string;
+  }[];
+  estacionalidadPicos: string;
+}
+
+export interface FavoritoSeguimientoItem {
+  id: string;
+  tipo: 'lote' | 'productor' | 'transportista';
+  referenciaId: string;
+  titulo: string;
+  subtitulo: string;
+  ubicacion: string;
+  imagen: string;
+  estadoVenta?: 'disponible' | 'en_negociacion' | 'vendido' | 'vence_pronto';
+  diasParaVencer?: number;
+  precioActual?: number;
+  precioAnterior?: number;
+  precioTexto?: string;
+  actividadRecienteBadge?: string;
+  disponibleInmediato?: boolean;
+  telefonoWhatsapp: string;
+}
+
+export interface SelloVerificacionInfo {
+  usuarioId: string;
+  nombreFincaOEmpresa: string;
+  cedulaORutVerificado: boolean;
+  numeroRegistroIca?: string;
+  fechaVerificacionKyc: string;
+  contratosLey527Cumplidos: number;
+  tasaCumplimientoEntrega: number;
+  calificacionPromedio: number;
+  totalResenas: number;
+  inspeccionSanitariaBpa: boolean;
+  garantiaCeroFraude: boolean;
+}

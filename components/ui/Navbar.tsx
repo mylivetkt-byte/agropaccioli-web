@@ -10,7 +10,6 @@ import {
   Store, 
   Bot, 
   Truck, 
-  Users2, 
   ShieldCheck, 
   PlusCircle, 
   Menu, 
@@ -19,30 +18,40 @@ import {
   Briefcase,
   MessageSquare,
   ShoppingBag,
-  Bell
+  Bell,
+  LineChart,
+  Sliders
 } from 'lucide-react';
-import { TRM_DATA } from '@/lib/agro-data';
+import { TRM_DATA, ALERTAS_NOTIFICACIONES_DATA } from '@/lib/agro-data';
+import NotificacionesDropdown from '@/components/alertas/NotificacionesDropdown';
+import ConfiguradorAlertasModal from '@/components/alertas/ConfiguradorAlertasModal';
 
 export default function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [notificacionesOpen, setNotificacionesOpen] = useState(false);
+  const [configuradorOpen, setConfiguradorOpen] = useState(false);
+
+  const noLeidas = ALERTAS_NOTIFICACIONES_DATA.filter(n => !n.leido).length;
 
   const links = [
     { href: '/', label: 'Inicio', icon: Sprout },
     { href: '/mapa-cosechas', label: 'Mapa', icon: MapPin },
+    { href: '/inteligencia-mercado', label: 'Inteligencia', icon: LineChart, badge: 'IA' },
     { href: '/chat', label: 'Mensajes', icon: MessageSquare, badge: '3' },
     { href: '/mi-escaparate', label: 'Mi Escaparate', icon: Store, badge: 'Productor' },
-    { href: '/mis-intereses', label: 'Mis Intereses', icon: ShoppingBag },
+    { href: '/mis-intereses', label: 'Mis Favoritos', icon: ShoppingBag },
     { href: '/empleos', label: 'Bolsa Empleo', icon: Briefcase },
     { href: '/precios-mercado', label: 'Precios SIPSA', icon: TrendingUp },
     { href: '/almacenes-b2b', label: 'Almacenes', icon: Store },
     { href: '/academia-ia', label: 'Academia IA', icon: Bot },
-    { href: '/transportistas', label: 'Transportistas', icon: Truck },
+    { href: '/transportistas', label: 'Transporte', icon: Truck },
     { href: '/admin', label: 'Admin', icon: ShieldCheck }
   ];
 
   return (
     <header className="sticky top-0 z-50 w-full">
+      {/* Barra superior de cotizaciones y alertas */}
       <div className="bg-gradient-to-r from-emerald-800 via-green-800 to-emerald-900 text-emerald-100 text-xs py-1.5 px-4 flex items-center justify-between border-b border-emerald-700/50">
         <div className="flex items-center justify-between container mx-auto">
           <div className="flex items-center gap-4">
@@ -52,18 +61,28 @@ export default function Navbar() {
             </div>
             <div className="hidden sm:flex items-center gap-1.5 text-emerald-200">
               <DollarSign className="w-3.5 h-3.5 text-emerald-400" />
-              <span>TRM Dólar: <strong className="text-white">${TRM_DATA.dolarCOP.toLocaleString('es-CO')} COP</strong></span>
+              <span>TRM Dólar: <strong className="text-white">$${TRM_DATA.dolarCOP.toLocaleString('es-CO')} COP</strong></span>
             </div>
           </div>
 
-          <div className="flex items-center gap-4 text-emerald-200">
-            <Link
-              href="/chat"
-              className="flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-700/70 hover:bg-emerald-700 px-2.5 py-0.5 rounded-full border border-emerald-500/50 transition-all"
-            >
-              <Bell className="w-3.5 h-3.5 text-amber-300 animate-bounce" />
-              <span>(3) Propuestas & Mensajes</span>
-            </Link>
+          <div className="flex items-center gap-3 text-emerald-200">
+            {/* Botón Centro de Notificaciones en Barra Superior */}
+            <div className="relative">
+              <button
+                onClick={() => setNotificacionesOpen(!notificacionesOpen)}
+                className="flex items-center gap-1.5 text-xs font-bold text-white bg-emerald-700/80 hover:bg-emerald-700 px-3 py-1 rounded-full border border-emerald-500/50 transition-all cursor-pointer shadow-xs"
+              >
+                <Bell className="w-3.5 h-3.5 text-amber-300 animate-bounce" />
+                <span>🔔 (${noLeidas}) Alertas Activas</span>
+              </button>
+
+              <NotificacionesDropdown
+                isOpen={notificacionesOpen}
+                onClose={() => setNotificacionesOpen(false)}
+                onOpenConfigurador={() => setConfiguradorOpen(true)}
+              />
+            </div>
+
             <div className="hidden md:flex items-center gap-1.5 text-emerald-200">
               <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
               <span>Ley 527/1999 Verificada</span>
@@ -72,6 +91,7 @@ export default function Navbar() {
         </div>
       </div>
 
+      {/* Navegación Principal */}
       <nav className="bg-white/95 backdrop-blur-md shadow-md border-b border-emerald-100 py-2.5">
         <div className="container mx-auto px-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2.5 shrink-0">
@@ -113,6 +133,15 @@ export default function Navbar() {
           </div>
 
           <div className="hidden sm:flex items-center gap-2">
+            {/* Botón Configurar Alertas */}
+            <button
+              onClick={() => setConfiguradorOpen(true)}
+              className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 rounded-xl border border-emerald-200 transition-colors shadow-xs"
+              title="Configurar Alertas"
+            >
+              <Sliders className="w-4 h-4 text-emerald-700" />
+            </button>
+
             <Link
               href="/chat"
               className="inline-flex items-center gap-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 text-xs font-bold px-3 py-2 rounded-xl border border-emerald-200 transition-colors"
@@ -148,9 +177,24 @@ export default function Navbar() {
                 {link.badge && <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">{link.badge}</span>}
               </Link>
             ))}
+
+            <div className="pt-2 border-t border-zinc-100 flex items-center gap-2">
+              <button
+                onClick={() => { setOpen(false); setConfiguradorOpen(true); }}
+                className="w-full text-xs font-bold text-center py-2.5 bg-emerald-50 text-emerald-900 rounded-xl"
+              >
+                🔔 Configurar Alertas
+              </button>
+            </div>
           </div>
         )}
       </nav>
+
+      {/* Modal de Configuración de Alertas */}
+      <ConfiguradorAlertasModal
+        isOpen={configuradorOpen}
+        onClose={() => setConfiguradorOpen(false)}
+      />
     </header>
   );
 }
