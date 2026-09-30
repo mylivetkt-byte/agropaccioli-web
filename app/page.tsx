@@ -9,6 +9,9 @@ import PortalAlmacenesB2B from '@/components/home/PortalAlmacenesB2B';
 import BuscadorPreciosNacional from '@/components/home/BuscadorPreciosNacional';
 import AcademiaAgroIA from '@/components/home/AcademiaAgroIA';
 import RedTransportistas from '@/components/home/RedTransportistas';
+import FormularioCompradorModal from '@/components/mapa/FormularioComprador';
+import FormularioTransportadorModal from '@/components/mapa/FormularioTransportador';
+import { Suspense } from 'react';
 
 export default function HomePage() {
   return (
@@ -25,6 +28,10 @@ export default function HomePage() {
         <PortalAlmacenesB2B />
         <AcademiaAgroIA />
         <RedTransportistas />
+        <Suspense fallback={null}>
+          <FormularioCompradorModal />
+          <FormularioTransportadorModal />
+        </Suspense>
       </main>
       <Footer />
     </div>

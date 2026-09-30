@@ -10,8 +10,10 @@ import {
   CheckCircle2, 
   Sun, 
   CloudRain, 
-  Compass 
+  Compass,
+  Map
 } from 'lucide-react';
+import colombiaData from '@/lib/colombia.json';
 
 interface WeatherData {
   municipio: string;
@@ -29,89 +31,78 @@ interface WeatherData {
   recomendacionAgronomica: string;
 }
 
-const REGIONES_DEFAULT: Record<string, WeatherData> = {
-  'Sonsón': {
-    municipio: 'Sonsón',
-    departamento: 'Antioquia',
-    temperatura: 19,
-    sensacionTermica: 19,
-    humedad: 78,
-    probabilidadLluvia: 35,
-    vientoKmH: 12,
-    condicion: 'Parcialmente Nublado',
-    alertaAgro: {
-      tipo: 'normal',
-      mensaje: 'Condiciones óptimas para recolección de aguacate Hass y fertilización foliar.'
-    },
-    recomendacionAgronomica: 'Aprovechar la mañana para aplicaciones de micronutrientes antes de posibles lloviznas vespertinas.'
-  },
-  'Pitalito': {
-    municipio: 'Pitalito',
-    departamento: 'Huila',
-    temperatura: 22,
-    sensacionTermica: 23,
-    humedad: 70,
-    probabilidadLluvia: 20,
-    vientoKmH: 8,
-    condicion: 'Soleado',
-    alertaAgro: {
-      tipo: 'normal',
-      mensaje: 'Clima ideal para secado de café en marquesinas y desyerba mecánica.'
-    },
-    recomendacionAgronomica: 'Monitorear niveles de humedad en grano para optimizar curvas de tostión y almacenamiento.'
-  },
-  'Montería': {
-    municipio: 'Montería',
-    departamento: 'Córdoba',
-    temperatura: 32,
-    sensacionTermica: 36,
-    humedad: 82,
-    probabilidadLluvia: 60,
-    vientoKmH: 16,
-    condicion: 'Lluvia Moderada',
-    alertaAgro: {
-      tipo: 'precaucion',
-      mensaje: 'Humedad alta en potreros. Vigilar estrés térmico en ganado lechero y hongos foliares en pastos.'
-    },
-    recomendacionAgronomica: 'Suministrar sales mineralizadas bajo techo y verificar drenajes en potreros bajos.'
-  },
-  'Villavicencio': {
-    municipio: 'Villavicencio',
-    departamento: 'Meta',
-    temperatura: 29,
-    sensacionTermica: 31,
-    humedad: 75,
-    probabilidadLluvia: 40,
-    vientoKmH: 10,
-    condicion: 'Parcialmente Nublado',
-    alertaAgro: {
-      tipo: 'normal',
-      mensaje: 'Buena oxigenación natural en estanques de tilapia por vientos de piedemonte.'
-    },
-    recomendacionAgronomica: 'Ajustar ración alimentaria en horas de mayor temperatura superficial.'
-  },
-  'Villapinzón': {
-    municipio: 'Villapinzón',
-    departamento: 'Cundinamarca',
-    temperatura: 14,
-    sensacionTermica: 13,
-    humedad: 85,
-    probabilidadLluvia: 15,
-    vientoKmH: 14,
-    condicion: 'Parcialmente Nublado',
-    alertaAgro: {
-      tipo: 'precaucion',
-      mensaje: 'Alerta por riesgo de heladas tempranas en madrugadas sobre los 2.700 msnm.'
-    },
-    recomendacionAgronomica: 'Mantener riegos preventivos ligeros al atardecer para proteger cultivos de papa y hortalizas.'
+// Función para simular clima según el departamento y ciudad en tiempo real para el MVP
+const generateWeather = (dept: string, city: string): WeatherData => {
+  const hash = city.length + dept.length;
+  
+  // Temperaturas base promedio por departamento (aproximadas)
+  const temperaturas: Record<string, number> = {
+    'Antioquia': 22, 'Cundinamarca': 14, 'Valle del Cauca': 28, 'Atlántico': 32,
+    'Bolívar': 33, 'Chocó': 27, 'Huila': 24, 'Tolima': 28, 'Meta': 30, 'Boyacá': 13,
+    'Caldas': 20, 'Quindío': 21, 'Risaralda': 21, 'Santander': 25, 'Norte de Santander': 26,
+    'Cauca': 18, 'Nariño': 15, 'Magdalena': 32, 'Cesar': 33, 'Sucre': 32, 'Córdoba': 33,
+    'La Guajira': 34, 'Amazonas': 30, 'Caquetá': 28, 'Putumayo': 26, 'Guaviare': 29,
+    'Vaupés': 29, 'Vichada': 31, 'Casanare': 29, 'Arauca': 30, 'Guainía': 30, 'San Andrés': 30
+  };
+  
+  const baseTemp = temperaturas[dept] || 25;
+  const tempOffset = (hash % 7) - 3; // -3 to +3
+  const tempFinal = baseTemp + tempOffset;
+
+  const condiciones = ['Soleado', 'Parcialmente Nublado', 'Lluvia Moderada', 'Llovizna', 'Tormenta Eléctrica'] as const;
+  const condicion = condiciones[hash % condiciones.length];
+
+  let alerta: WeatherData['alertaAgro'] = { tipo: 'normal', mensaje: 'Condiciones óptimas para labores culturales y de campo.' };
+  let rec = 'Buen día para aplicaciones foliares, siembra y revisión general de linderos.';
+
+  if (condicion.includes('Lluvia') || condicion.includes('Tormenta')) {
+    alerta = { tipo: 'precaucion', mensaje: 'Humedad alta o lluvias. Vigilar aparición de hongos y evitar fumigación.' };
+    rec = 'Aplazar fertilización edáfica y aspersiones. Revisar sistemas de drenaje en lotes bajos.';
+  } else if (tempFinal < 15) {
+    alerta = { tipo: 'precaucion', mensaje: 'Alerta por riesgo de heladas tempranas en madrugadas sobre los 2.700 msnm.' };
+    rec = 'Mantener riegos preventivos ligeros al atardecer para proteger cultivos de papa, hortalizas y flores.';
+  } else if (tempFinal > 32) {
+    alerta = { tipo: 'precaucion', mensaje: 'Altas temperaturas y radiación. Riesgo de estrés hídrico.' };
+    rec = 'Garantizar sombra y agua constante al ganado. Evitar aplicaciones químicas a mediodía.';
   }
+
+  return {
+    municipio: city,
+    departamento: dept,
+    temperatura: tempFinal,
+    sensacionTermica: tempFinal + ((hash % 3) - 1),
+    humedad: 50 + (hash % 40),
+    probabilidadLluvia: (hash % 10) * 10,
+    vientoKmH: 5 + (hash % 20),
+    condicion,
+    alertaAgro: alerta,
+    recomendacionAgronomica: rec
+  };
 };
 
 export default function ClimaWidget() {
-  const [municipioSeleccionado, setMunicipioSeleccionado] = useState<string>('Sonsón');
-  const [clima, setClima] = useState<WeatherData>(REGIONES_DEFAULT['Sonsón']);
+  const [deptSeleccionado, setDeptSeleccionado] = useState<string>('Cundinamarca');
+  const [municipioSeleccionado, setMunicipioSeleccionado] = useState<string>('Villapinzón');
+  const [veredaSeleccionada, setVeredaSeleccionada] = useState<string>('Centro Urbano');
+  const [clima, setClima] = useState<WeatherData>(generateWeather('Cundinamarca', 'Villapinzón'));
+  
   const [cargando, setCargando] = useState<boolean>(false);
   const [geolocalizado, setGeolocalizado] = useState<boolean>(false);
+
+  // Obtener lista de departamentos
+  const departamentos = colombiaData.map(d => d.departamento).sort();
+  // Obtener ciudades del departamento actual
+  const ciudadesDelDepto = colombiaData.find(d => d.departamento === deptSeleccionado)?.ciudades.sort() || [];
+  
+  // Generar veredas simuladas para el MVP basadas en el municipio
+  const veredasSimuladas = [
+    'Centro Urbano',
+    `Corregimiento de ${municipioSeleccionado}`,
+    'Vereda Alta',
+    'Vereda Baja',
+    'Vereda El Carmen',
+    'Vereda San José'
+  ];
 
   useEffect(() => {
     // Intentar geolocalización por navegador (HTML5 Geolocation)
@@ -122,15 +113,17 @@ export default function ClimaWidget() {
           // Simulación inteligente según latitud aproximada en Colombia
           const lat = pos.coords.latitude;
           if (lat > 7.0) {
+            cambiarDepartamento('Córdoba');
             cambiarMunicipio('Montería');
           } else if (lat < 3.0) {
+            cambiarDepartamento('Huila');
             cambiarMunicipio('Pitalito');
           } else {
+            cambiarDepartamento('Cundinamarca');
             cambiarMunicipio('Villapinzón');
           }
         },
         () => {
-          // Si el usuario deniega permisos, mantenemos Sonsón como default
           setGeolocalizado(false);
         },
         { timeout: 5000 }
@@ -138,13 +131,32 @@ export default function ClimaWidget() {
     }
   }, []);
 
-  const cambiarMunicipio = (nombre: string) => {
+  const cambiarDepartamento = (dept: string) => {
     setCargando(true);
+    setDeptSeleccionado(dept);
+    const ciudades = colombiaData.find(d => d.departamento === dept)?.ciudades.sort() || [];
+    const primeraCiudad = ciudades[0] || '';
+    setMunicipioSeleccionado(primeraCiudad);
+    setVeredaSeleccionada('Centro Urbano');
+    
     setTimeout(() => {
-      setMunicipioSeleccionado(nombre);
-      setClima(REGIONES_DEFAULT[nombre] || REGIONES_DEFAULT['Sonsón']);
+      setClima(generateWeather(dept, primeraCiudad));
+      setCargando(false);
+    }, 400);
+  };
+
+  const cambiarMunicipio = (ciudad: string) => {
+    setCargando(true);
+    setMunicipioSeleccionado(ciudad);
+    setVeredaSeleccionada('Centro Urbano');
+    setTimeout(() => {
+      setClima(generateWeather(deptSeleccionado, ciudad));
       setCargando(false);
     }, 300);
+  };
+  
+  const cambiarVereda = (vereda: string) => {
+    setVeredaSeleccionada(vereda);
   };
 
   const getWeatherIcon = (cond: string) => {
@@ -161,48 +173,82 @@ export default function ClimaWidget() {
   };
 
   return (
-    <div className="w-full bg-gradient-to-r from-emerald-500/10 via-green-500/5 to-emerald-500/10 border border-emerald-200/80 rounded-2xl p-4 sm:p-5 shadow-sm relative overflow-hidden">
+    <div className="w-full bg-gradient-to-r from-emerald-500/10 via-green-500/5 to-emerald-500/10 border border-emerald-200/80 rounded-2xl p-4 sm:p-5 shadow-sm relative overflow-hidden transition-all">
       {/* Fondo con brillo */}
       <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-300/10 rounded-full blur-3xl pointer-events-none -mr-16 -mt-16"></div>
       
       <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 relative z-10">
         
-        {/* Cabecera & Selector de Zona */}
+        {/* Cabecera & Selector de Zona DINÁMICO */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="p-2.5 bg-emerald-600 text-white rounded-xl shadow-md shadow-emerald-600/20">
             <Compass className="w-5 h-5 animate-pulse" />
           </div>
-          <div>
-            <div className="flex items-center gap-2">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-1">
               <h3 className="font-bold text-emerald-950 text-sm sm:text-base flex items-center gap-1.5">
-                <span>Estación Agroclimática en Vivo</span>
+                <span>Estación Agroclimática Nacional</span>
                 {geolocalizado && (
                   <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600" /> GPS Detectado
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" /> GPS
                   </span>
                 )}
               </h3>
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-zinc-600 mt-0.5">
-              <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Zona activa:</span>
-              <select 
-                value={municipioSeleccionado}
-                onChange={(e) => cambiarMunicipio(e.target.value)}
-                className="bg-white border border-emerald-300 text-emerald-900 font-semibold rounded-lg px-2 py-0.5 text-xs focus:ring-2 focus:ring-emerald-500 outline-none cursor-pointer"
-              >
-                {Object.keys(REGIONES_DEFAULT).map((mun) => (
-                  <option key={mun} value={mun}>
-                    {mun} ({REGIONES_DEFAULT[mun].departamento})
-                  </option>
-                ))}
-              </select>
+            
+            {/* TRIPLE SELECTOR: DEPARTAMENTO, CIUDAD Y VEREDA */}
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 text-xs text-zinc-600 w-full">
+              
+              <div className="flex items-center gap-1 bg-white border border-emerald-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500 w-full sm:w-auto">
+                <div className="px-2 text-emerald-600 bg-emerald-50 h-full flex items-center border-r border-emerald-100">
+                  <Map className="w-3.5 h-3.5" />
+                </div>
+                <select 
+                  value={deptSeleccionado}
+                  onChange={(e) => cambiarDepartamento(e.target.value)}
+                  className="bg-transparent text-emerald-950 font-bold py-1.5 pr-2 outline-none cursor-pointer w-full sm:w-auto"
+                >
+                  {departamentos.map(dept => (
+                    <option key={dept} value={dept}>{dept}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center gap-1 bg-white border border-emerald-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500 w-full sm:w-auto">
+                <div className="px-2 text-emerald-600 bg-emerald-50 h-full flex items-center border-r border-emerald-100">
+                  <MapPin className="w-3.5 h-3.5" />
+                </div>
+                <select 
+                  value={municipioSeleccionado}
+                  onChange={(e) => cambiarMunicipio(e.target.value)}
+                  className="bg-transparent text-emerald-950 font-bold py-1.5 pr-2 outline-none cursor-pointer w-full sm:w-auto max-w-[150px]"
+                  disabled={cargando}
+                >
+                  {ciudadesDelDepto.map((mun) => (
+                    <option key={mun} value={mun}>{mun}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="flex items-center gap-1 bg-white border border-emerald-200 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500 w-full sm:w-auto">
+                <div className="px-2 text-emerald-600 bg-emerald-50 h-full flex items-center border-r border-emerald-100">
+                  <Compass className="w-3.5 h-3.5" />
+                </div>
+                <input 
+                  type="text"
+                  placeholder="Vereda/Finca (Opcional)"
+                  value={veredaSeleccionada}
+                  onChange={(e) => cambiarVereda(e.target.value)}
+                  className="bg-transparent text-emerald-950 font-bold py-1.5 px-2 outline-none w-full sm:w-auto max-w-[150px] placeholder:text-zinc-400 placeholder:font-normal"
+                />
+              </div>
+
             </div>
           </div>
         </div>
 
         {/* Métricas del Clima */}
-        <div className="flex flex-wrap items-center gap-4 sm:gap-6 bg-white/90 border border-emerald-100 rounded-xl px-4 py-2.5 shadow-sm">
+        <div className={`flex flex-wrap items-center gap-4 sm:gap-6 bg-white/90 border border-emerald-100 rounded-xl px-4 py-2.5 shadow-sm transition-opacity duration-300 ${cargando ? 'opacity-50' : 'opacity-100'}`}>
           
           <div className="flex items-center gap-3">
             {getWeatherIcon(clima.condicion)}
@@ -247,14 +293,14 @@ export default function ClimaWidget() {
       </div>
 
       {/* Alerta y Recomendación Agronómica */}
-      <div className="mt-3 pt-3 border-t border-emerald-200/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 text-xs">
+      <div className={`mt-3 pt-3 border-t border-emerald-200/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 text-xs transition-opacity duration-300 ${cargando ? 'opacity-50' : 'opacity-100'}`}>
         <div className="flex items-center gap-2">
           {clima.alertaAgro.tipo === 'precaucion' ? (
-            <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-900 px-2 py-0.5 rounded font-bold text-[11px]">
+            <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-900 px-2 py-0.5 rounded font-bold text-[11px] whitespace-nowrap">
               <AlertTriangle className="w-3.5 h-3.5 text-amber-700" /> Alerta Agro
             </span>
           ) : (
-            <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded font-bold text-[11px]">
+            <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded font-bold text-[11px] whitespace-nowrap">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" /> Clima Favorable
             </span>
           )}
@@ -263,7 +309,7 @@ export default function ClimaWidget() {
           </span>
         </div>
         
-        <div className="text-emerald-800 bg-emerald-100/50 px-3 py-1 rounded-lg text-[11px] font-medium italic">
+        <div className="text-emerald-800 bg-emerald-100/50 px-3 py-1.5 rounded-lg text-[11px] font-medium italic w-full md:w-auto">
           💡 Tip agronómico: {clima.recomendacionAgronomica}
         </div>
       </div>

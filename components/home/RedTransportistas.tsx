@@ -13,12 +13,18 @@ export default function RedTransportistas() {
   return (
     <section className="py-14 bg-gradient-to-b from-white via-emerald-50/30 to-white border-b border-emerald-100">
       <div className="container mx-auto px-4">
-        <div className="max-w-3xl mb-8">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 text-xs font-bold mb-2">
-            <Truck className="w-4 h-4 text-emerald-600" />
-            <span>FLETES Y LOGÍSTICA RURAL</span>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
+          <div className="max-w-3xl">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 text-emerald-900 text-xs font-bold mb-2">
+              <Truck className="w-4 h-4 text-emerald-600" />
+              <span>FLETES Y LOGÍSTICA RURAL</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl font-black text-emerald-950">Red Nacional de Transportistas</h2>
           </div>
-          <h2 className="text-2xl sm:text-3xl font-black text-emerald-950">Red Nacional de Transportistas</h2>
+          
+          <Link href="/transportistas?registro_transportador=true" className="bg-sky-600 hover:bg-sky-700 text-white font-bold px-5 py-2.5 rounded-xl text-sm shadow-md transition-colors flex items-center justify-center gap-2 shrink-0">
+            <Truck className="w-4 h-4" /> Registrar mi Vehículo
+          </Link>
         </div>
 
         <div className="bg-gradient-to-r from-emerald-900 to-green-900 rounded-3xl p-6 text-white mb-8 shadow-xl">

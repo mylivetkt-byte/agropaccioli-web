@@ -9,7 +9,8 @@ import {
   ShieldCheck, 
   TrendingUp, 
   ArrowRight,
-  CheckCircle
+  CheckCircle,
+  Truck
 } from 'lucide-react';
 
 export default function HeroSection() {
@@ -53,17 +54,17 @@ export default function HeroSection() {
 
             <Link
               href="/mapa-cosechas"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-white hover:bg-emerald-50/80 text-emerald-900 border-2 border-emerald-300 hover:border-emerald-400 font-bold text-sm px-6 py-3.5 rounded-2xl shadow-sm hover:shadow transition-all duration-200"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 text-white font-bold text-sm px-7 py-4 rounded-2xl shadow-xl shadow-emerald-600/25 hover:shadow-emerald-600/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
             >
-              <MapPin className="w-5 h-5 text-emerald-600" />
+              <MapPin className="w-5 h-5 text-emerald-100" />
               <span>Explorar Mapa Nacional de Cosechas</span>
             </Link>
 
             <Link
               href="/precios-mercado"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-100/70 text-emerald-800 font-semibold text-sm px-5 py-3.5 rounded-2xl border border-emerald-200 transition-all duration-200"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 text-white font-bold text-sm px-7 py-4 rounded-2xl shadow-xl shadow-emerald-600/25 hover:shadow-emerald-600/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
             >
-              <TrendingUp className="w-4 h-4 text-emerald-600" />
+              <TrendingUp className="w-5 h-5 text-emerald-100" />
               <span>Precios de Hoy</span>
             </Link>
           </div>
@@ -84,6 +85,26 @@ export default function HeroSection() {
             </div>
           </div>
 
+          {/* Botones de Registro B2B y Logística */}
+          <div className="pt-8 mt-8 border-t border-emerald-100 flex flex-col items-center">
+            <p className="text-sm font-bold text-emerald-900 mb-4 uppercase tracking-wider">Únete a la Red B2B Segura</p>
+            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+              <Link
+                href="/?registro_comprador=true"
+                className="inline-flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm px-6 py-3 rounded-xl shadow-lg transition-all"
+              >
+                <ShieldCheck className="w-4 h-4 text-emerald-200" />
+                Soy Comprador (Validación SARLAFT)
+              </Link>
+              <Link
+                href="/?registro_transportador=true"
+                className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm px-6 py-3 rounded-xl shadow-lg transition-all"
+              >
+                <Truck className="w-4 h-4 text-emerald-200" />
+                Soy Transportador (RNDC)
+              </Link>
+            </div>
+          </div>
         </div>
 
         {/* Tarjetas de Acceso Rápido a los 3 Sectores Productivos */}

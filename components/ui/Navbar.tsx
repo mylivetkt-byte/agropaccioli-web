@@ -59,6 +59,7 @@ export default function Navbar() {
     { href: '/transportistas', label: 'Transportistas', icon: Truck },
     { href: '/academia-ia', label: 'Academia IA', icon: Bot },
     { href: '/agremiaciones', label: 'Gremios & ONGs', icon: Users2 },
+    { href: '/software', label: 'Software', icon: ShieldCheck, badge: 'ERP' },
     { href: '/admin', label: 'Panel Admin', icon: ShieldCheck }
   ];
 
@@ -157,13 +158,15 @@ export default function Navbar() {
               <Sliders className="w-4 h-4 text-emerald-700" />
             </button>
 
+
+
             {/* BOTÓN DESTACADO: PUBLICAR COSECHA */}
             <Link
               href="/mapa-cosechas?publicar=true"
               className="inline-flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 text-white text-xs font-extrabold px-4 py-2 rounded-xl shadow-md shadow-emerald-600/20 transition-all"
             >
               <PlusCircle className="w-4 h-4" />
-              <span className="hidden sm:inline">Publicar Cosecha Gratis</span>
+              <span className="hidden sm:inline">Publicar Producto (Gratis)</span>
               <span className="sm:hidden">Publicar</span>
             </Link>
 

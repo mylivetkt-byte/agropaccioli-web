@@ -1,7 +1,9 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/ui/Footer';
 import MapaCosechasViewer from '@/components/mapa/MapaCosechasViewer';
+import FormularioPublicarModal from '@/components/mapa/FormularioPublicar';
+
 
 export default function MapaPage() {
   return (
@@ -9,6 +11,9 @@ export default function MapaPage() {
       <Navbar />
       <main className="flex-1 relative">
         <MapaCosechasViewer />
+        <Suspense fallback={null}>
+          <FormularioPublicarModal />
+        </Suspense>
       </main>
       <Footer />
     </div>

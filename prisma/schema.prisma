@@ -1,0 +1,133 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id                  String    @id @default(uuid())
+  nombre              String
+  telefono            String    @unique
+  telefonoVerificado  Boolean   @default(false)
+  cedula              String?   @unique
+  fotoCedulaFrontal   String?   // URL de la imagen en el servidor
+  fotoCedulaTrasera   String?
+  estadoVerificacion  String    @default("PENDIENTE") // PENDIENTE, APROBADO, RECHAZADO
+  rol                 String    // Productor, Comprador, Transportista
+  origen              String    @default("O") // O = Original, D = Demo
+  
+  cosechas            Cosecha[]
+  perfilTransportista PerfilTransportista?
+  compradorVerificado CompradorVerificado?
+  contratosProductor  Contrato[] @relation("ProductorContrato")
+  contratosComprador  Contrato[] @relation("CompradorContrato")
+}
+
+model PerfilTransportista {
+  id                  String   @id @default(uuid())
+  usuarioId           String   @unique
+  usuario             Usuario  @relation(fields: [usuarioId], references: [id])
+  
+  licenciaConduccion  String
+  fotoLicencia        String?
+  
+  placaVehiculo       String
+  tipoVehiculo        String   // Furgón, Estacas, Refrigerado, Tractomula
+  capacidadToneladas  Float
+  
+  aseguradoraCarga    String?  // Ej: Seguros SURA, Mapfre, Previsora
+  numeroPoliza        String?
+  coberturaSeguro     String?  // Ej: "Pérdida Total, Volcadura, Saqueo"
+  
+  vehiculos           VehiculoLogistico[]
+}
+
+model Cosecha {
+  id                 String    @id @default(uuid())
+  titulo             String    @default("Producto Agropecuario")
+  sector             String    @default("agricola") // agricola, ganadero, acuicola
+  categoria          String?
+  variedad           String?
+  producto           String
+  precio             Float
+  unidad             String    @default("kg") // kg, cabezas, arrobas, litros
+  cantidadDisponible Int       @default(0)
+  
+  departamento       String?
+  municipio          String?
+  vereda             String?
+  ubicacion          String    @default("Colombia")
+  latitud            Float?
+  longitud           Float?
+  
+  fechaRecoleccion   DateTime? 
+  fechaCosechaStr    String?
+  tiempoTransporte   String?
+  
+  descripcion        String?
+  imagenes           String?
+  certificaciones    String?
+  
+  estado             String    @default("disponible")
+  origen             String    @default("O") // O = Original, D = Demo
+  
+  productorId        String
+  productor          Usuario   @relation(fields: [productorId], references: [id])
+  contratos          Contrato[]
+}
+
+model CompradorVerificado {
+  id                        String   @id @default(uuid())
+  usuarioId                 String   @unique
+  usuario                   Usuario  @relation(fields: [usuarioId], references: [id])
+  
+  tipoDocumento             String   // CC, NIT
+  numeroDocumento           String   @unique
+  rutDigital                String?  // URL
+  certificadoCamaraComercio String?  // URL
+  estadoSarlaft             Boolean  @default(false)
+  firmaDigital              String?  // Hash o URL
+}
+
+model VehiculoLogistico {
+  id                         String   @id @default(uuid())
+  transportistaId            String
+  transportista              PerfilTransportista @relation(fields: [transportistaId], references: [id])
+  
+  resolucionMinTransporte    String?
+  placaVehiculo              String   @unique
+  tipoVehiculo               String
+  vencimientoSOAT            DateTime?
+  vencimientoTecnicomecanica DateTime?
+  polizaSeguroCarga          String?
+  
+  contratos                  Contrato[]
+}
+
+model Contrato {
+  id                    String   @id @default(uuid())
+  fechaCreacion         DateTime @default(now())
+  
+  cosechaId             String
+  cosecha               Cosecha  @relation(fields: [cosechaId], references: [id])
+  
+  productorId           String
+  productor             Usuario  @relation("ProductorContrato", fields: [productorId], references: [id])
+  
+  compradorId           String
+  comprador             Usuario  @relation("CompradorContrato", fields: [compradorId], references: [id])
+  
+  vehiculoId            String?
+  vehiculo              VehiculoLogistico? @relation(fields: [vehiculoId], references: [id])
+  
+  volumen               Float
+  precioPactado         Float
+  lugarEntrega          String
+  clausulaSaneamiento   Boolean  @default(true)
+  
+  estadoContrato        String   @default("PENDIENTE_FIRMAS") // FIRMADO, EN_TRANSITO, ENTREGADO
+  manifiestoCarga       String?  
+}
