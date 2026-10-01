@@ -1,7 +1,13 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import WhatsAppAdvisorPopup from "@/components/ui/WhatsAppAdvisorPopup";
 import ScrollButtons from "@/components/ui/ScrollButtons";
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   title: "AGROPACCIOLI - El Ecosistema Agropecuario de Colombia",
