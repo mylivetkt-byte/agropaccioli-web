@@ -7,11 +7,16 @@ import { PRECIOS_MERCADO_DATA } from '@/lib/agro-data';
 
 export default function BuscadorPreciosNacional() {
   const [busqueda, setBusqueda] = useState('');
+  const [sectorFiltro, setSectorFiltro] = useState('todos');
+  const [limite, setLimite] = useState(8);
 
-  const filtrados = PRECIOS_MERCADO_DATA.filter((p) =>
-    p.producto.toLowerCase().includes(busqueda.toLowerCase()) ||
-    p.mercado.toLowerCase().includes(busqueda.toLowerCase())
-  );
+  const filtrados = PRECIOS_MERCADO_DATA.filter((p) => {
+    const matchText = p.producto.toLowerCase().includes(busqueda.toLowerCase()) || p.mercado.toLowerCase().includes(busqueda.toLowerCase());
+    const matchSector = sectorFiltro === 'todos' || p.sector === sectorFiltro;
+    return matchText && matchSector;
+  });
+  
+  const filtradosMostrar = filtrados.slice(0, limite);
 
   return (
     <section className="py-14 bg-emerald-50/40 border-y border-emerald-100">
@@ -31,8 +36,29 @@ export default function BuscadorPreciosNacional() {
           </Link>
         </div>
 
+        {/* Buscador Rápido de Precios */}
+        <div className="bg-white border border-emerald-200 rounded-2xl p-4 md:p-5 mb-8 space-y-4 max-w-3xl">
+          <div className="relative">
+            <Search className="w-5 h-5 text-emerald-700 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              placeholder="Buscar por producto o mercado (ej: Café, Aguacate, Corabastos...)"
+              className="w-full bg-zinc-50 border border-emerald-300 rounded-2xl pl-5 pr-12 py-3 text-sm text-zinc-800 outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm transition-shadow"
+            />
+          </div>
+          <div className="flex flex-wrap items-center gap-2 md:gap-3">
+            <span className="text-xs font-bold text-emerald-800 mr-2 hidden sm:block">Filtro rápido:</span>
+            <button onClick={() => setSectorFiltro('todos')} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${sectorFiltro === 'todos' ? 'bg-emerald-600 text-white shadow-md scale-105' : 'bg-zinc-100 text-zinc-600 hover:bg-emerald-100'}`}><span>🌾</span> Todos</button>
+            <button onClick={() => setSectorFiltro('agricola')} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${sectorFiltro === 'agricola' ? 'bg-emerald-600 text-white shadow-md scale-105' : 'bg-zinc-100 text-zinc-600 hover:bg-emerald-100'}`}><span>🥑</span> Agrícola</button>
+            <button onClick={() => setSectorFiltro('ganadero')} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${sectorFiltro === 'ganadero' ? 'bg-orange-600 text-white shadow-md scale-105' : 'bg-zinc-100 text-zinc-600 hover:bg-orange-100'}`}><span>🐂</span> Ganadero</button>
+            <button onClick={() => setSectorFiltro('acuicola')} className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${sectorFiltro === 'acuicola' ? 'bg-sky-600 text-white shadow-md scale-105' : 'bg-zinc-100 text-zinc-600 hover:bg-sky-100'}`}><span>🐟</span> Peces</button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          {filtrados.map((p) => (
+          {filtradosMostrar.map((p) => (
             <div key={p.id} className="bg-white rounded-2xl border border-emerald-100 p-4 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
               <div>
                 <div className="flex items-start justify-between gap-2">
@@ -52,6 +78,17 @@ export default function BuscadorPreciosNacional() {
             </div>
           ))}
         </div>
+
+        {filtrados.length > limite && (
+          <div className="mt-8 flex justify-center">
+            <button 
+              onClick={() => setLimite(limite + 8)}
+              className="px-6 py-2.5 bg-white border border-emerald-300 text-emerald-700 font-bold text-sm rounded-xl shadow-sm hover:bg-emerald-50 transition-colors"
+            >
+              Cargar más precios ({filtrados.length - limite} ocultos)
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

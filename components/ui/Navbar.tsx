@@ -111,12 +111,15 @@ export default function Navbar() {
       <div className="bg-white border-b border-emerald-100 py-2.5 px-4 sm:px-6">
         <div className="container mx-auto flex items-center justify-between gap-4">
           
-          {/* LOGOTIPO Y NOMBRE — 100% DESPEJADO Y PROTAGONISTA */}
+          {/* LOGOTIPO OFICIAL Y TÍTULO */}
           <Link href="/" className="flex items-center gap-3 shrink-0 group">
-            <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-green-400 flex items-center justify-center shadow-md shadow-emerald-500/25 group-hover:scale-105 transition-transform">
-              <Sprout className="w-6 h-6 text-white" />
-            </div>
-            <div>
+            <img 
+              src="/logo-agropaccioli.png" 
+              alt="Logo AGROPACCIOLI" 
+              className="h-12 sm:h-16 w-auto object-contain group-hover:scale-105 transition-transform"
+            />
+
+            <div className="hidden sm:block">
               <div className="text-xl sm:text-2xl font-black text-emerald-950 tracking-tight leading-none flex items-center gap-1">
                 <span>AGRO</span>
                 <span className="text-emerald-600">PACCIOLI</span>
@@ -183,7 +186,7 @@ export default function Navbar() {
       </div>
 
       {/* 3. BARRA DE MÓDULOS EN 2 FILAS COMPACTAS (TODO 100% VISIBLE Y SIN DESBORDES) */}
-      <div className="bg-gradient-to-b from-white to-emerald-50/40 border-b border-emerald-200/80 py-1.5 px-4 sm:px-6">
+      <div className="bg-white border-b border-emerald-200 py-1.5 px-4 sm:px-6">
         <div className="container mx-auto space-y-1.5">
           
           {/* FILA 1: Mercado & Cosechas */}

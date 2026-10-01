@@ -9,6 +9,7 @@ import { CosechaItem, SectorType } from '@/types/agro';
 export default function BuscadorCosechas() {
   const [busqueda, setBusqueda] = useState('');
   const [sectorFiltro, setSectorFiltro] = useState('todos');
+  const [limite, setLimite] = useState(8); // Paginación inicial
 
   const filtrados = COSECHAS_DATA.filter((item) => {
     const matchText = item.titulo.toLowerCase().includes(busqueda.toLowerCase()) ||
@@ -17,6 +18,8 @@ export default function BuscadorCosechas() {
     const matchSector = sectorFiltro === 'todos' || item.sector === sectorFiltro;
     return matchText && matchSector;
   });
+
+  const filtradosMostrar = filtrados.slice(0, limite);
 
   return (
     <section className="py-12 bg-white border-y border-emerald-100">
@@ -27,7 +30,7 @@ export default function BuscadorCosechas() {
               <Sparkles className="w-4 h-4" />
               <span>Directorio Verificado de Cosechas & Lotes</span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-emerald-950">Buscador Multimodal Nacional</h2>
+            <h2 className="text-2xl sm:text-3xl font-black text-emerald-950">Buscar Cosechas Disponibles</h2>
             <p className="text-xs sm:text-sm text-zinc-500 mt-1">Contacta agricultores, ganaderos y piscicultores colombianos verificados.</p>
           </div>
           <Link href="/mapa-cosechas" className="inline-flex items-center gap-2 text-xs font-bold text-emerald-700 bg-emerald-50 px-4 py-2.5 rounded-xl border border-emerald-200">
@@ -36,35 +39,55 @@ export default function BuscadorCosechas() {
           </Link>
         </div>
 
-        <div className="bg-emerald-50/50 border border-emerald-200 rounded-2xl p-4 mb-8">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div className="sm:col-span-2 relative">
-              <Search className="w-4 h-4 text-emerald-700 absolute left-3.5 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                value={busqueda}
-                onChange={(e) => setBusqueda(e.target.value)}
-                placeholder="Buscar por producto (ej: Aguacate, Café, Novillos, Tilapia) o municipio..."
-                className="w-full bg-white border border-emerald-300 rounded-xl pl-10 pr-4 py-2.5 text-xs text-zinc-800 outline-none focus:ring-2 focus:ring-emerald-500"
-              />
-            </div>
-            <div>
-              <select
-                value={sectorFiltro}
-                onChange={(e) => setSectorFiltro(e.target.value)}
-                className="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2.5 text-xs font-semibold text-zinc-700 outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer"
-              >
-                <option value="todos">🌾 Todos los Sectores</option>
-                <option value="agricola">🟢 Agrícola (Frutas, Granos)</option>
-                <option value="ganadero">🟠 Ganadero (Bovinos, Ceba)</option>
-                <option value="acuicola">🔵 Acuícola (Tilapia, Trucha)</option>
-              </select>
-            </div>
+        <div className="bg-emerald-50/50 border border-emerald-200 rounded-2xl p-4 md:p-5 mb-8 space-y-4 max-w-3xl">
+          {/* Barra de Búsqueda */}
+          <div className="relative">
+            <Search className="w-5 h-5 text-emerald-700 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              placeholder="¿Qué buscas? (ej: Aguacate, Novillos, Trucha, Antioquia...)"
+              className="w-full bg-white border border-emerald-300 rounded-2xl pl-5 pr-12 py-3 text-sm text-zinc-800 outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm transition-shadow"
+            />
+          </div>
+          
+          {/* Botones de Filtro Rápido (Pills) */}
+          <div className="flex flex-wrap items-center gap-2 md:gap-3">
+            <span className="text-xs font-bold text-emerald-800 mr-2 hidden sm:block">Filtrar por:</span>
+            
+            <button 
+              onClick={() => setSectorFiltro('todos')} 
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${sectorFiltro === 'todos' ? 'bg-emerald-600 text-white shadow-md scale-105' : 'bg-white text-zinc-600 hover:bg-emerald-100 border border-emerald-200'}`}
+            >
+              <span>🌾</span> Todos
+            </button>
+            
+            <button 
+              onClick={() => setSectorFiltro('agricola')} 
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${sectorFiltro === 'agricola' ? 'bg-emerald-600 text-white shadow-md scale-105' : 'bg-white text-zinc-600 hover:bg-emerald-100 border border-emerald-200'}`}
+            >
+              <span>🥑</span> Agrícola
+            </button>
+            
+            <button 
+              onClick={() => setSectorFiltro('ganadero')} 
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${sectorFiltro === 'ganadero' ? 'bg-orange-600 text-white shadow-md scale-105' : 'bg-white text-zinc-600 hover:bg-orange-100 border border-orange-200'}`}
+            >
+              <span>🐂</span> Ganadero
+            </button>
+            
+            <button 
+              onClick={() => setSectorFiltro('acuicola')} 
+              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${sectorFiltro === 'acuicola' ? 'bg-sky-600 text-white shadow-md scale-105' : 'bg-white text-zinc-600 hover:bg-sky-100 border border-sky-200'}`}
+            >
+              <span>🐟</span> Peces
+            </button>
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filtrados.map((item) => {
+          {filtradosMostrar.map((item) => {
             const estado = item.estado || 'disponible';
             return (
               <div key={item.id} className="bg-white rounded-2xl border border-emerald-100 shadow-sm hover:shadow-xl transition-all flex flex-col overflow-hidden group">
@@ -149,6 +172,17 @@ export default function BuscadorCosechas() {
             );
           })}
         </div>
+
+        {filtrados.length > limite && (
+          <div className="mt-10 flex justify-center">
+            <button 
+              onClick={() => setLimite(limite + 8)}
+              className="px-8 py-3.5 bg-white border-2 border-emerald-600 text-emerald-700 font-bold rounded-2xl shadow-sm hover:bg-emerald-50 active:scale-95 transition-all"
+            >
+              Cargar más lotes ({filtrados.length - limite} ocultos)
+            </button>
+          </div>
+        )}
       </div>
     </section>
   );

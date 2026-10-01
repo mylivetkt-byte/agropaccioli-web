@@ -55,9 +55,109 @@ async function main() {
     console.log(`Cargado en DB: ${item.titulo}`);
   }
 
+  console.log('Iniciando el proceso de seeding de la Escuela Rural...');
+
+  // 1. Crear el usuario estudiante principal
+  const donCarlos = await prisma.usuario.upsert({
+    where: { telefono: '573111111111' },
+    update: {},
+    create: {
+      nombre: 'Carlos Giraldo',
+      telefono: '573111111111',
+      cedula: '12345678',
+      rol: 'PRODUCTOR',
+      nivelAcademia: 3,
+      puntosAcademia: 450,
+      estadoVerificacion: 'APROBADO',
+      origen: 'D'
+    }
+  });
+
+  // 2. Crear Cursos de la Escuela
+  const cursoCacao = await prisma.academiaCultivo.create({
+    data: {
+      nombre: 'Cultivo de Cacao',
+      descripcion: 'Aprenda todo sobre el cacao, desde la siembra hasta la cosecha.',
+      icono: '🍫',
+      etapas: {
+        create: [
+          {
+            orden: 1,
+            titulo: 'Poda y Siembra de Cacao',
+            lecciones: {
+              create: [
+                { orden: 1, titulo: 'Tipos de Suelo para Cacao', tipo: 'AUDIO', duracionMinutos: 15 }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  });
+
+  const cursoRiego = await prisma.academiaCultivo.create({
+    data: {
+      nombre: 'Riego por Goteo Casero',
+      descripcion: 'Optimice el uso del agua en su finca de manera económica.',
+      icono: '💧',
+      etapas: {
+        create: [
+          {
+            orden: 1,
+            titulo: 'Instalación Básica',
+            lecciones: {
+              create: [
+                { orden: 1, titulo: 'Materiales Necesarios', tipo: 'VIDEO', duracionMinutos: 10 }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  });
+
+  const cursoBPA = await prisma.academiaCultivo.create({
+    data: {
+      nombre: 'Buenas Prácticas Agrícolas (BPA)',
+      descripcion: 'Normas y certificación oficial para exportar.',
+      icono: '📜',
+      etapas: {
+        create: [
+          {
+            orden: 1,
+            titulo: 'Manejo de Agroquímicos',
+            lecciones: {
+              create: [
+                { orden: 1, titulo: 'Bodegas Seguras', tipo: 'AUDIO', duracionMinutos: 20 }
+              ]
+            }
+          }
+        ]
+      }
+    }
+  });
+
+  // 3. Asignarle notas y diplomas a Don Carlos
+  await prisma.academiaProgreso.create({
+    data: {
+      usuarioId: donCarlos.id,
+      leccionId: (await prisma.academiaLeccion.findFirst({ where: { titulo: 'Tipos de Suelo para Cacao' } }))!.id,
+      completado: true,
+      fechaCompletado: new Date()
+    }
+  });
+
+  await prisma.academiaDiploma.create({
+    data: {
+      usuarioId: donCarlos.id,
+      cultivoId: cursoBPA.id,
+      notaFinal: 5.0,
+      codigoVerificacion: 'BPA-2025-' + Math.floor(Math.random() * 10000)
+    }
+  });
+
   console.log('Seeding completado con éxito!');
 }
-
 main()
   .catch((e) => {
     console.error(e);

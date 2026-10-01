@@ -13,10 +13,10 @@ export default function WhatsAppAdvisorPopup() {
   const ASESOR_FOTO = 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=300&q=80'; // Foto profesional de asesora
 
   const opcionesRapidas = [
-    '🌾 Deseo publicar mi cosecha',
-    '🛒 Busco comprar lotes verificados',
-    '🚚 Necesito cotizar transporte de carga',
-    '👷 Ayuda con bolsa de empleo o soporte'
+    '🌾 Quiero vender mi cosecha (Productor)',
+    '🛒 Quiero comprar directo (Mayorista)',
+    '🚚 Necesito transporte para mi carga',
+    '👷 Tengo dudas, necesito hablar con un humano'
   ];
 
   const handleEnviarWhatsApp = (texto?: string) => {
@@ -69,9 +69,9 @@ export default function WhatsAppAdvisorPopup() {
           <div className="p-4 bg-[#f8faf9] space-y-3">
             {/* Mensaje de Bienvenida */}
             <div className="bg-white p-3.5 rounded-2xl rounded-tl-xs shadow-xs border border-emerald-100 text-xs text-zinc-700 leading-relaxed">
-              👋 <strong>¡Hola! ¿Necesitas ayuda en la plataforma?</strong>
+              👋 <strong>¡Hola! ¿En qué te puedo colaborar hoy?</strong>
               <p className="mt-1 text-zinc-600">
-                Estoy lista para orientarte en la publicación de cosechas, búsqueda de compradores mayoristas, transporte o bolsa de empleo.
+                Estoy aquí para ayudarte paso a paso a vender tu cosecha a buen precio o a encontrar los mejores productores.
               </p>
             </div>
 

@@ -1,13 +1,24 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
-import { Briefcase, MapPin, Home, ArrowUpRight, PlusCircle, ShieldCheck, MessageCircle, Sparkles, Flame, CheckCircle2 } from 'lucide-react';
+import { Briefcase, MapPin, Home, ArrowUpRight, PlusCircle, ShieldCheck, MessageCircle, Sparkles, Flame, CheckCircle2, Search } from 'lucide-react';
 import { EMPLEOS_DATA, TEMPORADAS_COSECHA_DATA } from '@/lib/agro-data';
 
 export default function BolsaEmpleosPreview() {
-  const destacadas = EMPLEOS_DATA.slice(0, 3);
-  const totalActivas = EMPLEOS_DATA.filter(e => e.estado === 'activa' || !e.estado).length;
+  const [busqueda, setBusqueda] = useState('');
+
+  const filtrados = EMPLEOS_DATA.filter((e) => {
+    const isActive = e.estado === 'activa' || !e.estado;
+    const matchText = e.titulo.toLowerCase().includes(busqueda.toLowerCase()) || 
+                      e.municipio.toLowerCase().includes(busqueda.toLowerCase()) ||
+                      e.empresaOFinca.toLowerCase().includes(busqueda.toLowerCase());
+    return isActive && matchText;
+  });
+
+  // Mostramos 3 por defecto, o hasta 6 si el usuario está buscando algo
+  const destacadas = busqueda.trim() !== '' ? filtrados.slice(0, 6) : filtrados.slice(0, 3);
+  const totalActivas = filtrados.length;
 
   return (
     <section className="py-14 bg-gradient-to-b from-white via-emerald-50/30 to-white border-b border-emerald-100">
@@ -46,6 +57,20 @@ export default function BolsaEmpleosPreview() {
               <span>Ver Todas las Vacantes ({EMPLEOS_DATA.length})</span>
               <ArrowUpRight className="w-4 h-4 text-emerald-600" />
             </Link>
+          </div>
+        </div>
+
+        {/* Buscador Rápido de Empleos */}
+        <div className="bg-white border border-emerald-100 rounded-2xl p-4 md:p-5 mb-6 max-w-3xl">
+          <div className="relative">
+            <Search className="w-5 h-5 text-emerald-700 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={busqueda}
+              onChange={(e) => setBusqueda(e.target.value)}
+              placeholder="Buscar por cargo (ej: Mayordomo, Recolector) o municipio..."
+              className="w-full bg-zinc-50 border border-emerald-200 rounded-2xl pl-5 pr-12 py-3 text-sm text-zinc-800 outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm transition-shadow"
+            />
           </div>
         </div>
 

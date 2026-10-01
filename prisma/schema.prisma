@@ -24,6 +24,11 @@ model Usuario {
   compradorVerificado CompradorVerificado?
   contratosProductor  Contrato[] @relation("ProductorContrato")
   contratosComprador  Contrato[] @relation("CompradorContrato")
+  
+  progresosAcademia   AcademiaProgreso[]
+  diplomasAcademia    AcademiaDiploma[]
+  nivelAcademia       Int       @default(1)
+  puntosAcademia      Int       @default(0)
 }
 
 model PerfilTransportista {
@@ -130,4 +135,77 @@ model Contrato {
   
   estadoContrato        String   @default("PENDIENTE_FIRMAS") // FIRMADO, EN_TRANSITO, ENTREGADO
   manifiestoCarga       String?  
+}
+
+// ==========================================
+// MÓDULOS DE LA ESCUELA RURAL (ACADEMIA)
+// ==========================================
+
+model AcademiaCultivo {
+  id          String   @id @default(uuid())
+  nombre      String   // Ej: "Café", "Aguacate Hass", "Ganado Bovino"
+  descripcion String?
+  icono       String?  // Ej: "☕", "🥑"
+  estado      String   @default("ACTIVO")
+  
+  etapas      AcademiaEtapa[]
+  diplomas    AcademiaDiploma[]
+}
+
+model AcademiaEtapa {
+  id          String   @id @default(uuid())
+  cultivoId   String
+  cultivo     AcademiaCultivo @relation(fields: [cultivoId], references: [id])
+  
+  orden       Int      // 1, 2, 3, 4... (Etapa 1: La Cuna)
+  titulo      String   // Ej: "Etapa 1: Semillero y Suelo"
+  descripcion String?
+  
+  lecciones   AcademiaLeccion[]
+}
+
+model AcademiaLeccion {
+  id          String   @id @default(uuid())
+  etapaId     String
+  etapa       AcademiaEtapa @relation(fields: [etapaId], references: [id])
+  
+  orden       Int      // 1, 2, 3...
+  titulo      String   // Ej: "Cómo preparar abono orgánico"
+  tipo        String   // "AUDIO", "VIDEO"
+  urlContenido String? // URL del archivo MP3 o Video YouTube
+  duracionMinutos Int?
+  
+  // NUEVO: Adaptación climática
+  climaRecomendado String @default("TODOS") // CALIDO, TEMPLADO, FRIO, TODOS
+  
+  progresos   AcademiaProgreso[]
+}
+
+model AcademiaProgreso {
+  id          String   @id @default(uuid())
+  usuarioId   String
+  usuario     Usuario  @relation(fields: [usuarioId], references: [id])
+  
+  leccionId   String
+  leccion     AcademiaLeccion @relation(fields: [leccionId], references: [id])
+  
+  completado  Boolean  @default(false)
+  fechaCompletado DateTime?
+  
+  @@unique([usuarioId, leccionId])
+}
+
+model AcademiaDiploma {
+  id                  String   @id @default(uuid())
+  usuarioId           String
+  usuario             Usuario  @relation(fields: [usuarioId], references: [id])
+  
+  cultivoId           String
+  cultivo             AcademiaCultivo @relation(fields: [cultivoId], references: [id])
+  
+  notaFinal           Float    // Ej: 4.5, 5.0
+  fechaEmision        DateTime @default(now())
+  codigoVerificacion  String   @unique @default(uuid())
+  
+  @@unique([usuarioId, cultivoId])
 }

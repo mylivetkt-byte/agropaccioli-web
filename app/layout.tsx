@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import WhatsAppAdvisorPopup from "@/components/ui/WhatsAppAdvisorPopup";
+import ScrollButtons from "@/components/ui/ScrollButtons";
 
 export const metadata: Metadata = {
   title: "AGROPACCIOLI - El Ecosistema Agropecuario de Colombia",
@@ -17,6 +18,7 @@ export default function RootLayout({
       <body className="antialiased bg-[#f8faf9] text-[#152417]">
         {children}
         <WhatsAppAdvisorPopup />
+        <ScrollButtons />
       </body>
     </html>
   );

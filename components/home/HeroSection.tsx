@@ -10,7 +10,8 @@ import {
   TrendingUp, 
   ArrowRight,
   CheckCircle,
-  Truck
+  Truck,
+  Users
 } from 'lucide-react';
 
 export default function HeroSection() {
@@ -22,93 +23,82 @@ export default function HeroSection() {
       
       <div className="container mx-auto px-4">
         
-        <div className="max-w-4xl mx-auto text-center space-y-6">
+        <div className="max-w-4xl mx-auto text-center space-y-8">
           
-          {/* Badge Oficial */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-100/80 border border-emerald-300/80 text-emerald-900 text-xs font-bold tracking-wide shadow-sm animate-float-slow">
-            <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-            <span>EL ECOSISTEMA AGROPECUARIO MÁS GRANDE DE COLOMBIA</span>
+          {/* Badge Oficial Simplificado */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100/80 border border-emerald-300/80 text-emerald-900 text-xs md:text-sm font-bold tracking-wide shadow-sm animate-float-slow">
+            <Sparkles className="w-4 h-4 text-emerald-600" />
+            <span>PLATAFORMA LÍDER EN COLOMBIA</span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-            <span className="text-emerald-700 font-semibold">100% CERO INTERMEDIARIOS</span>
+            <span className="text-emerald-700 font-black">100% SIN INTERMEDIARIOS</span>
           </div>
 
-          {/* Título Principal */}
+          {/* Título Principal Orientado al Beneficio */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-emerald-950 tracking-tight leading-[1.15]">
-            Conectamos el <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-green-500 to-emerald-700">Campo Colombiano</span> con Compradores e Insumos en Tiempo Real
+            Vende tu cosecha <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-green-500 to-emerald-700">directo al comprador</span> al precio justo
           </h1>
 
-          {/* Subtítulo */}
-          <p className="text-base sm:text-lg text-zinc-600 max-w-2xl mx-auto font-normal leading-relaxed">
-            Plataforma verificada para Productores Agrícolas, Ganaderos y Acuícolas. Consulta precios oficiales del DANE/SIPSA, publica cosechas con geolocalización satelital y contacta almacenes de insumos de tu región.
+          {/* Subtítulo Claro y Conciso */}
+          <p className="text-lg sm:text-xl text-zinc-600 max-w-2xl mx-auto font-medium leading-relaxed">
+            Únete a la red agrícola más segura. Los productores ganan más por su trabajo y los compradores obtienen calidad garantizada directo de la finca.
           </p>
 
-          {/* Botones de Acción Primaria */}
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+          {/* 2 Embudos Claros (Acción Principal) */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
             <Link
               href="/mapa-cosechas?publicar=true"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 text-white font-bold text-sm px-7 py-4 rounded-2xl shadow-xl shadow-emerald-600/25 hover:shadow-emerald-600/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white font-black text-lg px-8 py-5 rounded-2xl shadow-xl shadow-emerald-600/30 hover:shadow-emerald-600/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
             >
-              <PlusCircle className="w-5 h-5" />
-              <span>Publica Tu Cosecha Gratis</span>
+              <PlusCircle className="w-6 h-6" />
+              <span>Quiero Vender (Productor)</span>
             </Link>
 
             <Link
-              href="/mapa-cosechas"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 text-white font-bold text-sm px-7 py-4 rounded-2xl shadow-xl shadow-emerald-600/25 hover:shadow-emerald-600/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
+              href="/?registro_comprador=true"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-white border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-50 hover:border-emerald-700 font-black text-lg px-8 py-5 rounded-2xl shadow-lg shadow-zinc-200/50 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
             >
-              <MapPin className="w-5 h-5 text-emerald-100" />
-              <span>Explorar Mapa Nacional de Cosechas</span>
-            </Link>
-
-            <Link
-              href="/precios-mercado"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2.5 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 text-white font-bold text-sm px-7 py-4 rounded-2xl shadow-xl shadow-emerald-600/25 hover:shadow-emerald-600/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-200"
-            >
-              <TrendingUp className="w-5 h-5 text-emerald-100" />
-              <span>Precios de Hoy</span>
+              <ShieldCheck className="w-6 h-6 text-emerald-600" />
+              <span>Quiero Comprar (Mayorista)</span>
             </Link>
           </div>
 
-          {/* Sellos de Confianza y Garantías */}
-          <div className="pt-4 flex flex-wrap items-center justify-center gap-6 text-xs font-semibold text-zinc-600">
-            <div className="flex items-center gap-1.5 text-emerald-800">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" />
-              <span>Verificación KYC Productores</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-emerald-800">
-              <CheckCircle className="w-4 h-4 text-emerald-600" />
-              <span>Contratos Ley 527 de 1999</span>
-            </div>
-            <div className="flex items-center gap-1.5 text-emerald-800">
-              <CheckCircle className="w-4 h-4 text-emerald-600" />
-              <span>Protección Ley 1581 / 2012</span>
-            </div>
+          {/* Enlaces Secundarios */}
+          <div className="flex flex-wrap items-center justify-center gap-6 pt-4 text-sm font-semibold text-emerald-700">
+            <Link href="/precios-mercado" className="flex items-center gap-2 hover:text-emerald-900 hover:underline transition-colors">
+              <TrendingUp className="w-4 h-4" />
+              Ver Precios Oficiales de Hoy
+            </Link>
+            <span className="hidden sm:inline text-emerald-300">|</span>
+            <Link href="/mapa-cosechas" className="flex items-center gap-2 hover:text-emerald-900 hover:underline transition-colors">
+              <MapPin className="w-4 h-4" />
+              Explorar Mapa de Cosechas
+            </Link>
+            <span className="hidden sm:inline text-emerald-300">|</span>
+            <Link href="/?registro_transportador=true" className="flex items-center gap-2 hover:text-emerald-900 hover:underline transition-colors">
+              <Truck className="w-4 h-4" />
+              Soy Transportador
+            </Link>
           </div>
 
-          {/* Botones de Registro B2B y Logística */}
-          <div className="pt-8 mt-8 border-t border-emerald-100 flex flex-col items-center">
-            <p className="text-sm font-bold text-emerald-900 mb-4 uppercase tracking-wider">Únete a la Red B2B Segura</p>
-            <div className="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
-              <Link
-                href="/?registro_comprador=true"
-                className="inline-flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-sm px-6 py-3 rounded-xl shadow-lg transition-all"
-              >
-                <ShieldCheck className="w-4 h-4 text-emerald-200" />
-                Soy Comprador (Validación SARLAFT)
-              </Link>
-              <Link
-                href="/?registro_transportador=true"
-                className="inline-flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm px-6 py-3 rounded-xl shadow-lg transition-all"
-              >
-                <Truck className="w-4 h-4 text-emerald-200" />
-                Soy Transportador (RNDC)
-              </Link>
+          {/* Franja de Prueba Social (Traducida a idioma campesino/confianza) */}
+          <div className="pt-8 mt-6 border-t border-emerald-100 flex flex-wrap items-center justify-center gap-x-8 gap-y-4 text-sm font-bold text-zinc-700">
+            <div className="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-100">
+              <Users className="w-5 h-5 text-emerald-600" />
+              <span>+1,200 Productores Activos</span>
+            </div>
+            <div className="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-100">
+              <ShieldCheck className="w-5 h-5 text-emerald-600" />
+              <span>Perfiles 100% Verificados</span>
+            </div>
+            <div className="flex items-center gap-2 bg-emerald-50 px-4 py-2 rounded-lg border border-emerald-100">
+              <CheckCircle className="w-5 h-5 text-emerald-600" />
+              <span>Negocios Directos y Seguros</span>
             </div>
           </div>
         </div>
 
         {/* Tarjetas de Acceso Rápido a los 3 Sectores Productivos */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-12 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mt-16 max-w-5xl mx-auto">
           
           {/* Card Agrícola */}
           <Link 
@@ -122,7 +112,7 @@ export default function HeroSection() {
               <div className="flex items-center justify-between mb-1">
                 <h3 className="text-lg font-bold text-emerald-950">Sector Agrícola</h3>
                 <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                  🟢 140+ Lotes
+                  🟢 Lotes Disponibles
                 </span>
               </div>
               <p className="text-xs text-zinc-500 leading-relaxed">
@@ -147,7 +137,7 @@ export default function HeroSection() {
               <div className="flex items-center justify-between mb-1">
                 <h3 className="text-lg font-bold text-emerald-950">Sector Ganadero</h3>
                 <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-800">
-                  🟠 85+ Hatos
+                  🟠 Hatos Disponibles
                 </span>
               </div>
               <p className="text-xs text-zinc-500 leading-relaxed">
@@ -172,7 +162,7 @@ export default function HeroSection() {
               <div className="flex items-center justify-between mb-1">
                 <h3 className="text-lg font-bold text-emerald-950">Sector Acuícola</h3>
                 <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-sky-100 text-sky-800">
-                  🔵 42+ Piscícolas
+                  🔵 Cultivos Activos
                 </span>
               </div>
               <p className="text-xs text-zinc-500 leading-relaxed">
