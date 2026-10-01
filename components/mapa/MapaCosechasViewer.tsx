@@ -6,10 +6,45 @@ import { Layers, X, MessageCircle, Phone, MapPin, ShieldCheck, Eye, Compass, Sea
 import { checkUsuarioStatus } from '@/app/actions/cosechas';
 import { CosechaItem } from '@/types/agro';
 import { getCosechasList } from '@/app/actions/cosechas';
+import { COSECHAS_DATA } from '@/lib/agro-data';
 import Supercluster from 'supercluster';
 
 type MapStyleKey = 'vivid' | 'satelite' | 'topo' | 'osm';
 type DateFilter = 'todas' | 'inmediata' | 'futura';
+
+const parseImages = (val: any): string[] => {
+  if (!val) return ['https://images.unsplash.com/photo-1592688001655-b7700259b02a?q=80&w=600'];
+  if (Array.isArray(val)) return val;
+  if (typeof val === 'string') {
+    const trimmed = val.trim();
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      try {
+        return JSON.parse(trimmed);
+      } catch {
+        return [val];
+      }
+    }
+    return [val];
+  }
+  return ['https://images.unsplash.com/photo-1592688001655-b7700259b02a?q=80&w=600'];
+};
+
+const parseCerts = (val: any): string[] => {
+  if (!val) return [];
+  if (Array.isArray(val)) return val;
+  if (typeof val === 'string') {
+    const trimmed = val.trim();
+    if (trimmed.startsWith('[') && trimmed.endsWith(']')) {
+      try {
+        return JSON.parse(trimmed);
+      } catch {
+        return trimmed.split(',').map((s) => s.trim()).filter(Boolean);
+      }
+    }
+    return trimmed.split(',').map((s) => s.trim()).filter(Boolean);
+  }
+  return [];
+};
 
 export default function MapaCosechasViewer() {
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -21,8 +56,8 @@ export default function MapaCosechasViewer() {
   const [sectorFiltro, setSectorFiltro] = useState<string>('todos');
   const [activeStyle, setActiveStyle] = useState<MapStyleKey>('vivid');
   
-  // Datos reales de la BD
-  const [dbData, setDbData] = useState<CosechaItem[]>([]);
+  // Inicializado con datos inmediatos + sincronización en tiempo real con Supabase
+  const [dbData, setDbData] = useState<CosechaItem[]>(COSECHAS_DATA);
 
   // Nuevos estados para el Panel Lateral
   const [searchQuery, setSearchQuery] = useState('');
@@ -43,41 +78,42 @@ export default function MapaCosechasViewer() {
     async function loadData() {
       try {
         const rawData = await getCosechasList();
-        // Mapear al formato CosechaItem
-        const mappedData: CosechaItem[] = rawData.map((d: any) => ({
-          id: d.id,
-          titulo: d.titulo || d.producto,
-          sector: d.sector as any,
-          categoria: d.categoria || '',
-          variedad: d.variedad || '',
-          cantidadDisponible: d.cantidadDisponible,
-          unidad: d.unidad as any,
-          precioUnitario: d.precio,
-          moneda: 'COP',
-          departamento: d.departamento || 'Colombia',
-          municipio: d.municipio || d.ubicacion,
-          vereda: d.vereda || '',
-          coordenadas: [d.longitud || -74.0, d.latitud || 4.0],
-          productor: {
-            nombre: d.productor?.nombre || 'Productor',
-            finca: 'Finca (BD)',
-            verificadoKYC: true,
-            calificacion: 5,
-            telefono: d.productor?.telefono || '',
-            whatsapp: d.productor?.telefono || '',
-            experienciaAnos: 5,
-          },
-          fechaCosechaEstimada: d.fechaCosechaStr || (d.fechaRecoleccion ? new Date(d.fechaRecoleccion).toLocaleDateString() : 'Inmediata'),
-          fechaPublicacion: new Date().toISOString(),
-          imagenes: d.imagenes ? JSON.parse(d.imagenes) : ['https://images.unsplash.com/photo-1592688001655-b7700259b02a?q=80&w=600'],
-          descripcion: d.descripcion || `Producto ${d.producto} disponible.`,
-          certificaciones: d.certificaciones ? JSON.parse(d.certificaciones) : [],
-          estado: (d.estado as any) || 'disponible',
-          origen: d.origen // Campo importante para saber si es Demo
-        }));
-        setDbData(mappedData);
+        if (rawData && rawData.length > 0) {
+          const mappedData: CosechaItem[] = rawData.map((d: any) => ({
+            id: d.id,
+            titulo: d.titulo || d.producto,
+            sector: d.sector as any,
+            categoria: d.categoria || '',
+            variedad: d.variedad || '',
+            cantidadDisponible: d.cantidadDisponible,
+            unidad: d.unidad as any,
+            precioUnitario: d.precio,
+            moneda: 'COP',
+            departamento: d.departamento || 'Colombia',
+            municipio: d.municipio || d.ubicacion,
+            vereda: d.vereda || '',
+            coordenadas: [d.longitud || -74.0, d.latitud || 4.0],
+            productor: {
+              nombre: d.productor?.nombre || 'Productor Verificado',
+              finca: d.vereda ? `Finca Vereda ${d.vereda}` : 'Finca Registrada',
+              verificadoKYC: true,
+              calificacion: 5,
+              telefono: d.productor?.telefono || '+573114567890',
+              whatsapp: d.productor?.telefono ? d.productor.telefono.replace('+', '') : '573114567890',
+              experienciaAnos: 10,
+            },
+            fechaCosechaEstimada: d.fechaCosechaStr || (d.fechaRecoleccion ? new Date(d.fechaRecoleccion).toLocaleDateString() : 'Inmediata'),
+            fechaPublicacion: d.createdAt ? new Date(d.createdAt).toISOString() : new Date().toISOString(),
+            imagenes: parseImages(d.imagenes),
+            descripcion: d.descripcion || `Producto ${d.producto} disponible para negociación directa.`,
+            certificaciones: parseCerts(d.certificaciones),
+            estado: (d.estado as any) || 'disponible',
+            origen: d.origen || 'D'
+          }));
+          setDbData(mappedData);
+        }
       } catch (e) {
-        console.error("Error loading cosechas:", e);
+        console.error("Error loading cosechas from database:", e);
       }
     }
     loadData();
