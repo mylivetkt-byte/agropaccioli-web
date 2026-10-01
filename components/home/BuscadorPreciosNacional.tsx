@@ -4,12 +4,13 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { TrendingUp, TrendingDown, Search, ArrowUpRight } from 'lucide-react';
 import { getPreciosMercadoList } from '@/app/actions/precios';
+import { PRECIOS_MERCADO_DATA } from '@/lib/agro-data';
 
 export default function BuscadorPreciosNacional() {
   const [busqueda, setBusqueda] = useState('');
   const [sectorFiltro, setSectorFiltro] = useState('todos');
   const [limite, setLimite] = useState(8);
-  const [precios, setPrecios] = useState<any[]>([]);
+  const [precios, setPrecios] = useState<any[]>(PRECIOS_MERCADO_DATA);
 
   useEffect(() => {
     async function load() {

@@ -3,17 +3,43 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
+import { EMPLEOS_DATA } from '@/lib/agro-data';
+
 export async function getEmpleosList() {
   try {
     const empleos = await prisma.ofertaEmpleo.findMany({
       orderBy: { fechaPublicacion: 'desc' },
       include: { postulaciones: true }
     });
-    return empleos;
+    if (empleos && empleos.length > 0) {
+      return empleos;
+    }
   } catch (e) {
-    console.error('Error fetching empleos:', e);
-    return [];
+    console.warn('Error fetching db empleos, using fallback catalog:', e);
   }
+
+  return EMPLEOS_DATA.map((e: any) => ({
+    id: e.id,
+    titulo: e.titulo,
+    sector: e.sector,
+    tipoContrato: e.tipoContrato || 'Jornal / Cosecha',
+    ubicacion: e.ubicacion || `${e.municipio || ''}, ${e.departamento || 'Colombia'}`,
+    departamento: e.departamento || 'Colombia',
+    municipio: e.municipio || '',
+    salario: e.salario || 0,
+    salarioTexto: e.salarioTexto || '',
+    requiereExperiencia: Boolean(e.requiereExperiencia),
+    incluyeHospedaje: Boolean(e.incluyeHospedaje),
+    incluyeAlimentacion: Boolean(e.incluyeAlimentacion),
+    descripcion: e.descripcion || '',
+    requisitos: Array.isArray(e.requisitos) ? e.requisitos.join('; ') : (e.requisitos || ''),
+    empleadorNombre: e.empresaOFinca || 'Finca Verificada',
+    empleadorTelefono: e.telefonoContacto || '+573000000000',
+    estado: e.estado || 'ACTIVA',
+    origen: 'D',
+    fechaPublicacion: new Date(e.fechaPublicacion || '2026-10-01'),
+    postulaciones: []
+  }));
 }
 
 export async function publicarOfertaEmpleo(formData: FormData) {

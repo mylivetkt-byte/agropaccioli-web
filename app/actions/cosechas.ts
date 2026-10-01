@@ -4,25 +4,66 @@ import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+import { COSECHAS_DATA } from '@/lib/agro-data';
+
 export async function checkUsuarioStatus(cedula: string) {
-  const user = await prisma.usuario.findUnique({ where: { cedula } });
-  if (!user) return { status: 'NO_EXISTE' };
-  if (user.estadoVerificacion !== 'APROBADO') return { status: 'PENDIENTE', nombre: user.nombre };
-  return { status: 'APROBADO', usuario: user };
+  try {
+    const user = await prisma.usuario.findUnique({ where: { cedula } });
+    if (!user) return { status: 'NO_EXISTE' };
+    if (user.estadoVerificacion !== 'APROBADO') return { status: 'PENDIENTE', nombre: user.nombre };
+    return { status: 'APROBADO', usuario: user };
+  } catch {
+    return { status: 'NO_EXISTE' };
+  }
 }
 
 export async function getCosechasList() {
-  const cosechas = await prisma.cosecha.findMany({
-    include: {
-      productor: {
-        select: { nombre: true, telefono: true }
+  try {
+    const dbCosechas = await prisma.cosecha.findMany({
+      include: {
+        productor: {
+          select: { nombre: true, telefono: true }
+        }
       }
-    },
-    orderBy: {
-      fechaRecoleccion: 'desc'
+    });
+    if (dbCosechas && dbCosechas.length > 0) {
+      return dbCosechas;
     }
-  });
-  return cosechas;
+  } catch (err) {
+    console.warn('Base de datos no disponible o vacía, usando catálogo integrado:', err);
+  }
+
+  // Fallback garantizado: si la BD aún no tiene registros o se está conectando, muestra el catálogo completo
+  return COSECHAS_DATA.map((c) => ({
+    id: c.id,
+    titulo: c.titulo,
+    sector: c.sector,
+    categoria: c.categoria,
+    variedad: c.variedad,
+    producto: c.variedad || c.titulo,
+    precio: c.precioUnitario,
+    unidad: c.unidad,
+    cantidadDisponible: c.cantidadDisponible,
+    departamento: c.departamento,
+    municipio: c.municipio,
+    vereda: c.vereda,
+    ubicacion: `${c.municipio}, ${c.departamento}`,
+    latitud: c.coordenadas ? c.coordenadas[1] : null,
+    longitud: c.coordenadas ? c.coordenadas[0] : null,
+    fechaRecoleccion: null,
+    fechaCosechaStr: c.fechaCosechaEstimada,
+    tiempoTransporte: '2-4 horas',
+    descripcion: c.descripcion,
+    imagenes: c.imagenes ? c.imagenes[0] : null,
+    certificaciones: c.certificaciones ? c.certificaciones.join(', ') : null,
+    estado: c.estado || 'disponible',
+    origen: 'D',
+    productorId: 'usr-demo-001',
+    productor: {
+      nombre: c.productor?.nombre || 'Don Hernando Gómez',
+      telefono: c.productor?.telefono || '+573114567890'
+    }
+  }));
 }
 
 export async function publicarCosecha(formData: FormData) {

@@ -3,16 +3,36 @@
 import prisma from '@/lib/prisma';
 import { revalidatePath } from 'next/cache';
 
+import { ALMACENES_INSUMOS_DATA } from '@/lib/agro-data';
+
 export async function getAlmacenesList() {
   try {
     const almacenes = await prisma.almacenInsumos.findMany({
       orderBy: { calificacion: 'desc' }
     });
-    return almacenes;
+    if (almacenes && almacenes.length > 0) {
+      return almacenes;
+    }
   } catch (e) {
-    console.error('Error fetching almacenes:', e);
-    return [];
+    console.warn('Error fetching db almacenes, using fallback catalog:', e);
   }
+
+  return ALMACENES_INSUMOS_DATA.map((a: any) => ({
+    id: a.id,
+    nombre: a.nombreComercial,
+    departamento: a.departamento,
+    municipio: a.municipio,
+    direccion: `${a.municipio}, ${a.departamento}`,
+    telefono: a.telefono,
+    whatsapp: a.whatsapp,
+    calificacion: a.calificacion,
+    marcas: Array.isArray(a.marcasAutorizadas) ? a.marcasAutorizadas.join(', ') : 'Insumos',
+    categoria: a.categoria || 'mixto',
+    imagen: a.fotoFachada || '',
+    descripcion: a.razonSocial || '',
+    origen: 'D',
+    createdAt: new Date('2026-10-01')
+  }));
 }
 
 export async function registrarAlmacen(formData: FormData) {

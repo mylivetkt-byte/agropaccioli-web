@@ -4,14 +4,15 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, MapPin, ShieldCheck, MessageCircle, Phone, Sparkles, Loader2 } from 'lucide-react';
 import { getCosechasList } from '@/app/actions/cosechas';
+import { COSECHAS_DATA } from '@/lib/agro-data';
 import { CosechaItem, SectorType } from '@/types/agro';
 
 export default function BuscadorCosechas() {
   const [busqueda, setBusqueda] = useState('');
   const [sectorFiltro, setSectorFiltro] = useState('todos');
   const [limite, setLimite] = useState(8);
-  const [cosechas, setCosechas] = useState<CosechaItem[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [cosechas, setCosechas] = useState<CosechaItem[]>(COSECHAS_DATA);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function load() {

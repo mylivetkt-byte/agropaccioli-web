@@ -4,10 +4,11 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Briefcase, MapPin, Home, ArrowUpRight, PlusCircle, ShieldCheck, MessageCircle, Sparkles, Flame, CheckCircle2, Search } from 'lucide-react';
 import { getEmpleosList } from '@/app/actions/empleos';
+import { EMPLEOS_DATA } from '@/lib/agro-data';
 
 export default function BolsaEmpleosPreview() {
   const [busqueda, setBusqueda] = useState('');
-  const [empleos, setEmpleos] = useState<any[]>([]);
+  const [empleos, setEmpleos] = useState<any[]>(EMPLEOS_DATA);
 
   useEffect(() => {
     async function load() {

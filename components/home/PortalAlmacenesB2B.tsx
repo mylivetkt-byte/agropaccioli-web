@@ -4,10 +4,11 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Store, ShieldCheck, MessageCircle, ArrowRight, Search, ShoppingBag } from 'lucide-react';
 import { getAlmacenesList } from '@/app/actions/almacenes';
+import { ALMACENES_INSUMOS_DATA } from '@/lib/agro-data';
 
 export default function PortalAlmacenesB2B() {
   const [busqueda, setBusqueda] = useState('');
-  const [almacenes, setAlmacenes] = useState<any[]>([]);
+  const [almacenes, setAlmacenes] = useState<any[]>(ALMACENES_INSUMOS_DATA);
 
   useEffect(() => {
     async function load() {
