@@ -61,7 +61,7 @@ export default function Navbar() {
     { href: '/transportistas', label: 'Transportistas', icon: Truck },
     { href: '/academia-ia', label: 'Asistente IA', icon: Bot },
     { href: '/agremiaciones', label: 'Gremios & ONGs', icon: Users2 },
-    { href: '/software', label: 'Software', icon: ShieldCheck, badge: 'ERP' },
+    { href: '/software', label: 'Software ERP', icon: ShieldCheck, badge: 'ERP' },
     { href: '/admin', label: 'Panel Admin', icon: ShieldCheck }
   ];
 
