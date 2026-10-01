@@ -21,7 +21,8 @@ import {
   Bell,
   LineChart,
   Sliders,
-  Users2
+  Users2,
+  GraduationCap
 } from 'lucide-react';
 import { TRM_DATA, ALERTAS_NOTIFICACIONES_DATA } from '@/lib/agro-data';
 import NotificacionesDropdown from '@/components/alertas/NotificacionesDropdown';
@@ -49,15 +50,16 @@ export default function Navbar() {
     { href: '/inteligencia-mercado', label: 'Inteligencia IA', icon: LineChart, badge: 'Nuevo' },
     { href: '/empleos', label: 'Bolsa de Empleo', icon: Briefcase, badge: '47 Ofertas' },
     { href: '/precios-mercado', label: 'Precios SIPSA / DANE', icon: TrendingUp },
-    { href: '/mi-escaparate', label: 'Mi Escaparate', icon: Store, badge: 'Productor' }
+    { href: '/mi-escaparate', label: 'Mi Escaparate', icon: Store, badge: 'Productor' },
+    { href: '/mis-intereses', label: 'Mis Favoritos', icon: ShoppingBag }
   ];
 
-  // FILA 2 DE MÓDULOS: Favoritos, B2B, Logística y Apoyo
+  // FILA 2 DE MÓDULOS: Educación, B2B, Logística, Software y Apoyo
   const fila2Modulos: NavModuleItem[] = [
-    { href: '/mis-intereses', label: 'Mis Favoritos', icon: ShoppingBag },
+    { href: '/escuela', label: 'Escuela Rural', icon: GraduationCap, badge: 'Cursos' },
     { href: '/almacenes-b2b', label: 'Almacenes B2B', icon: Store },
     { href: '/transportistas', label: 'Transportistas', icon: Truck },
-    { href: '/academia-ia', label: 'Academia IA', icon: Bot },
+    { href: '/academia-ia', label: 'Asistente IA', icon: Bot },
     { href: '/agremiaciones', label: 'Gremios & ONGs', icon: Users2 },
     { href: '/software', label: 'Software', icon: ShieldCheck, badge: 'ERP' },
     { href: '/admin', label: 'Panel Admin', icon: ShieldCheck }
