@@ -65,6 +65,7 @@ export default function Footer() {
                 <li><Link href="/mapa-cosechas" className="hover:text-emerald-600 hover:underline transition-colors block">Mapa de Cosechas en Vivo</Link></li>
                 <li><Link href="/empleos" className="hover:text-emerald-600 hover:underline transition-colors block">Bolsa de Empleo Rural</Link></li>
                 <li><Link href="/precios-mercado" className="hover:text-emerald-600 hover:underline transition-colors block">Precios DANE Oficiales</Link></li>
+                <li><Link href="/software" className="hover:text-emerald-600 hover:underline transition-colors font-bold text-emerald-950 block">💻 Software ERP & Ecosistema</Link></li>
               </ul>
             </div>
             
