@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model Usuario {
@@ -209,3 +210,151 @@ model AcademiaDiploma {
   
   @@unique([usuarioId, cultivoId])
 }
+
+// ==========================================
+// MÓDULO B2B: ALMACENES DE INSUMOS
+// ==========================================
+
+model AlmacenInsumos {
+  id            String   @id @default(uuid())
+  nombre        String
+  departamento  String
+  municipio     String
+  direccion     String?
+  telefono      String
+  whatsapp      String?
+  calificacion  Float    @default(4.8)
+  marcas        String?  // Ej: "Yara, Monómeros, Bayer, Italcol"
+  categoria     String   @default("mixto") // agricola, veterinario, acuicola, mixto
+  imagen        String?
+  descripcion   String?
+  origen        String   @default("O") // O = Original, D = Demo
+  createdAt     DateTime @default(now())
+}
+
+// ==========================================
+// MÓDULO: BOLSA DE EMPLEO AGROPECUARIO
+// ==========================================
+
+model OfertaEmpleo {
+  id                   String   @id @default(uuid())
+  titulo               String
+  sector               String   // agricola, ganadero, acuicola, maquinaria, tecnico
+  tipoContrato         String   // Jornal, Fijo, Prestación
+  ubicacion            String
+  departamento         String
+  municipio            String
+  salario              Float?
+  salarioTexto         String?  // Ej: "$1.800.000 + Prestaciones"
+  requiereExperiencia  Boolean  @default(false)
+  incluyeHospedaje     Boolean  @default(false)
+  incluyeAlimentacion  Boolean  @default(false)
+  descripcion          String
+  requisitos           String?
+  empleadorNombre      String
+  empleadorTelefono    String
+  estado               String   @default("ACTIVA") // ACTIVA, CERRADA
+  origen               String   @default("O") // O = Original, D = Demo
+  fechaPublicacion     DateTime @default(now())
+  
+  postulaciones        PostulacionEmpleo[]
+}
+
+model PostulacionEmpleo {
+  id                 String       @id @default(uuid())
+  empleoId           String
+  empleo             OfertaEmpleo @relation(fields: [empleoId], references: [id], onDelete: Cascade)
+  
+  candidatoNombre    String
+  candidatoTelefono  String
+  cedula             String?
+  experienciaAnos    Int          @default(0)
+  mensaje            String?
+  estado             String       @default("PENDIENTE") // PENDIENTE, CONTACTADO, DESCARTADO
+  origen             String       @default("O")
+  fechaPostulacion   DateTime     @default(now())
+}
+
+// ==========================================
+// MÓDULO: INTELIGENCIA DE PRECIOS Y MERCADO
+// ==========================================
+
+model PrecioMercado {
+  id                  String   @id @default(uuid())
+  producto            String
+  categoria           String
+  variedad            String?
+  centralAbastos      String   // Corabastos, Cavasa, Cenabastos, etc.
+  departamento        String
+  precioMinimo        Float
+  precioMaximo        Float
+  precioPromedio      Float
+  unidad              String   @default("kg") // kg, bulto, arroba
+  tendencia           String   @default("estable") // alza, baja, estable
+  variacionSemanal    Float    @default(0.0)
+  fechaActualizacion  DateTime @default(now())
+}
+
+// ==========================================
+// MÓDULO: DIRECTORIO DE AGREMIACIONES Y ONGS
+// ==========================================
+
+model Agremiacion {
+  id                String   @id @default(uuid())
+  nombre            String
+  sigla             String
+  sector            String   // cafe, ganado, arroz, cacao, frutas, etc.
+  descripcion       String
+  logoUrl           String?
+  sitioWeb          String?
+  telefono          String?
+  departamentoSede  String?
+  programasApoyo    String?  // JSON string
+}
+
+// ==========================================
+// MÓDULO: NOTICIAS Y BOLETINES AGRARIOS
+// ==========================================
+
+model NoticiaAgraria {
+  id                String   @id @default(uuid())
+  titulo            String
+  resumen           String
+  contenido         String
+  categoria         String
+  fuente            String
+  imagenUrl         String?
+  fechaPublicacion  DateTime @default(now())
+  destacada         Boolean  @default(false)
+  origen            String   @default("O") // O = Original, D = Demo
+}
+
+// ==========================================
+// MÓDULO: ALERTAS FITOSANITARIAS Y CLIMÁTICAS
+// ==========================================
+
+model AlertaMercado {
+  id                String   @id @default(uuid())
+  tipo              String   // clima, fitosanitaria, precio, oportunidad
+  nivel             String   @default("info") // info, advertencia, critica
+  titulo            String
+  mensaje           String
+  departamento      String?
+  sector            String?
+  fechaEmision      DateTime @default(now())
+  activa            Boolean  @default(true)
+}
+
+// ==========================================
+// MÓDULO: CALENDARIO DE TEMPORADAS DE COSECHA
+// ==========================================
+
+model TemporadaCosecha {
+  id                String   @id @default(uuid())
+  cultivo           String
+  departamento      String
+  mesesPico         String   // Ej: "Marzo - Mayo, Octubre - Diciembre"
+  intensidad        String   @default("Alta") // Alta, Media, Baja
+  observaciones     String?
+}
+

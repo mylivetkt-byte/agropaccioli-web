@@ -1,20 +1,67 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, MapPin, ShieldCheck, MessageCircle, Phone, Sparkles } from 'lucide-react';
-import { COSECHAS_DATA } from '@/lib/agro-data';
+import { Search, MapPin, ShieldCheck, MessageCircle, Phone, Sparkles, Loader2 } from 'lucide-react';
+import { getCosechasList } from '@/app/actions/cosechas';
 import { CosechaItem, SectorType } from '@/types/agro';
 
 export default function BuscadorCosechas() {
   const [busqueda, setBusqueda] = useState('');
   const [sectorFiltro, setSectorFiltro] = useState('todos');
-  const [limite, setLimite] = useState(8); // Paginación inicial
+  const [limite, setLimite] = useState(8);
+  const [cosechas, setCosechas] = useState<CosechaItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const filtrados = COSECHAS_DATA.filter((item) => {
-    const matchText = item.titulo.toLowerCase().includes(busqueda.toLowerCase()) ||
-                      item.municipio.toLowerCase().includes(busqueda.toLowerCase()) ||
-                      item.departamento.toLowerCase().includes(busqueda.toLowerCase());
+  useEffect(() => {
+    async function load() {
+      try {
+        const raw = await getCosechasList();
+        if (raw && raw.length > 0) {
+          const mapped: CosechaItem[] = raw.map((d: any) => ({
+            id: d.id,
+            titulo: d.titulo || d.producto,
+            sector: d.sector as any,
+            categoria: d.categoria || '',
+            variedad: d.variedad || '',
+            cantidadDisponible: d.cantidadDisponible,
+            unidad: d.unidad as any,
+            precioUnitario: d.precio,
+            moneda: 'COP',
+            departamento: d.departamento || 'Colombia',
+            municipio: d.municipio || d.ubicacion,
+            vereda: d.vereda || '',
+            coordenadas: [d.longitud || -74.0, d.latitud || 4.0],
+            productor: {
+              nombre: d.productor?.nombre || 'Productor Agropecuario',
+              finca: d.vereda ? `Finca Vereda ${d.vereda}` : 'Finca Registrada',
+              verificadoKYC: true,
+              calificacion: 4.9,
+              telefono: d.productor?.telefono || '+573000000000',
+              whatsapp: d.productor?.telefono ? d.productor.telefono.replace('+', '') : '573000000000',
+              experienciaAnos: 10
+            },
+            fechaCosechaEstimada: d.fechaCosechaStr || (d.fechaRecoleccion ? new Date(d.fechaRecoleccion).toLocaleDateString() : 'Inmediata'),
+            fechaPublicacion: d.createdAt ? new Date(d.createdAt).toISOString().split('T')[0] : '2026-10-01',
+            imagenes: d.imagenes ? [d.imagenes] : ['https://images.unsplash.com/photo-1523049673857-eb18f1d7b578?auto=format&fit=crop&w=900&q=80'],
+            descripcion: d.descripcion || 'Lote de producción agropecuaria registrado en plataforma.',
+            certificaciones: d.certificaciones ? d.certificaciones.split(', ') : ['Registro Verificado']
+          }));
+          setCosechas(mapped);
+        }
+      } catch (err) {
+        console.error('Error loading dynamic cosechas:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  const filtrados = cosechas.filter((item) => {
+    const matchText = (item.titulo || '').toLowerCase().includes(busqueda.toLowerCase()) ||
+                      (item.municipio || '').toLowerCase().includes(busqueda.toLowerCase()) ||
+                      (item.departamento || '').toLowerCase().includes(busqueda.toLowerCase());
     const matchSector = sectorFiltro === 'todos' || item.sector === sectorFiltro;
     return matchText && matchSector;
   });

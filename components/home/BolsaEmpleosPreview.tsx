@@ -1,18 +1,51 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Briefcase, MapPin, Home, ArrowUpRight, PlusCircle, ShieldCheck, MessageCircle, Sparkles, Flame, CheckCircle2, Search } from 'lucide-react';
-import { EMPLEOS_DATA, TEMPORADAS_COSECHA_DATA } from '@/lib/agro-data';
+import { getEmpleosList } from '@/app/actions/empleos';
 
 export default function BolsaEmpleosPreview() {
   const [busqueda, setBusqueda] = useState('');
+  const [empleos, setEmpleos] = useState<any[]>([]);
 
-  const filtrados = EMPLEOS_DATA.filter((e) => {
+  useEffect(() => {
+    async function load() {
+      try {
+        const raw = await getEmpleosList();
+        if (raw && raw.length > 0) {
+          const mapped = raw.map((e: any) => ({
+            id: e.id,
+            titulo: e.titulo,
+            sector: e.sector,
+            tipoContrato: e.tipoContrato,
+            ubicacion: e.ubicacion,
+            departamento: e.departamento,
+            municipio: e.municipio,
+            salario: e.salario,
+            salarioTexto: e.salarioTexto || (e.salario ? `$${e.salario.toLocaleString('es-CO')}` : 'A convenir'),
+            requiereExperiencia: e.requiereExperiencia,
+            incluyeHospedaje: e.incluyeHospedaje,
+            incluyeAlimentacion: e.incluyeAlimentacion,
+            empresaOFinca: e.empleadorNombre || 'Finca Verificada',
+            telefonoContacto: e.empleadorTelefono || '+573000000000',
+            fechaPublicacion: e.fechaPublicacion ? new Date(e.fechaPublicacion).toISOString().split('T')[0] : '2026-10-01',
+            estado: e.estado.toLowerCase()
+          }));
+          setEmpleos(mapped);
+        }
+      } catch (err) {
+        console.error('Error fetching dynamic empleos:', err);
+      }
+    }
+    load();
+  }, []);
+
+  const filtrados = empleos.filter((e) => {
     const isActive = e.estado === 'activa' || !e.estado;
-    const matchText = e.titulo.toLowerCase().includes(busqueda.toLowerCase()) || 
-                      e.municipio.toLowerCase().includes(busqueda.toLowerCase()) ||
-                      e.empresaOFinca.toLowerCase().includes(busqueda.toLowerCase());
+    const matchText = (e.titulo || '').toLowerCase().includes(busqueda.toLowerCase()) || 
+                      (e.municipio || '').toLowerCase().includes(busqueda.toLowerCase()) ||
+                      (e.empresaOFinca || '').toLowerCase().includes(busqueda.toLowerCase());
     return isActive && matchText;
   });
 
@@ -54,7 +87,7 @@ export default function BolsaEmpleosPreview() {
               href="/empleos"
               className="inline-flex items-center gap-2 text-xs font-bold text-emerald-800 bg-white hover:bg-emerald-50 border border-emerald-300 px-4 py-2.5 rounded-xl shadow-sm transition-all"
             >
-              <span>Ver Todas las Vacantes ({EMPLEOS_DATA.length})</span>
+              <span>Ver Todas las Vacantes ({empleos.length})</span>
               <ArrowUpRight className="w-4 h-4 text-emerald-600" />
             </Link>
           </div>
@@ -79,16 +112,20 @@ export default function BolsaEmpleosPreview() {
           <span className="text-xs font-black text-zinc-500 uppercase shrink-0 flex items-center gap-1">
             <Flame className="w-3.5 h-3.5 text-amber-500" /> Temporadas:
           </span>
-          {TEMPORADAS_COSECHA_DATA.map((temp) => (
+          {[
+            { id: 't1', slug: 'cafe', icono: '☕', nombre: 'Pico Cosecha Cafetera', vacantes: 45 },
+            { id: 't2', slug: 'aguacate', icono: '🥑', nombre: 'Cosecha Aguacate Hass', vacantes: 28 },
+            { id: 't3', slug: 'cacao', icono: '🍫', nombre: 'Recolección de Cacao', vacantes: 18 }
+          ].map((temp) => (
             <Link
               key={temp.id}
-              href={`/empleos?cosecha=${temp.cosechaSlug}`}
+              href={`/empleos?cosecha=${temp.slug}`}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-white hover:bg-emerald-50 border border-emerald-200 rounded-full text-xs text-zinc-700 font-semibold shadow-xs shrink-0 transition-all hover:border-emerald-400"
             >
-              <span>{temp.cosechaSlug === 'cafe' ? '☕' : temp.cosechaSlug === 'aguacate' ? '🥑' : temp.cosechaSlug === 'cacao' ? '🍫' : '🍌'}</span>
+              <span>{temp.icono}</span>
               <span>{temp.nombre}</span>
               <span className="bg-emerald-600 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">
-                {temp.vacantesTotales} vacantes
+                {temp.vacantes} vacantes
               </span>
             </Link>
           ))}

@@ -1,17 +1,47 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Store, ShieldCheck, MessageCircle, ArrowRight, Search, ShoppingBag } from 'lucide-react';
-import { ALMACENES_INSUMOS_DATA } from '@/lib/agro-data';
+import { getAlmacenesList } from '@/app/actions/almacenes';
 
 export default function PortalAlmacenesB2B() {
   const [busqueda, setBusqueda] = useState('');
+  const [almacenes, setAlmacenes] = useState<any[]>([]);
 
-  const filtrados = ALMACENES_INSUMOS_DATA.filter((almacen) => {
+  useEffect(() => {
+    async function load() {
+      try {
+        const raw = await getAlmacenesList();
+        if (raw && raw.length > 0) {
+          const mapped = raw.map((a: any) => ({
+            id: a.id,
+            nombreComercial: a.nombre,
+            departamento: a.departamento,
+            municipio: a.municipio,
+            direccion: a.direccion || `${a.municipio}, ${a.departamento}`,
+            telefono: a.telefono,
+            whatsapp: a.whatsapp || a.telefono.replace('+', ''),
+            verificado: true,
+            marcasAutorizadas: a.marcas ? a.marcas.split(', ') : ['Insumos Nacionales'],
+            catalogoDestacado: [
+              { nombre: 'Fertilizante & Insumos', precioReferencia: '$120.000 / Bulto', presentacion: 'Presentación Original' }
+            ],
+            fotoFachada: a.imagen || 'https://images.unsplash.com/photo-1586771107445-d3ca888129ff?auto=format&fit=crop&w=900&q=80'
+          }));
+          setAlmacenes(mapped);
+        }
+      } catch (e) {
+        console.error('Error fetching dynamic almacenes:', e);
+      }
+    }
+    load();
+  }, []);
+
+  const filtrados = almacenes.filter((almacen) => {
     const term = busqueda.toLowerCase();
-    const matchName = almacen.nombreComercial.toLowerCase().includes(term) || almacen.municipio.toLowerCase().includes(term);
-    const matchProduct = almacen.catalogoDestacado.some(p => p.nombre.toLowerCase().includes(term));
+    const matchName = (almacen.nombreComercial || '').toLowerCase().includes(term) || (almacen.municipio || '').toLowerCase().includes(term);
+    const matchProduct = almacen.catalogoDestacado?.some((p: any) => p.nombre.toLowerCase().includes(term));
     return matchName || matchProduct;
   });
 
@@ -53,12 +83,12 @@ export default function PortalAlmacenesB2B() {
                 <p className="text-xs text-zinc-500">NIT: {almacen.nit} • {almacen.razonSocial}</p>
 
                 <div className="mt-4 space-y-2">
-                  {almacen.catalogoDestacado.map((prod, idx) => {
-                    const isMatch = busqueda && prod.nombre.toLowerCase().includes(busqueda.toLowerCase());
+                  {almacen.catalogoDestacado?.map((prod: any, idx: number) => {
+                    const isMatch = busqueda && prod.nombre?.toLowerCase().includes(busqueda.toLowerCase());
                     return (
                       <div key={idx} className={`flex items-center justify-between p-2.5 rounded-xl text-xs transition-colors ${isMatch ? 'bg-amber-100/50 border border-amber-200' : 'bg-emerald-50/50 border border-transparent'}`}>
                         <span className={`font-semibold ${isMatch ? 'text-amber-900' : 'text-zinc-800'}`}>✓ {prod.nombre}</span>
-                        <span className={`font-black ${isMatch ? 'text-amber-700' : 'text-emerald-700'}`}>${prod.precio.toLocaleString('es-CO')}</span>
+                        <span className={`font-black ${isMatch ? 'text-amber-700' : 'text-emerald-700'}`}>{prod.precioReferencia || (prod.precio ? `$${prod.precio.toLocaleString('es-CO')}` : 'Consultar')}</span>
                       </div>
                     );
                   })}

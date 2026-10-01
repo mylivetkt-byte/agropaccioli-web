@@ -1,17 +1,44 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { TrendingUp, TrendingDown, Search, ArrowUpRight } from 'lucide-react';
-import { PRECIOS_MERCADO_DATA } from '@/lib/agro-data';
+import { getPreciosMercadoList } from '@/app/actions/precios';
 
 export default function BuscadorPreciosNacional() {
   const [busqueda, setBusqueda] = useState('');
   const [sectorFiltro, setSectorFiltro] = useState('todos');
   const [limite, setLimite] = useState(8);
+  const [precios, setPrecios] = useState<any[]>([]);
 
-  const filtrados = PRECIOS_MERCADO_DATA.filter((p) => {
-    const matchText = p.producto.toLowerCase().includes(busqueda.toLowerCase()) || p.mercado.toLowerCase().includes(busqueda.toLowerCase());
+  useEffect(() => {
+    async function load() {
+      try {
+        const raw = await getPreciosMercadoList();
+        if (raw && raw.length > 0) {
+          const mapped = raw.map((p: any) => ({
+            id: p.id,
+            producto: p.producto,
+            sector: (p.categoria || 'agricola').toLowerCase(),
+            mercado: p.centralAbastos,
+            precioMin: p.precioMinimo,
+            precioMax: p.precioMaximo,
+            precioPromedio: p.precioPromedio,
+            unidad: p.unidad,
+            tendencia: p.tendencia,
+            variacionPorcentual: p.variacionSemanal || 0
+          }));
+          setPrecios(mapped);
+        }
+      } catch (err) {
+        console.error('Error fetching dynamic precios:', err);
+      }
+    }
+    load();
+  }, []);
+
+  const filtrados = precios.filter((p) => {
+    const matchText = (p.producto || '').toLowerCase().includes(busqueda.toLowerCase()) || (p.mercado || '').toLowerCase().includes(busqueda.toLowerCase());
     const matchSector = sectorFiltro === 'todos' || p.sector === sectorFiltro;
     return matchText && matchSector;
   });

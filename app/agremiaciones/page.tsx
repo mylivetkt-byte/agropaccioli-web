@@ -1,9 +1,11 @@
 import React from 'react';
 import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/ui/Footer';
-import { AGREMIACIONES_DATA } from '@/lib/agro-data';
+import { getAgremiacionesList } from '@/app/actions/agremiaciones';
 
-export default function AgremiacionesPage() {
+export default async function AgremiacionesPage() {
+  const agremiaciones = await getAgremiacionesList();
+
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <Navbar />
@@ -22,15 +24,15 @@ export default function AgremiacionesPage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
-          {AGREMIACIONES_DATA.map((agr) => (
+          {agremiaciones.map((agr) => (
             <div key={agr.id} className="bg-white rounded-3xl border border-emerald-200 p-6 shadow-sm flex flex-col justify-between">
               <div>
-                <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">{agr.tipo}</span>
-                <h3 className="text-xl font-black text-emerald-950 mt-3">{agr.nombre} ({agr.sigla})</h3>
+                <span className="bg-emerald-100 text-emerald-800 text-xs font-bold px-3 py-1 rounded-full">{agr.sector}</span>
+                <h3 className="text-xl font-black text-emerald-950 mt-3">{agr.nombre} {agr.sigla ? `(${agr.sigla})` : ''}</h3>
                 <p className="text-xs text-zinc-600 mt-2 leading-relaxed">{agr.descripcion}</p>
               </div>
               <div className="mt-4 pt-4 border-t border-zinc-100 text-xs text-zinc-500">
-                Contacto: <strong>{agr.contacto}</strong>
+                Contacto: <strong>{agr.telefono || agr.sitioWeb || 'Directo en Sede'}</strong>
               </div>
             </div>
           ))}
