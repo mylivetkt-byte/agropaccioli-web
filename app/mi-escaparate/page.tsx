@@ -7,6 +7,7 @@ import { obtenerPanelProductor, cambiarEstadoCosecha, checkUsuarioStatus } from 
 import { Layers, MapPin, CheckCircle2, XCircle, Calendar, MessageCircle, AlertCircle, Phone, Lock } from 'lucide-react';
 import Link from 'next/link';
 import FormularioCosechaIA from '@/components/mapa/FormularioCosechaIA';
+import CalculadoraRentabilidad from '@/components/mapa/CalculadoraRentabilidad';
 
 export default function MiEscaparatePage() {
   const [productorId, setProductorId] = useState('');
@@ -24,6 +25,7 @@ export default function MiEscaparatePage() {
   const [error, setError] = useState('');
   
   const [showIAForm, setShowIAForm] = useState(false);
+  const [showCalcForm, setShowCalcForm] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -181,6 +183,12 @@ export default function MiEscaparatePage() {
               </div>
               <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
                 <button 
+                  onClick={() => setShowCalcForm(true)}
+                  className="bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-black px-4 py-2 rounded-lg border border-sky-200 shadow-sm flex items-center gap-2 transition-all"
+                >
+                  🧮 Calculadora AgroIA
+                </button>
+                <button 
                   onClick={() => setShowIAForm(true)}
                   className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-4 py-2 rounded-lg shadow-md flex items-center gap-2 transition-all"
                 >
@@ -333,8 +341,8 @@ export default function MiEscaparatePage() {
             </div>
           </div>
         )}
-        
         {showIAForm && <FormularioCosechaIA onClose={() => setShowIAForm(false)} />}
+        {showCalcForm && <CalculadoraRentabilidad onClose={() => setShowCalcForm(false)} />}
       </main>
 
       <Footer />

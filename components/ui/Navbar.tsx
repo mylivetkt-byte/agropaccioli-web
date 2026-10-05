@@ -24,7 +24,9 @@ import {
   Users2,
   GraduationCap,
   ChevronRight,
-  Sparkles
+  Sparkles,
+  CalendarClock,
+  Wallet
 } from 'lucide-react';
 import { TRM_DATA, ALERTAS_NOTIFICACIONES_DATA } from '@/lib/agro-data';
 import NotificacionesDropdown from '@/components/alertas/NotificacionesDropdown';
@@ -50,6 +52,7 @@ export default function Navbar() {
   const fila1Modulos: NavModuleItem[] = [
     { href: '/', label: 'Inicio', icon: Sprout, desc: 'Portada y directorio comercial' },
     { href: '/mapa-cosechas', label: 'Mapa de Productos', icon: MapPin, badge: 'En Vivo', desc: 'Geolocalización satelital en tiempo real de productos' },
+    { href: '/agricultura-contrato', label: 'Cosechas a Futuro', icon: CalendarClock, badge: 'Contratos', desc: 'Asegure ventas antes de sembrar' },
     { href: '/inteligencia-mercado', label: 'Inteligencia IA', icon: LineChart, badge: 'Nuevo', desc: 'Tendencias y proyecciones de mercado' },
     { href: '/empleos', label: 'Bolsa de Empleo', icon: Briefcase, badge: '47 Ofertas', desc: 'Vacantes de cosechas y administradores' },
     { href: '/precios-mercado', label: 'Precios SIPSA / DANE', icon: TrendingUp, desc: 'Boletín diario de centrales mayoristas' },
@@ -61,6 +64,7 @@ export default function Navbar() {
   const fila2Modulos: NavModuleItem[] = [
     { href: '/escuela', label: 'Escuela Rural', icon: GraduationCap, badge: 'Cursos', desc: 'Capacitación agrícola y diplomas con QR' },
     { href: '/almacenes-b2b', label: 'Almacenes B2B', icon: Store, desc: 'Insumos, fertilizantes y maquinaria' },
+    { href: '/agro-fintech', label: 'AgroFintech & Pools', icon: Wallet, badge: 'Crédito', desc: 'Crédito insumos y Compras comunitarias' },
     { href: '/transportistas', label: 'Transportistas', icon: Truck, desc: 'Directorio de camiones y fletes de carga' },
     { href: '/academia-ia', label: 'Asistente IA', icon: Bot, desc: 'Asistente fitosanitario para cultivos' },
     { href: '/agremiaciones', label: 'Gremios & ONGs', icon: Users2, desc: 'Cooperativas y asociaciones campesinas' },
