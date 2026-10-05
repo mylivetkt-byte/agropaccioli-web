@@ -37,18 +37,28 @@ model PerfilTransportista {
   usuarioId           String   @unique
   usuario             Usuario  @relation(fields: [usuarioId], references: [id])
   
-  licenciaConduccion  String
+  licenciaConduccion  String?  // Opcional para Veredal
   fotoLicencia        String?
   
-  placaVehiculo       String
-  tipoVehiculo        String   // Furgón, Estacas, Refrigerado, Tractomula
+  placaVehiculo       String?  // Opcional para vehículos muy informales (tractores, zorras)
+  tipoVehiculo        String   // Furgón, Estacas, Refrigerado, Tractomula, Jeep Willys, Chiva
+
   capacidadToneladas  Float
   
   aseguradoraCarga    String?  // Ej: Seguros SURA, Mapfre, Previsora
   numeroPoliza        String?
   coberturaSeguro     String?  // Ej: "Pérdida Total, Volcadura, Saqueo"
   
+  // ==========================================
+  // SEGURIDAD ASIMÉTRICA: VEREDAL VS NACIONAL
+  // ==========================================
+  categoriaTransporte String   @default("NACIONAL") // "VEREDAL" o "NACIONAL"
+  zonaOperacion       String?  // Ej: "Vereda La Puerta, Aquitania" (Solo para Veredal)
+  recomendacionesComunidad Int @default(0) // Confianza comunitaria (Pulgares arriba)
+  fotoVehiculoFrontal String?  // Foto del vehículo para reconocimiento visual
+  
   vehiculos           VehiculoLogistico[]
+
 }
 
 model Cosecha {

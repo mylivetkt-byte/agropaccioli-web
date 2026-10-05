@@ -1,14 +1,14 @@
 import OpenAI from 'openai';
 import { NextResponse } from 'next/server';
 
-export const runtime = 'edge';
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY || '',
-});
+export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
   try {
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY || 'dummy_key',
+    });
+
     const { messages } = await req.json();
 
     const response = await openai.chat.completions.create({

@@ -6,6 +6,7 @@ import Footer from '@/components/ui/Footer';
 import { obtenerPanelProductor, cambiarEstadoCosecha, checkUsuarioStatus } from '@/app/actions/cosechas';
 import { Layers, MapPin, CheckCircle2, XCircle, Calendar, MessageCircle, AlertCircle, Phone, Lock } from 'lucide-react';
 import Link from 'next/link';
+import FormularioCosechaIA from '@/components/mapa/FormularioCosechaIA';
 
 export default function MiEscaparatePage() {
   const [productorId, setProductorId] = useState('');
@@ -21,6 +22,8 @@ export default function MiEscaparatePage() {
   const [cosechas, setCosechas] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  
+  const [showIAForm, setShowIAForm] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -176,12 +179,20 @@ export default function MiEscaparatePage() {
                   Revisa quién quiere comprarte y cierra negocios rápido.
                 </p>
               </div>
-              <button 
-                onClick={() => setAuthStep('login')}
-                className="text-xs text-zinc-500 hover:text-zinc-800 font-bold underline"
-              >
-                Cerrar Sesión
-              </button>
+              <div className="flex flex-col sm:flex-row items-end sm:items-center gap-3">
+                <button 
+                  onClick={() => setShowIAForm(true)}
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-black px-4 py-2 rounded-lg shadow-md flex items-center gap-2 transition-all"
+                >
+                  ✨ Nueva Cosecha (IA)
+                </button>
+                <button 
+                  onClick={() => setAuthStep('login')}
+                  className="text-xs text-zinc-500 hover:text-zinc-800 font-bold underline"
+                >
+                  Cerrar Sesión
+                </button>
+              </div>
             </div>
 
             {error && (
@@ -197,9 +208,17 @@ export default function MiEscaparatePage() {
                 <Layers className="w-16 h-16 text-emerald-200 mx-auto mb-4" />
                 <h3 className="text-xl font-black text-emerald-900">Aún no tienes productos publicados</h3>
                 <p className="text-zinc-500 mt-2">Publica tu primer producto en el mapa para empezar a recibir ofertas.</p>
-                <Link href="/mapa-cosechas?publicar=true" className="inline-block mt-6 bg-emerald-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg">
-                  Publicar Producto
-                </Link>
+                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-6">
+                  <button 
+                    onClick={() => setShowIAForm(true)}
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-6 py-3 rounded-xl shadow-lg flex items-center gap-2 transition-all"
+                  >
+                    ✨ Publicar Rápido con IA
+                  </button>
+                  <Link href="/mapa-cosechas?publicar=true" className="text-emerald-700 font-bold px-6 py-3 rounded-xl hover:bg-emerald-50 transition-all border border-emerald-100">
+                    Publicación Manual
+                  </Link>
+                </div>
               </div>
             )}
 
@@ -314,6 +333,8 @@ export default function MiEscaparatePage() {
             </div>
           </div>
         )}
+        
+        {showIAForm && <FormularioCosechaIA onClose={() => setShowIAForm(false)} />}
       </main>
 
       <Footer />

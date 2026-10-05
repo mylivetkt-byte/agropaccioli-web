@@ -13,6 +13,8 @@ export default function FormularioTransportadorModal() {
   const isExito = searchParams.get('registro_exito') === 'true';
   const isError = searchParams.get('error_registro') === 'existe';
   const [loading, setLoading] = useState(false);
+  const [categoria, setCategoria] = useState('VEREDAL'); // Por defecto Veredal para campesinos
+
 
   if (isExito) {
     return (
@@ -65,6 +67,18 @@ export default function FormularioTransportadorModal() {
               </div>
             )}
             
+            <div className="bg-sky-50 border border-sky-100 p-3 rounded-xl">
+              <label className="text-[10px] font-bold text-sky-900 block mb-2 uppercase tracking-wider">¿Qué tipo de rutas realizarás?</label>
+              <div className="flex gap-2">
+                <button type="button" onClick={() => setCategoria('VEREDAL')} className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all ${categoria === 'VEREDAL' ? 'bg-emerald-600 text-white border-emerald-600 shadow-md' : 'bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50'}`}>Local / Veredal (Sin papeleo)</button>
+                <button type="button" onClick={() => setCategoria('NACIONAL')} className={`flex-1 py-2 rounded-lg text-xs font-bold border transition-all ${categoria === 'NACIONAL' ? 'bg-sky-600 text-white border-sky-600 shadow-md' : 'bg-white text-zinc-600 border-zinc-200 hover:bg-zinc-50'}`}>Nacional (Con Seguros y RNDC)</button>
+              </div>
+              <input type="hidden" name="categoriaTransporte" value={categoria} />
+              {categoria === 'VEREDAL' && (
+                <p className="text-[10px] text-emerald-800 mt-2 font-medium">✅ Solo podrás llevar cargas en trayectos cortos. Tu reputación dependerá 100% de las recomendaciones de los campesinos locales.</p>
+              )}
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-4">
                 <h3 className="text-xs font-black text-sky-900 uppercase tracking-wider border-b border-sky-100 pb-1">1. Datos del Conductor</h3>
@@ -94,59 +108,90 @@ export default function FormularioTransportadorModal() {
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold text-zinc-700 block mb-1">No. Licencia Conducción (C2/C3)</label>
+                  <label className="text-[10px] font-bold text-zinc-700 block mb-1">No. Licencia Conducción {categoria === 'VEREDAL' && '(Opcional)'}</label>
                   <div className="flex items-center gap-2 bg-white border border-zinc-200 rounded-xl px-3 py-2 focus-within:border-sky-500 transition-all shadow-sm">
-                    <input name="licenciaConduccion" required type="text" className="bg-transparent w-full text-xs outline-none" placeholder="000111222" />
+                    <input name="licenciaConduccion" required={categoria === 'NACIONAL'} type="text" className="bg-transparent w-full text-xs outline-none" placeholder="000111222" />
                   </div>
                 </div>
                 
-                <div>
-                  <label className="text-[10px] font-bold text-zinc-700 block mb-1">Foto Licencia (Frente y Reverso)</label>
-                  <input name="fotoLicencia" type="file" required accept="image/*" className="block w-full text-[10px] text-zinc-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100" />
-                </div>
+                {categoria === 'NACIONAL' && (
+                  <div>
+                    <label className="text-[10px] font-bold text-zinc-700 block mb-1">Foto Licencia (Frente y Reverso)</label>
+                    <input name="fotoLicencia" type="file" required accept="image/*" className="block w-full text-[10px] text-zinc-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-sky-50 file:text-sky-700 hover:file:bg-sky-100" />
+                  </div>
+                )}
               </div>
 
               <div className="space-y-4">
-                <h3 className="text-xs font-black text-sky-900 uppercase tracking-wider border-b border-sky-100 pb-1">2. Datos del Vehículo (RNDC)</h3>
+                <h3 className="text-xs font-black text-sky-900 uppercase tracking-wider border-b border-sky-100 pb-1">2. Datos del Vehículo</h3>
                 
-                <div>
-                  <label className="text-[10px] font-bold text-zinc-700 block mb-1">Placa del Vehículo</label>
-                  <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 focus-within:border-sky-500 transition-all shadow-sm">
-                    <input name="placaVehiculo" required type="text" className="bg-transparent w-full text-xs font-black uppercase outline-none text-amber-900" placeholder="AAA-123" />
+                {categoria === 'VEREDAL' && (
+                  <div>
+                    <label className="text-[10px] font-bold text-zinc-700 block mb-1">Vereda o Zona donde opera</label>
+                    <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 focus-within:border-emerald-500 transition-all shadow-sm">
+                      <input name="zonaOperacion" required type="text" className="bg-transparent w-full text-xs font-bold outline-none text-emerald-900" placeholder="Ej: Vereda La Puerta, Aquitania" />
+                    </div>
                   </div>
-                </div>
+                )}
 
                 <div>
                   <label className="text-[10px] font-bold text-zinc-700 block mb-1">Tipo de Vehículo</label>
                   <select name="tipoVehiculo" required className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-sky-500 shadow-sm">
                     <option value="">Selecciona el tipo...</option>
-                    <option value="Furgón">Furgón</option>
-                    <option value="Estacas">Estacas</option>
-                    <option value="Refrigerado">Refrigerado</option>
-                    <option value="Tractomula">Tractocamión</option>
+                    {categoria === 'VEREDAL' ? (
+                      <>
+                        <option value="Jeep Willys">Jeep Willys / Campero</option>
+                        <option value="Chiva">Chiva / Mixto</option>
+                        <option value="Tractor con Zorra">Tractor con Zorra</option>
+                        <option value="Camioneta Estacas">Camioneta Pequeña (Estacas)</option>
+                      </>
+                    ) : (
+                      <>
+                        <option value="Furgón">Furgón</option>
+                        <option value="Estacas">Estacas Grandes</option>
+                        <option value="Refrigerado">Refrigerado</option>
+                        <option value="Tractomula">Tractocamión</option>
+                      </>
+                    )}
                   </select>
-                </div>
-                
-                <div>
-                  <label className="text-[10px] font-bold text-zinc-700 block mb-1">Resolución Min. Transporte</label>
-                  <input name="resolucionMinTransporte" required type="text" className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-sky-500 shadow-sm" placeholder="Res. 0000 de 2024" />
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold text-zinc-700 block mb-1">Póliza de Seguro de Carga</label>
-                  <input name="polizaSeguroCarga" required type="text" className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-sky-500 shadow-sm" placeholder="SURA - Pol. 12345" />
-                </div>
-                
-                <div className="grid grid-cols-2 gap-2">
-                  <div>
-                    <label className="text-[10px] font-bold text-zinc-700 block mb-1">Subir SOAT</label>
-                    <input name="fotoSoat" type="file" required accept="image/*,.pdf" className="block w-full text-[9px] text-zinc-500 file:mr-1 file:py-1 file:px-2 file:rounded-lg file:border-0 file:font-bold file:bg-sky-50 file:text-sky-700" />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-zinc-700 block mb-1">Subir Tecno.</label>
-                    <input name="fotoTecnomecanica" type="file" required accept="image/*,.pdf" className="block w-full text-[9px] text-zinc-500 file:mr-1 file:py-1 file:px-2 file:rounded-lg file:border-0 file:font-bold file:bg-sky-50 file:text-sky-700" />
+                  <label className="text-[10px] font-bold text-zinc-700 block mb-1">Placa del Vehículo {categoria === 'VEREDAL' && '(Opcional si no tiene)'}</label>
+                  <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2 focus-within:border-sky-500 transition-all shadow-sm">
+                    <input name="placaVehiculo" required={categoria === 'NACIONAL'} type="text" className="bg-transparent w-full text-xs font-black uppercase outline-none text-amber-900" placeholder="AAA-123" />
                   </div>
                 </div>
+
+                {categoria === 'VEREDAL' ? (
+                  <div>
+                    <label className="text-[10px] font-bold text-zinc-700 block mb-1">Foto de frente del vehículo (Para que lo reconozcan)</label>
+                    <input name="fotoVehiculoFrontal" type="file" required accept="image/*" className="block w-full text-[10px] text-zinc-500 file:mr-2 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:font-bold file:bg-emerald-50 file:text-emerald-700 hover:file:bg-emerald-100" />
+                  </div>
+                ) : (
+                  <>
+                    <div>
+                      <label className="text-[10px] font-bold text-zinc-700 block mb-1">Resolución Min. Transporte</label>
+                      <input name="resolucionMinTransporte" required type="text" className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-sky-500 shadow-sm" placeholder="Res. 0000 de 2024" />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-zinc-700 block mb-1">Póliza de Seguro de Carga</label>
+                      <input name="polizaSeguroCarga" required type="text" className="w-full bg-white border border-zinc-200 rounded-xl px-3 py-2 text-xs outline-none focus:border-sky-500 shadow-sm" placeholder="SURA - Pol. 12345" />
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold text-zinc-700 block mb-1">Subir SOAT</label>
+                        <input name="fotoSoat" type="file" required accept="image/*,.pdf" className="block w-full text-[9px] text-zinc-500 file:mr-1 file:py-1 file:px-2 file:rounded-lg file:border-0 file:font-bold file:bg-sky-50 file:text-sky-700" />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-zinc-700 block mb-1">Subir Tecno.</label>
+                        <input name="fotoTecnomecanica" type="file" required accept="image/*,.pdf" className="block w-full text-[9px] text-zinc-500 file:mr-1 file:py-1 file:px-2 file:rounded-lg file:border-0 file:font-bold file:bg-sky-50 file:text-sky-700" />
+                      </div>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
 
