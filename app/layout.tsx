@@ -14,6 +14,15 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "AGROPACCIOLI - El Ecosistema Agropecuario de Colombia",
   description: "Portal transaccional, educativo y comercial para Productores Agrícolas, Ganaderos, Acuícolas, Almacenes de Insumos B2B y Transportistas de Colombia.",
+  applicationName: "AgroPaccioli",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "AgroPaccioli",
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export default function RootLayout({
