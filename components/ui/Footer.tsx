@@ -74,6 +74,7 @@ export default function Footer() {
               <h4 className="text-emerald-950 font-black text-base mb-4 tracking-wide">Red de Aliados</h4>
               <ul className="space-y-2.5 text-emerald-800 text-[13px] font-semibold">
                 <li><Link href="/almacenes-b2b" className="hover:text-emerald-600 hover:underline transition-colors block">Almacenes Agrícolas B2B</Link></li>
+                <li><Link href="/registro-b2b" className="hover:text-emerald-600 hover:underline transition-colors block">Registro Compradores (SARLAFT)</Link></li>
                 <li><Link href="/transportistas" className="hover:text-emerald-600 hover:underline transition-colors block">Directorio de Transporte</Link></li>
                 <li><Link href="/escuela" className="hover:text-emerald-600 hover:underline transition-colors block">La Escuela Rural</Link></li>
                 <li><Link href="/agremiaciones" className="hover:text-emerald-600 hover:underline transition-colors block">Gremios & ONGs</Link></li>
