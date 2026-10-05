@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import WhatsAppAdvisorPopup from "@/components/ui/WhatsAppAdvisorPopup";
 import ScrollButtons from "@/components/ui/ScrollButtons";
+import EscudoAntiCopia from "@/components/ui/EscudoAntiCopia";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -23,6 +24,7 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className="antialiased bg-[#f8faf9] text-[#152417]">
+        <EscudoAntiCopia />
         {children}
         <WhatsAppAdvisorPopup />
         <ScrollButtons />
