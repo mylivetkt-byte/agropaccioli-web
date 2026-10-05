@@ -46,10 +46,10 @@ export default function Navbar() {
 
   const noLeidas = ALERTAS_NOTIFICACIONES_DATA.filter(n => !n.leido).length;
 
-  // FILA 1 DE MÓDULOS: Mercado, Cosechas, Precios y Negocios
+  // FILA 1 DE MÓDULOS: Mercado, Productos, Precios y Negocios
   const fila1Modulos: NavModuleItem[] = [
     { href: '/', label: 'Inicio', icon: Sprout, desc: 'Portada y directorio comercial' },
-    { href: '/mapa-cosechas', label: 'Mapa Cosechas', icon: MapPin, badge: 'En Vivo', desc: 'Geolocalización satelital en tiempo real' },
+    { href: '/mapa-cosechas', label: 'Mapa de Productos', icon: MapPin, badge: 'En Vivo', desc: 'Geolocalización satelital en tiempo real de productos' },
     { href: '/inteligencia-mercado', label: 'Inteligencia IA', icon: LineChart, badge: 'Nuevo', desc: 'Tendencias y proyecciones de mercado' },
     { href: '/empleos', label: 'Bolsa de Empleo', icon: Briefcase, badge: '47 Ofertas', desc: 'Vacantes de cosechas y administradores' },
     { href: '/precios-mercado', label: 'Precios SIPSA / DANE', icon: TrendingUp, desc: 'Boletín diario de centrales mayoristas' },
@@ -157,13 +157,13 @@ export default function Navbar() {
               <span>Favoritos</span>
             </Link>
 
-            {/* BOTÓN DESTACADO: PUBLICAR COSECHA */}
+            {/* BOTÓN DESTACADO: PUBLICAR PRODUCTO */}
             <Link
               href="/mapa-cosechas?publicar=true"
               className="inline-flex items-center gap-1 sm:gap-1.5 bg-gradient-to-r from-emerald-600 to-green-500 hover:from-emerald-700 hover:to-green-600 text-white text-xs font-extrabold px-3 sm:px-4 py-2 rounded-xl shadow-md shadow-emerald-600/20 transition-all"
             >
               <PlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              <span className="hidden sm:inline">Publicar Cosecha</span>
+              <span className="hidden sm:inline">Publicar Producto</span>
               <span className="sm:hidden text-[11px]">Publicar</span>
             </Link>
 
@@ -196,6 +196,7 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  title={item.desc}
                   className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all shrink-0 ${
                     isActive
                       ? 'bg-emerald-800 text-white shadow-xs'
@@ -232,6 +233,7 @@ export default function Navbar() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  title={item.desc}
                   className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold transition-all shrink-0 ${
                     isActive
                       ? 'bg-emerald-800 text-white shadow-xs'
@@ -330,6 +332,7 @@ export default function Navbar() {
                         <Link
                           key={item.href}
                           href={item.href}
+                          title={item.desc}
                           onClick={() => setMobileMenuOpen(false)}
                           className={`p-3 flex items-center justify-between hover:bg-emerald-50/70 transition-colors ${
                             isActive ? 'bg-emerald-50/80 border-l-4 border-emerald-600' : ''
@@ -371,6 +374,7 @@ export default function Navbar() {
                         <Link
                           key={item.href}
                           href={item.href}
+                          title={item.desc}
                           onClick={() => setMobileMenuOpen(false)}
                           className={`p-3 flex items-center justify-between hover:bg-emerald-50/70 transition-colors ${
                             isActive ? 'bg-emerald-50/80 border-l-4 border-emerald-600' : ''

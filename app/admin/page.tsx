@@ -22,6 +22,10 @@ export default function AdminPage() {
   const [usuarios, setUsuarios] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loadingUsuarios, setLoadingUsuarios] = useState(false);
+  
+  // Paginación
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,14 +49,27 @@ export default function AdminPage() {
     }
   };
 
-  // Filtrar usuarios por búsqueda
+  // Filtrar usuarios por búsqueda (nombre, cédula, razón social)
   const usuariosFiltrados = usuarios.filter(u => {
-    const termino = search.toLowerCase();
+    const termino = search.toLowerCase().trim();
+    if (!termino) return true;
     return (
       (u.nombre && u.nombre.toLowerCase().includes(termino)) || 
-      (u.cedula && u.cedula.includes(termino))
+      (u.cedula && u.cedula.includes(termino)) ||
+      (u.telefono && u.telefono.includes(termino))
     );
   });
+
+  // Paginación lógica
+  const totalPages = Math.ceil(usuariosFiltrados.length / itemsPerPage);
+  const indexOfLastItem = currentPage * itemsPerPage;
+  const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+  const currentUsuarios = usuariosFiltrados.slice(indexOfFirstItem, indexOfLastItem);
+
+  // Efecto para resetear la página cuando se busca
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [search]);
 
   const eliminarNoticia = (id: string) => {
     setNoticias(noticias.filter((n) => n.id !== id));
@@ -189,8 +206,9 @@ export default function AdminPage() {
               <table className="w-full text-left text-sm whitespace-nowrap">
                 <thead className="bg-zinc-50 border-b border-zinc-100 text-zinc-500 text-xs uppercase font-bold">
                   <tr>
-                    <th className="px-4 py-3">Nombre</th>
-                    <th className="px-4 py-3">Cédula</th>
+                    <th className="px-4 py-3">Razón Social / Nombre</th>
+                    <th className="px-4 py-3">Cédula / NIT</th>
+                    <th className="px-4 py-3">Ubicación</th>
                     <th className="px-4 py-3">Celular</th>
                     <th className="px-4 py-3">Rol</th>
                     <th className="px-4 py-3 text-center">Estado KYC</th>
@@ -198,62 +216,103 @@ export default function AdminPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-zinc-100">
-                  {usuariosFiltrados.length === 0 ? (
+                  {currentUsuarios.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="text-center py-8 text-zinc-400 text-xs font-bold">
+                      <td colSpan={7} className="text-center py-8 text-zinc-400 text-xs font-bold">
                         No se encontraron usuarios.
                       </td>
                     </tr>
                   ) : (
-                    usuariosFiltrados.map((u) => (
-                      <tr key={u.id} className="hover:bg-zinc-50 transition-colors">
-                        <td className="px-4 py-4 font-bold text-emerald-950">{u.nombre || 'Sin nombre'}</td>
-                        <td className="px-4 py-4 text-zinc-600">{u.cedula || 'N/A'}</td>
-                        <td className="px-4 py-4 text-zinc-600">{u.telefono}</td>
-                        <td className="px-4 py-4">
-                          <span className="bg-zinc-200 text-zinc-700 text-[10px] font-bold px-2 py-1 rounded uppercase">
-                            {u.rol}
-                          </span>
-                        </td>
-                        <td className="px-4 py-4 text-center">
-                          {u.estadoVerificacion === 'APROBADO' && (
-                            <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-1 rounded-full uppercase">
-                              <CheckCircle className="w-3 h-3" /> Aprobado
+                    currentUsuarios.map((u) => {
+                      const ubicacion = u.cosechas && u.cosechas.length > 0 
+                        ? `${u.cosechas[0].municipio}, ${u.cosechas[0].departamento}`
+                        : 'No Registrada';
+
+                      const tooltipText = u.cosechas && u.cosechas.length > 0
+                        ? `Cosechas registradas:\n` + u.cosechas.map((c: any) => `- ${c.titulo} (${c.estado})`).join('\n')
+                        : 'Sin cosechas registradas';
+
+                      return (
+                        <tr key={u.id} className="hover:bg-zinc-50 transition-colors">
+                          <td className="px-4 py-4 font-bold text-emerald-950">{u.nombre || 'Sin nombre'}</td>
+                          <td className="px-4 py-4 text-emerald-700 font-mono text-xs cursor-help underline decoration-emerald-300 decoration-dotted underline-offset-4" title={tooltipText}>
+                            {u.cedula || 'N/A'}
+                          </td>
+                          <td className="px-4 py-4 text-zinc-600 text-xs">{ubicacion}</td>
+                          <td className="px-4 py-4 text-zinc-600">{u.telefono}</td>
+                          <td className="px-4 py-4">
+                            <span className="bg-zinc-200 text-zinc-700 text-[10px] font-bold px-2 py-1 rounded uppercase">
+                              {u.rol}
                             </span>
-                          )}
-                          {u.estadoVerificacion === 'PENDIENTE' && (
-                            <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-1 rounded-full uppercase">
-                              <Clock className="w-3 h-3" /> Pendiente
-                            </span>
-                          )}
-                          {u.estadoVerificacion === 'RECHAZADO' && (
-                            <span className="inline-flex items-center gap-1 bg-rose-100 text-rose-800 text-[10px] font-black px-2 py-1 rounded-full uppercase">
-                              <XCircle className="w-3 h-3" /> Bloqueado
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-4 py-4 text-right space-x-2">
-                          <button 
-                            onClick={() => handleCambiarEstado(u.id, 'APROBADO')}
-                            disabled={u.estadoVerificacion === 'APROBADO'}
-                            className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] font-bold px-3 py-1.5 rounded-lg disabled:opacity-50"
-                          >
-                            Aprobar
-                          </button>
-                          <button 
-                            onClick={() => handleCambiarEstado(u.id, 'RECHAZADO')}
-                            disabled={u.estadoVerificacion === 'RECHAZADO'}
-                            className="bg-rose-50 hover:bg-rose-100 text-rose-700 text-[10px] font-bold px-3 py-1.5 rounded-lg disabled:opacity-50"
-                          >
-                            Bloquear
-                          </button>
-                        </td>
-                      </tr>
-                    ))
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            {u.estadoVerificacion === 'APROBADO' && (
+                              <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-1 rounded-full uppercase">
+                                <CheckCircle className="w-3 h-3" /> Aprobado
+                              </span>
+                            )}
+                            {u.estadoVerificacion === 'PENDIENTE' && (
+                              <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-1 rounded-full uppercase">
+                                <Clock className="w-3 h-3" /> Pendiente
+                              </span>
+                            )}
+                            {u.estadoVerificacion === 'RECHAZADO' && (
+                              <span className="inline-flex items-center gap-1 bg-rose-100 text-rose-800 text-[10px] font-black px-2 py-1 rounded-full uppercase">
+                                <XCircle className="w-3 h-3" /> Bloqueado
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-4 py-4 text-right space-x-2">
+                            <button 
+                              onClick={() => handleCambiarEstado(u.id, 'APROBADO')}
+                              disabled={u.estadoVerificacion === 'APROBADO'}
+                              className="bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[10px] font-bold px-3 py-1.5 rounded-lg disabled:opacity-50"
+                            >
+                              Aprobar
+                            </button>
+                            <button 
+                              onClick={() => handleCambiarEstado(u.id, 'RECHAZADO')}
+                              disabled={u.estadoVerificacion === 'RECHAZADO'}
+                              className="bg-rose-50 hover:bg-rose-100 text-rose-700 text-[10px] font-bold px-3 py-1.5 rounded-lg disabled:opacity-50"
+                            >
+                              Bloquear
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
             </div>
+
+            {/* Paginador */}
+            {totalPages > 1 && (
+              <div className="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-zinc-100 pt-4">
+                <span className="text-xs text-zinc-500">
+                  Mostrando {indexOfFirstItem + 1} a {Math.min(indexOfLastItem, usuariosFiltrados.length)} de {usuariosFiltrados.length} usuarios
+                </span>
+                <div className="flex gap-2">
+                  <button 
+                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                    disabled={currentPage === 1}
+                    className="px-4 py-2 bg-zinc-100 text-zinc-600 rounded-xl text-xs font-bold disabled:opacity-50 hover:bg-zinc-200"
+                  >
+                    Anterior
+                  </button>
+                  <span className="px-4 py-2 bg-emerald-50 text-emerald-800 rounded-xl text-xs font-black">
+                    Página {currentPage} de {totalPages}
+                  </span>
+                  <button 
+                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-4 py-2 bg-zinc-100 text-zinc-600 rounded-xl text-xs font-bold disabled:opacity-50 hover:bg-zinc-200"
+                  >
+                    Siguiente
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

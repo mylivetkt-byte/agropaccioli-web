@@ -1,398 +1,320 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/ui/Footer';
+import { obtenerPanelProductor, cambiarEstadoCosecha, checkUsuarioStatus } from '@/app/actions/cosechas';
+import { Layers, MapPin, CheckCircle2, XCircle, Calendar, MessageCircle, AlertCircle, Phone, Lock } from 'lucide-react';
 import Link from 'next/link';
-import { 
-  Store, 
-  Package, 
-  RefreshCw, 
-  CheckCircle2, 
-  XCircle, 
-  PlusCircle, 
-  Scale, 
-  MessageSquare, 
-  Calendar, 
-  DollarSign, 
-  ShieldCheck, 
-  Clock, 
-  Star,
-  MapPin,
-  ChevronRight,
-  Award
-} from 'lucide-react';
-import { COSECHAS_DATA, PROPUESTAS_MOCK_DATA } from '@/lib/agro-data';
-import { CosechaItem, PropuestaFormal, EstadoLote } from '@/types/agro';
-import ModalContraoferta from '@/components/chat/ModalContraoferta';
-import ComprobanteLegalViewer from '@/components/chat/ComprobanteLegalViewer';
 
 export default function MiEscaparatePage() {
-  const [activeTab, setActiveTab] = useState<EstadoLote>('en_negociacion');
-  const [cosechas, setCosechas] = useState<CosechaItem[]>(COSECHAS_DATA);
-  const [propuestas, setPropuestas] = useState<PropuestaFormal[]>(PROPUESTAS_MOCK_DATA);
+  const [productorId, setProductorId] = useState('');
+  const [productorNombre, setProductorNombre] = useState('');
+  const [productorTelefono, setProductorTelefono] = useState('');
+  const [cedulaInput, setCedulaInput] = useState('');
+  const [otpInput, setOtpInput] = useState('');
+  
+  // 'login' | 'loading_auth' | 'otp' | 'dashboard'
+  const [authStep, setAuthStep] = useState<'login' | 'loading_auth' | 'otp' | 'dashboard'>('login');
+  const [authError, setAuthError] = useState('');
 
-  // Modales
-  const [contraofertaTarget, setContraofertaTarget] = useState<PropuestaFormal | null>(null);
-  const [comprobanteTarget, setComprobanteTarget] = useState<PropuestaFormal | null>(null);
+  const [cosechas, setCosechas] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  // Filtro por tabs
-  const disponibles = cosechas.filter(c => (c.estado || 'disponible') === 'disponible');
-  const enNegociacion = cosechas.filter(c => c.estado === 'en_negociacion');
-  const reservados = cosechas.filter(c => c.estado === 'reservado');
-  const vendidos = cosechas.filter(c => c.estado === 'vendido');
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!cedulaInput) return;
 
-  const handleAceptarPropuesta = (propId: string) => {
-    setPropuestas(propuestas.map(p => p.id === propId ? { ...p, estado: 'aceptada' } : p));
-    setCosechas(cosechas.map(c => c.id === 'cos-001' ? { ...c, estado: 'reservado' } : c));
-    alert('¡Propuesta Aceptada! El lote ha pasado a estado 🟠 RESERVADO con validez Ley 527/1999.');
+    setAuthStep('loading_auth');
+    setAuthError('');
+
+    try {
+      const res = await checkUsuarioStatus(cedulaInput);
+      if (res.status === 'APROBADO' && res.usuario) {
+        setProductorId(res.usuario.id);
+        setProductorNombre(res.usuario.nombre);
+        setProductorTelefono(res.usuario.telefono);
+        // En lugar de entrar directo, pasamos al paso del código OTP
+        setAuthStep('otp');
+      } else if (res.status === 'NO_EXISTE') {
+        setAuthError('Cédula no registrada en el sistema.');
+        setAuthStep('login');
+      } else {
+        setAuthError('Tu cuenta está pendiente de revisión.');
+        setAuthStep('login');
+      }
+    } catch (err) {
+      setAuthError('Error de conexión.');
+      setAuthStep('login');
+    }
   };
 
-  const handleRechazarPropuesta = (propId: string) => {
-    setPropuestas(propuestas.map(p => p.id === propId ? { ...p, estado: 'rechazada' } : p));
-    alert('Propuesta rechazada.');
+  const handleVerificarOTP = (e: React.FormEvent) => {
+    e.preventDefault();
+    // Simulamos que el código correcto es 1234 para propósitos de prueba
+    if (otpInput === '1234') {
+      setAuthStep('dashboard');
+      fetchCosechas(productorId);
+    } else {
+      setAuthError('Código incorrecto. Intenta de nuevo.');
+    }
   };
 
-  const handleContraofertaSubmit = (data: any) => {
-    if (!contraofertaTarget) return;
-    setPropuestas(propuestas.map(p => p.id === contraofertaTarget.id ? {
-      ...p,
-      estado: 'contraofertada',
-      contraoferta: { ...data, fechaContraoferta: 'Hoy' }
-    } : p));
-    setContraofertaTarget(null);
-    alert('¡Contraoferta enviada al comprador!');
+  const fetchCosechas = async (id: string) => {
+    setLoading(true);
+    const res = await obtenerPanelProductor(id);
+    if (res.success && res.cosechas) {
+      setCosechas(res.cosechas);
+    } else {
+      setError('No pudimos cargar tus cosechas. Verifica tu conexión.');
+    }
+    setLoading(false);
   };
 
-  const handleCompletarVenta = (loteId: string) => {
-    setCosechas(cosechas.map(c => c.id === loteId ? { ...c, estado: 'vendido' } : c));
-    alert('¡Entrega confirmada! El lote se registró como 🔴 VENDIDO en el historial del productor.');
+  const handleCambiarEstado = async (id: string, estado: string) => {
+    if (!confirm(`¿Estás seguro de marcar este producto como ${estado}?`)) return;
+    
+    setLoading(true);
+    const res = await cambiarEstadoCosecha(id, estado);
+    if (res.success) {
+      setCosechas(prev => prev.map(c => c.id === id ? { ...c, estado } : c));
+    } else {
+      alert('Hubo un problema actualizando el estado.');
+    }
+    setLoading(false);
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-zinc-50">
+    <div className="min-h-screen bg-zinc-50 flex flex-col">
       <Navbar />
 
-      <main className="flex-1 py-10 container mx-auto px-4 max-w-6xl">
-        {/* Header Dashboard */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8 bg-white p-6 rounded-3xl border border-emerald-100 shadow-sm">
-          <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase mb-1">
-              <Store className="w-3.5 h-3.5 text-emerald-600" />
-              <span>Panel de Control del Productor</span>
+      <main className="flex-1 max-w-5xl mx-auto w-full px-4 py-10">
+        
+        {authStep === 'login' || authStep === 'loading_auth' ? (
+          <div className="max-w-md mx-auto mt-10 bg-white p-8 rounded-3xl shadow-xl border border-emerald-100 text-center">
+            <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Lock className="w-8 h-8" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-emerald-950">
-              Mi Escaparate Agrario
-            </h1>
-            <p className="text-xs sm:text-sm text-zinc-500 mt-1">
-              Administra tus lotes, responde propuestas formales, contraoferta y descarga comprobantes legales.
+            <h1 className="text-2xl font-black text-emerald-950 mb-2">Mi Escaparate</h1>
+            <p className="text-zinc-500 text-sm mb-6">
+              Ingresa tu cédula registrada para ver los compradores interesados en tus productos.
             </p>
-          </div>
 
-          <Link
-            href="/mapa-cosechas?publicar=true"
-            className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black px-5 py-3 rounded-2xl text-xs shadow-lg transition-all"
-          >
-            <PlusCircle className="w-4 h-4" />
-            <span>Publicar Nuevo Lote</span>
-          </Link>
-        </div>
-
-        {/* Pestañas de Estado (4 Estados del Lote) */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
-          <button
-            onClick={() => setActiveTab('disponible')}
-            className={`p-4 rounded-2xl border text-left transition-all ${
-              activeTab === 'disponible'
-                ? 'bg-emerald-600 text-white shadow-lg border-emerald-600'
-                : 'bg-white text-zinc-700 border-zinc-200 hover:border-emerald-300'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold">🟢 Disponibles</span>
-              <span className={`text-lg font-black ${activeTab === 'disponible' ? 'text-white' : 'text-emerald-950'}`}>
-                {disponibles.length}
-              </span>
-            </div>
-            <p className={`text-[10px] mt-1 ${activeTab === 'disponible' ? 'text-emerald-100' : 'text-zinc-400'}`}>
-              Visibles en el mapa y marketplace
-            </p>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('en_negociacion')}
-            className={`p-4 rounded-2xl border text-left transition-all ${
-              activeTab === 'en_negociacion'
-                ? 'bg-amber-500 text-white shadow-lg border-amber-500'
-                : 'bg-white text-zinc-700 border-zinc-200 hover:border-amber-300'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold">🟡 En Negociación</span>
-              <span className={`text-lg font-black ${activeTab === 'en_negociacion' ? 'text-white' : 'text-amber-950'}`}>
-                {enNegociacion.length}
-              </span>
-            </div>
-            <p className={`text-[10px] mt-1 ${activeTab === 'en_negociacion' ? 'text-amber-100' : 'text-zinc-400'}`}>
-              Con propuestas formales activas
-            </p>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('reservado')}
-            className={`p-4 rounded-2xl border text-left transition-all ${
-              activeTab === 'reservado'
-                ? 'bg-orange-500 text-white shadow-lg border-orange-500'
-                : 'bg-white text-zinc-700 border-zinc-200 hover:border-orange-300'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold">🟠 Reservados</span>
-              <span className={`text-lg font-black ${activeTab === 'reservado' ? 'text-white' : 'text-orange-950'}`}>
-                {reservados.length}
-              </span>
-            </div>
-            <p className={`text-[10px] mt-1 ${activeTab === 'reservado' ? 'text-orange-100' : 'text-zinc-400'}`}>
-              Acuerdo cerrado, pendiente entrega
-            </p>
-          </button>
-
-          <button
-            onClick={() => setActiveTab('vendido')}
-            className={`p-4 rounded-2xl border text-left transition-all ${
-              activeTab === 'vendido'
-                ? 'bg-rose-600 text-white shadow-lg border-rose-600'
-                : 'bg-white text-zinc-700 border-zinc-200 hover:border-rose-300'
-            }`}
-          >
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold">🔴 Vendidos</span>
-              <span className={`text-lg font-black ${activeTab === 'vendido' ? 'text-white' : 'text-rose-950'}`}>
-                {vendidos.length}
-              </span>
-            </div>
-            <p className={`text-[10px] mt-1 ${activeTab === 'vendido' ? 'text-rose-100' : 'text-zinc-400'}`}>
-              Historial de transacciones
-            </p>
-          </button>
-        </div>
-
-        {/* Contenido según la pestaña activa */}
-        <div className="space-y-6">
-          {/* TAB: EN NEGOCIACIÓN */}
-          {activeTab === 'en_negociacion' && (
-            <div className="space-y-4">
-              <h3 className="text-base font-bold text-emerald-950 flex items-center gap-2">
-                <span>Propuestas Formales Pendientes de Respuesta</span>
-                <span className="text-xs bg-amber-100 text-amber-900 px-2.5 py-0.5 rounded-full font-black">
-                  {propuestas.filter(p => p.estado === 'pendiente' || p.estado === 'contraofertada').length} Activas
-                </span>
-              </h3>
-
-              {propuestas.map((prop) => (
-                <div key={prop.id} className="bg-white rounded-3xl border-2 border-amber-200 p-6 shadow-md hover:shadow-xl transition-all">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-zinc-100">
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-[10px] font-mono font-bold bg-amber-100 text-amber-900 px-2 py-0.5 rounded">
-                          {prop.id}
-                        </span>
-                        <span className="text-xs text-zinc-400">Recibida: {prop.fechaCreacion}</span>
-                      </div>
-                      <h4 className="text-base font-bold text-emerald-950 mt-1">
-                        {prop.loteTitulo}
-                      </h4>
-                    </div>
-
-                    <span className={`text-[10px] font-black px-3 py-1 rounded-full self-start ${
-                      prop.estado === 'pendiente' ? 'bg-amber-400 text-amber-950' : 'bg-orange-500 text-white'
-                    }`}>
-                      {prop.estado === 'pendiente' ? '🟡 PENDIENTE DE RESPUESTA' : '🔄 CONTRAOFERTADA'}
-                    </span>
-                  </div>
-
-                  {/* Datos del Comprador y Términos */}
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 my-4 p-4 rounded-2xl bg-zinc-50 border border-zinc-100 text-xs">
-                    <div>
-                      <span className="text-zinc-500 block text-[11px]">Comprador Postulante:</span>
-                      <strong className="text-emerald-950 font-bold flex items-center gap-1 mt-0.5">
-                        <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>{prop.compradorNombre}</span>
-                      </strong>
-                    </div>
-
-                    <div>
-                      <span className="text-zinc-500 block text-[11px]">Cantidad & Precio Ofrecido:</span>
-                      <strong className="text-emerald-950 font-black text-sm block mt-0.5">
-                        {prop.cantidadDeseada} {prop.unidad} × ${prop.precioOfrecidoUnitario.toLocaleString('es-CO')}
-                      </strong>
-                      <span className="text-[11px] text-zinc-500">
-                        Total: ${prop.precioTotalEstimado.toLocaleString('es-CO')} COP
-                      </span>
-                    </div>
-
-                    <div>
-                      <span className="text-zinc-500 block text-[11px]">Fecha & Modalidad:</span>
-                      <span className="font-bold text-zinc-800 block mt-0.5">{prop.fechaEntregaDeseada}</span>
-                      <span className="text-[11px] text-zinc-500">{prop.lugarEntrega}</span>
-                    </div>
-                  </div>
-
-                  {prop.comentarios && (
-                    <div className="text-xs text-zinc-600 italic bg-amber-50/60 p-3 rounded-xl border border-amber-100 mb-4">
-                      "{prop.comentarios}"
-                    </div>
-                  )}
-
-                  {/* Botones de Respuesta del Productor */}
-                  <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-zinc-100">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => setComprobanteTarget(prop)}
-                        className="text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 px-3 py-2 rounded-xl flex items-center gap-1.5 transition-colors border border-emerald-200"
-                      >
-                        <Scale className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>Ver Documento Ley 527</span>
-                      </button>
-
-                      <Link
-                        href="/chat"
-                        className="text-xs font-bold text-zinc-700 bg-zinc-100 hover:bg-zinc-200 px-3 py-2 rounded-xl flex items-center gap-1.5 transition-colors"
-                      >
-                        <MessageSquare className="w-3.5 h-3.5 text-emerald-600" />
-                        <span>Abrir Chat con Comprador</span>
-                      </Link>
-                    </div>
-
-                    {prop.estado === 'pendiente' && (
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleAceptarPropuesta(prop.id)}
-                          className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md transition-all"
-                        >
-                          <CheckCircle2 className="w-4 h-4" />
-                          <span>Aceptar Propuesta</span>
-                        </button>
-
-                        <button
-                          onClick={() => setContraofertaTarget(prop)}
-                          className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md transition-all"
-                        >
-                          <RefreshCw className="w-4 h-4" />
-                          <span>Contraofertar</span>
-                        </button>
-
-                        <button
-                          onClick={() => handleRechazarPropuesta(prop.id)}
-                          className="px-3 py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold rounded-xl text-xs border border-rose-200"
-                        >
-                          Rechazar
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* TAB: DISPONIBLES */}
-          {activeTab === 'disponible' && (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-              {disponibles.map(item => (
-                <div key={item.id} className="bg-white rounded-3xl border border-emerald-100 p-5 shadow-sm flex flex-col justify-between">
-                  <div>
-                    <div className="h-36 rounded-2xl overflow-hidden bg-zinc-100 mb-3">
-                      <img src={item.imagenes[0]} alt={item.titulo} className="w-full h-full object-cover" />
-                    </div>
-                    <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800">
-                      🟢 DISPONIBLE
-                    </span>
-                    <h4 className="font-bold text-emerald-950 text-sm mt-2">{item.titulo}</h4>
-                    <p className="text-xs text-zinc-500 mt-1">{item.municipio}, {item.departamento}</p>
-                    <div className="mt-3 p-2 bg-emerald-50 rounded-xl text-xs font-bold text-emerald-900">
-                      {item.cantidadDisponible} {item.unidad} • ${item.precioUnitario.toLocaleString('es-CO')} /{item.unidad}
-                    </div>
-                  </div>
-
-                  <div className="mt-4 pt-3 border-t border-zinc-100 flex items-center justify-between">
-                    <Link href="/chat" className="text-xs font-bold text-emerald-700 hover:underline flex items-center gap-1">
-                      <span>Ver Consultas</span>
-                      <ChevronRight className="w-3 h-3" />
-                    </Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* TAB: RESERVADOS */}
-          {activeTab === 'reservado' && (
-            <div className="space-y-4">
-              {reservados.map(item => (
-                <div key={item.id} className="bg-white rounded-3xl border-2 border-orange-200 p-6 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
-                  <div>
-                    <span className="text-[10px] font-black px-3 py-1 rounded-full bg-orange-500 text-white uppercase">
-                      🟠 LOTE RESERVADO
-                    </span>
-                    <h4 className="text-lg font-bold text-emerald-950 mt-2">{item.titulo}</h4>
-                    <p className="text-xs text-zinc-500 mt-0.5">Ubicación: {item.municipio}, {item.departamento}</p>
-                    <div className="mt-2 text-xs font-semibold text-emerald-900">
-                      Fecha pactada de entrega: <strong>30 de Septiembre, 2026</strong>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col sm:flex-row gap-2">
-                    <button
-                      onClick={() => setComprobanteTarget(PROPUESTAS_MOCK_DATA[1])}
-                      className="px-4 py-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-xl text-xs border border-emerald-200 flex items-center gap-1.5"
-                    >
-                      <Scale className="w-4 h-4 text-emerald-600" />
-                      <span>Comprobante Ley 527</span>
-                    </button>
-                    <button
-                      onClick={() => handleCompletarVenta(item.id)}
-                      className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black rounded-xl text-xs flex items-center gap-1.5 shadow-md"
-                    >
-                      <CheckCircle2 className="w-4 h-4" />
-                      <span>Confirmar Entrega y Cerrar Venta</span>
-                    </button>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* TAB: VENDIDOS */}
-          {activeTab === 'vendido' && (
-            <div className="bg-white rounded-3xl p-8 text-center border border-zinc-200">
-              <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                <Award className="w-8 h-8" />
+            <form onSubmit={handleLogin} className="space-y-4">
+              <input
+                type="text"
+                placeholder="Número de Cédula o NIT"
+                value={cedulaInput}
+                onChange={(e) => setCedulaInput(e.target.value)}
+                className="w-full border-2 border-zinc-200 rounded-xl px-4 py-3 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-center font-bold text-lg"
+                required
+              />
+              {authError && <p className="text-xs text-red-600 bg-red-50 p-2 rounded-lg font-bold">{authError}</p>}
+              
+              <button 
+                type="submit" 
+                disabled={authStep === 'loading_auth' || !cedulaInput}
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-black py-3 rounded-xl transition-all disabled:opacity-50"
+              >
+                {authStep === 'loading_auth' ? 'Verificando...' : 'Acceder al Panel'}
+              </button>
+              
+              <div className="pt-2">
+                <Link href="/" className="text-xs text-zinc-500 hover:text-emerald-700 font-bold underline transition-colors">
+                  ← Volver al Inicio
+                </Link>
               </div>
-              <h4 className="text-base font-bold text-emerald-950">Historial de Transacciones Exitosas</h4>
-              <p className="text-xs text-zinc-500 mt-1 max-w-md mx-auto">
-                Todos los lotes cerrados cuentan con certificado inmutable y calificación mutua entre productor y comprador.
-              </p>
+            </form>
+          </div>
+        ) : authStep === 'otp' ? (
+          <div className="max-w-md mx-auto mt-10 bg-white p-8 rounded-3xl shadow-xl border border-emerald-100 text-center animate-in fade-in zoom-in-95">
+            <div className="w-16 h-16 bg-[#25D366]/20 text-[#25D366] rounded-full flex items-center justify-center mx-auto mb-4">
+              <Phone className="w-8 h-8" />
             </div>
-          )}
-        </div>
+            <h1 className="text-2xl font-black text-emerald-950 mb-2">Verificación WhatsApp</h1>
+            <p className="text-zinc-500 text-sm mb-6">
+              Hemos enviado un código de 4 dígitos a tu WhatsApp terminado en <strong>...{productorTelefono.slice(-4)}</strong>.
+            </p>
+
+            <form onSubmit={handleVerificarOTP} className="space-y-4">
+              <input
+                type="text"
+                placeholder="Ej: 1234"
+                maxLength={4}
+                value={otpInput}
+                onChange={(e) => setOtpInput(e.target.value)}
+                className="w-full border-2 border-zinc-200 rounded-xl px-4 py-3 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-200 text-center font-black text-2xl tracking-widest"
+                required
+              />
+              <p className="text-[10px] text-zinc-400 font-bold uppercase">(Para esta prueba, el código mágico es 1234)</p>
+              
+              {authError && <p className="text-xs text-red-600 bg-red-50 p-2 rounded-lg font-bold">{authError}</p>}
+              
+              <button 
+                type="submit" 
+                disabled={otpInput.length < 4}
+                className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-black py-3 rounded-xl transition-all disabled:opacity-50"
+              >
+                Confirmar Código
+              </button>
+              
+              <button type="button" onClick={() => setAuthStep('login')} className="text-xs text-zinc-500 underline mt-4 font-bold">
+                Volver
+              </button>
+            </form>
+          </div>
+        ) : (
+          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 bg-white p-6 rounded-3xl border border-emerald-100 shadow-sm">
+              <div>
+                <h1 className="text-2xl sm:text-3xl font-black text-emerald-950 flex items-center gap-2">
+                  <Layers className="text-emerald-600" />
+                  Escaparate de {productorNombre}
+                </h1>
+                <p className="text-emerald-700/80 font-medium text-sm mt-1">
+                  Revisa quién quiere comprarte y cierra negocios rápido.
+                </p>
+              </div>
+              <button 
+                onClick={() => setAuthStep('login')}
+                className="text-xs text-zinc-500 hover:text-zinc-800 font-bold underline"
+              >
+                Cerrar Sesión
+              </button>
+            </div>
+
+            {error && (
+              <div className="bg-red-50 text-red-600 p-4 rounded-xl font-bold flex items-center gap-2 mb-6">
+                <AlertCircle /> {error}
+              </div>
+            )}
+
+            {loading && <p className="text-emerald-600 font-bold animate-pulse text-center my-10">Actualizando tus datos...</p>}
+
+            {!loading && cosechas.length === 0 && (
+              <div className="text-center py-20 bg-white rounded-3xl border border-emerald-100 shadow-sm">
+                <Layers className="w-16 h-16 text-emerald-200 mx-auto mb-4" />
+                <h3 className="text-xl font-black text-emerald-900">Aún no tienes productos publicados</h3>
+                <p className="text-zinc-500 mt-2">Publica tu primer producto en el mapa para empezar a recibir ofertas.</p>
+                <Link href="/mapa-cosechas?publicar=true" className="inline-block mt-6 bg-emerald-600 text-white font-bold px-6 py-3 rounded-xl shadow-lg">
+                  Publicar Producto
+                </Link>
+              </div>
+            )}
+
+            <div className="space-y-6">
+              {cosechas.map((cosecha) => (
+                <div key={cosecha.id} className="bg-white rounded-3xl shadow-sm border border-emerald-100 overflow-hidden">
+                  <div className="bg-emerald-950 p-5 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                    <div className="text-white">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                          cosecha.estado === 'disponible' ? 'bg-emerald-500 text-emerald-950' : 
+                          cosecha.estado === 'vendido' ? 'bg-amber-400 text-amber-950' : 'bg-red-500 text-white'
+                        }`}>
+                          {cosecha.estado}
+                        </span>
+                        <span className="text-[10px] text-emerald-300 font-bold tracking-wider">{cosecha.sector}</span>
+                      </div>
+                      <h2 className="text-xl font-black">{cosecha.titulo}</h2>
+                      <p className="text-emerald-200 text-sm flex items-center gap-1 mt-1">
+                        <MapPin className="w-3.5 h-3.5" /> {cosecha.municipio}, {cosecha.departamento}
+                      </p>
+                    </div>
+                    
+                    <div className="text-left md:text-right">
+                      <p className="text-emerald-100 text-xs">Precio Base</p>
+                      <p className="text-2xl font-black text-emerald-400">${cosecha.precio.toLocaleString()} <span className="text-sm">COP/{cosecha.unidad}</span></p>
+                      <p className="text-emerald-200 text-xs mt-1">Disp: {cosecha.cantidadDisponible} {cosecha.unidad}</p>
+                    </div>
+                  </div>
+
+                  <div className="p-5 flex flex-col lg:flex-row gap-6">
+                    {/* Consultas Recibidas */}
+                    <div className="flex-1">
+                      <h3 className="font-bold text-emerald-900 flex items-center gap-2 mb-4 border-b border-zinc-100 pb-2">
+                        <MessageCircle className="text-emerald-500 w-5 h-5" /> 
+                        Grilla de Compradores Interesados ({cosecha.consultas?.length || 0})
+                      </h3>
+                      
+                      {cosecha.consultas?.length === 0 ? (
+                        <p className="text-sm text-zinc-400 italic bg-zinc-50 p-4 rounded-xl border border-zinc-100">
+                          Todavía no hay interesados en este producto.
+                        </p>
+                      ) : (
+                        <div className="grid gap-3">
+                          {cosecha.consultas?.map((consulta: any) => (
+                            <div key={consulta.id} className="bg-emerald-50/50 border border-emerald-100 p-4 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                              <div>
+                                <p className="font-black text-emerald-950 text-sm">{consulta.compradorNombre}</p>
+                                <span className="text-[10px] font-bold text-zinc-500 flex items-center gap-1 mt-1">
+                                  <Calendar className="w-3 h-3" /> Contactó el {new Date(consulta.fechaConsulta).toLocaleDateString()}
+                                </span>
+                              </div>
+                              <a 
+                                href={`https://wa.me/${consulta.compradorTelefono.replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${consulta.compradorNombre}, vi que estabas interesado en mi lote de ${cosecha.titulo} en AGROPACCIOLI.`)}`} 
+                                target="_blank" 
+                                rel="noreferrer" 
+                                className="bg-[#25D366] text-white text-xs font-bold px-4 py-2 rounded-xl hover:bg-[#20bd5a] flex items-center gap-2 shadow-sm whitespace-nowrap justify-center"
+                              >
+                                <Phone className="w-3.5 h-3.5" /> WhatsApp: {consulta.compradorTelefono}
+                              </a>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Acciones Rápidas */}
+                    <div className="w-full lg:w-72 shrink-0 bg-zinc-50 p-5 rounded-2xl border border-zinc-200 flex flex-col justify-between">
+                      <div>
+                        <h3 className="font-bold text-emerald-900 mb-2 text-sm">Cierre de Negocio</h3>
+                        <p className="text-xs text-zinc-500 mb-4 leading-relaxed">
+                          Si ya cerraste trato con algún comprador por WhatsApp, retira el producto del mapa para no recibir más contactos.
+                        </p>
+                      </div>
+                      
+                      <div className="space-y-3">
+                        {cosecha.estado !== 'vendido' && (
+                          <button 
+                            onClick={() => handleCambiarEstado(cosecha.id, 'vendido')}
+                            disabled={loading}
+                            className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-sm shadow-md"
+                          >
+                            <CheckCircle2 className="w-5 h-5" /> ¡Marcar como Vendido!
+                          </button>
+                        )}
+                        
+                        {cosecha.estado !== 'cancelado' && (
+                          <button 
+                            onClick={() => handleCambiarEstado(cosecha.id, 'cancelado')}
+                            disabled={loading}
+                            className="w-full bg-white hover:bg-red-50 text-red-600 border border-red-200 font-bold py-2.5 rounded-xl transition-all flex items-center justify-center gap-2 text-sm"
+                          >
+                            <XCircle className="w-4 h-4" /> Cancelar Publicación
+                          </button>
+                        )}
+                        
+                        {cosecha.estado !== 'disponible' && (
+                          <button 
+                            onClick={() => handleCambiarEstado(cosecha.id, 'disponible')}
+                            disabled={loading}
+                            className="w-full bg-zinc-800 hover:bg-zinc-900 text-white font-bold py-2.5 rounded-xl transition-all text-sm mt-4"
+                          >
+                            Volver a publicar
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </main>
-
-      {/* Modales */}
-      {contraofertaTarget && (
-        <ModalContraoferta
-          propuesta={contraofertaTarget}
-          onClose={() => setContraofertaTarget(null)}
-          onSubmit={handleContraofertaSubmit}
-        />
-      )}
-
-      {comprobanteTarget && (
-        <ComprobanteLegalViewer
-          propuesta={comprobanteTarget}
-          onClose={() => setComprobanteTarget(null)}
-        />
-      )}
 
       <Footer />
     </div>

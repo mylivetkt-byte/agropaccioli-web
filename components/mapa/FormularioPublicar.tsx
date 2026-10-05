@@ -70,7 +70,7 @@ export default function FormularioPublicarModal() {
     if (res.status === 'NO_EXISTE') {
       setStep('REGISTRO');
     } else if (res.status === 'PENDIENTE') {
-      setNombreUsuario(res.nombre || 'Productor');
+      setNombreUsuario((res as any).nombre || 'Productor');
       setStep('BLOQUEADO');
     } else if (res.status === 'APROBADO' && res.usuario) {
       setNombreUsuario(res.usuario.nombre);

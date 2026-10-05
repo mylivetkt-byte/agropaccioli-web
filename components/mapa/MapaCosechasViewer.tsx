@@ -3,7 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { Layers, X, MessageCircle, Phone, MapPin, ShieldCheck, Eye, Compass, Search, CalendarClock, Zap, CheckCircle2 } from 'lucide-react';
-import { checkUsuarioStatus } from '@/app/actions/cosechas';
+import { checkUsuarioStatus, registrarConsultaComprador } from '@/app/actions/cosechas';
 import { CosechaItem } from '@/types/agro';
 import { getCosechasList } from '@/app/actions/cosechas';
 import { COSECHAS_DATA } from '@/lib/agro-data';
@@ -486,7 +486,7 @@ export default function MapaCosechasViewer() {
                       {item.municipio}
                     </p>
                     <p className="font-black text-emerald-700 text-sm">
-                      ${item.precioUnitario.toLocaleString()} <span className="text-[9px] font-bold text-zinc-400 uppercase">/ {item.unidad}</span>
+                      ${item.precioUnitario.toLocaleString('es-CO')} <span className="text-[9px] font-bold text-zinc-400 uppercase">/ {item.unidad}</span>
                     </p>
                   </div>
                 </div>
@@ -647,6 +647,10 @@ export default function MapaCosechasViewer() {
                   
                   if (res.status === 'APROBADO') {
                     setContactSuccess(true);
+                    // Registrar el interés en el backend para el panel del productor
+                    if (res.usuario && (selected as any).origen !== 'D') {
+                      await registrarConsultaComprador(selected.id, res.usuario.nombre, res.usuario.telefono, 'Contacto desde Mapa de Cosechas');
+                    }
                   } else if (res.status === 'NO_EXISTE') {
                     setContactError('Cédula no registrada. Por favor regístrate como comprador primero.');
                   } else {
@@ -657,9 +661,9 @@ export default function MapaCosechasViewer() {
                   
                   <div>
                     <input 
-                      type="number" 
+                      type="text" 
                       required
-                      placeholder="Cédula de ciudadanía" 
+                      placeholder="Cédula de ciudadanía o NIT" 
                       value={buyerCedula}
                       onChange={e => setBuyerCedula(e.target.value)}
                       className="w-full border border-zinc-300 rounded-xl px-4 py-3 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 text-sm"
@@ -676,15 +680,26 @@ export default function MapaCosechasViewer() {
                 <div className="text-center space-y-3">
                   <CheckCircle2 className="w-12 h-12 text-emerald-500 mx-auto" />
                   <h4 className="font-black text-emerald-900 text-lg">¡Identidad Confirmada!</h4>
-                  <p className="text-xs text-zinc-600">Serás redirigido a la sala de negocios cifrada para acordar la compra con el vendedor.</p>
+                  <p className="text-xs text-zinc-600">El productor ya fue notificado. Escríbele ahora mismo por WhatsApp para cerrar el negocio directamente, sin intermediarios.</p>
                   
                   <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-3 text-left space-y-1">
                     <p className="text-[10px] font-bold text-emerald-800">CONTACTO DIRECTO:</p>
                     <p className="text-sm font-black text-emerald-950 flex items-center gap-2"><Phone className="w-4 h-4 text-emerald-600" /> {selected.productor.telefono || 'Sin Teléfono'}</p>
                   </div>
                   
-                  <button onClick={() => { setContactModalOpen(false); setContactSuccess(false); }} className="w-full border border-zinc-200 text-zinc-700 font-bold py-2 rounded-xl hover:bg-zinc-50 text-sm">
-                    Cerrar
+                  <a 
+                    href={`https://wa.me/${(selected.productor.whatsapp || selected.productor.telefono || '').replace(/\D/g, '')}?text=${encodeURIComponent(`Hola ${selected.productor.nombre}, estoy interesado en comprar tu lote de ${selected.titulo} publicado en AGROPACCIOLI. ¿Aún lo tienes disponible?`)}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-green-500/30"
+                    onClick={() => { setContactModalOpen(false); setContactSuccess(false); }}
+                  >
+                    <MessageCircle className="w-5 h-5" />
+                    Hablar por WhatsApp
+                  </a>
+
+                  <button onClick={() => { setContactModalOpen(false); setContactSuccess(false); }} className="w-full text-zinc-500 hover:text-zinc-700 font-bold py-2 text-xs">
+                    Cerrar y volver al mapa
                   </button>
                 </div>
               )}

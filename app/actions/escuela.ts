@@ -1,6 +1,7 @@
 'use server';
 
 import prisma from '@/lib/prisma';
+import ytSearch from 'yt-search';
 
 // Función para obtener la información completa de la Libreta de Notas de un estudiante
 export async function obtenerLibretaEstudiante(telefonoUsuario: string) {
@@ -16,7 +17,7 @@ export async function obtenerLibretaEstudiante(telefonoUsuario: string) {
               include: {
                 etapa: {
                   include: {
-                    cultivo: true
+                    curso: true
                   }
                 }
               }
@@ -26,7 +27,7 @@ export async function obtenerLibretaEstudiante(telefonoUsuario: string) {
         // Incluir sus diplomas ganados
         diplomasAcademia: {
           include: {
-            cultivo: true
+            curso: true
           }
         }
       }
@@ -41,12 +42,12 @@ export async function obtenerLibretaEstudiante(telefonoUsuario: string) {
     const cursosEnProgresoMap = new Map();
     
     usuario.progresosAcademia.forEach(progreso => {
-      const cultivo = progreso.leccion.etapa.cultivo;
-      if (!cursosEnProgresoMap.has(cultivo.id)) {
-        cursosEnProgresoMap.set(cultivo.id, {
-          id: cultivo.id,
-          nombre: cultivo.nombre,
-          icono: cultivo.icono,
+      const cursoDb = progreso.leccion.etapa.curso;
+      if (!cursosEnProgresoMap.has(cursoDb.id)) {
+        cursosEnProgresoMap.set(cursoDb.id, {
+          id: cursoDb.id,
+          nombre: cursoDb.nombre,
+          icono: cursoDb.icono,
           leccionesCompletadas: 0,
           // Para el MVP, asumimos un total de 4 lecciones por curso para calcular el %
           totalLecciones: 4 
@@ -54,7 +55,7 @@ export async function obtenerLibretaEstudiante(telefonoUsuario: string) {
       }
       
       if (progreso.completado) {
-        const cursoInfo = cursosEnProgresoMap.get(cultivo.id);
+        const cursoInfo = cursosEnProgresoMap.get(cursoDb.id);
         cursoInfo.leccionesCompletadas += 1;
       }
     });
@@ -86,7 +87,7 @@ export async function obtenerLibretaEstudiante(telefonoUsuario: string) {
 // Función para obtener todo el catálogo de cursos disponibles
 export async function obtenerCatalogoCursos() {
   try {
-    const cursos = await prisma.academiaCultivo.findMany({
+    let cursos = await prisma.academiaCurso.findMany({
       where: { estado: 'ACTIVO' },
       select: {
         id: true,
@@ -96,15 +97,30 @@ export async function obtenerCatalogoCursos() {
       }
     });
     
+    // Fallback de catálogo (Directorio Inicial MVP)
+    if (cursos.length === 0) {
+      cursos = [
+        { id: '1', nombre: 'Riego por Goteo Casero', descripcion: 'Módulo Agrícola: Aprenda a optimizar el agua.', icono: '💧' },
+        { id: '2', nombre: 'Aguacate Hass (Exportación)', descripcion: 'Módulo Agrícola: BPA y requisitos ICA.', icono: '🥑' },
+        { id: '3', nombre: 'Ceba de Novillos Brahman', descripcion: 'Módulo Ganadero: Nutrición y pasturas.', icono: '🐄' },
+        { id: '4', nombre: 'Cría de Tilapia Roja', descripcion: 'Módulo Piscícola: Oxigenación y estanques.', icono: '🐟' },
+        { id: '5', nombre: 'Café Especial (Taza Limpia)', descripcion: 'Módulo Agrícola: Beneficio y secado.', icono: '☕' },
+        { id: '6', nombre: 'Gallinas Ponedoras', descripcion: 'Módulo Avícola: Galpones y bioseguridad.', icono: '🐔' }
+      ] as any[];
+    }
+
     // Agregamos colores didácticos para la UI que no vienen de BD
-    const colors = ['bg-amber-100 text-amber-800', 'bg-emerald-100 text-emerald-800', 'bg-sky-100 text-sky-800', 'bg-orange-100 text-orange-800', 'bg-purple-100 text-purple-800'];
+    const colors = ['bg-amber-100 text-amber-800', 'bg-emerald-100 text-emerald-800', 'bg-sky-100 text-sky-800', 'bg-orange-100 text-orange-800', 'bg-purple-100 text-purple-800', 'bg-rose-100 text-rose-800'];
     
     return cursos.map((curso, i) => {
       const parts = colors[i % colors.length].split(' ');
       return {
         ...curso,
         colorBg: parts[0],
-        colorText: parts[1]
+        colorText: parts[1],
+        categoria: curso.descripcion?.includes('Ganadero') ? 'Ganadería' : 
+                   curso.descripcion?.includes('Piscícola') ? 'Piscícola' : 
+                   curso.descripcion?.includes('Avícola') ? 'Avícola' : 'Agrícola'
       };
     });
   } catch (error) {
@@ -114,7 +130,7 @@ export async function obtenerCatalogoCursos() {
 }
 
 // Función para guardar el progreso cuando un campesino termina una etapa
-export async function guardarProgresoClase(telefonoUsuario: string, cultivoId: string, etapaActual: number) {
+export async function guardarProgresoClase(telefonoUsuario: string, cursoId: string, etapaActual: number) {
   try {
     const usuario = await prisma.usuario.findUnique({
       where: { telefono: telefonoUsuario }
@@ -126,7 +142,7 @@ export async function guardarProgresoClase(telefonoUsuario: string, cultivoId: s
     // En el MVP, cada etapa tiene 1 lección, así que buscamos por orden de etapa
     const etapa = await prisma.academiaEtapa.findFirst({
       where: { 
-        cultivoId: cultivoId,
+        cursoId: cursoId,
         orden: etapaActual
       },
       include: { lecciones: true }
@@ -163,7 +179,27 @@ export async function guardarProgresoClase(telefonoUsuario: string, cultivoId: s
 // FASE 1: Motor del Generador IA para registrar en BD
 export async function crearCursoDesdeGeneradorIA(nombreCurso: string) {
   try {
-    const nuevoCurso = await prisma.academiaCultivo.create({
+    // Buscar videos reales en YouTube usando yt-search (sin necesidad de API Key)
+    const buscarVideo = async (query: string) => {
+      try {
+        const r = await ytSearch(query + " agricola tutorial");
+        const videos = r.videos;
+        // Filtrar los más relevantes o tomar el primero con buenas vistas
+        if (videos.length > 0) {
+          return videos[0].url;
+        }
+        return '';
+      } catch (e) {
+        return '';
+      }
+    };
+
+    const urlEtapa1 = await buscarVideo(`preparacion suelo para ${nombreCurso}`);
+    const urlEtapa2 = await buscarVideo(`siembra y abono para ${nombreCurso}`);
+    const urlEtapa3 = await buscarVideo(`plagas y enfermedades ${nombreCurso}`);
+    const urlEtapa4 = await buscarVideo(`cosecha ${nombreCurso}`);
+
+    const nuevoCurso = await prisma.academiaCurso.create({
       data: {
         nombre: nombreCurso.toLowerCase().includes('curso') ? nombreCurso : `Curso de ${nombreCurso}`,
         descripcion: `Curso oficial generado con Inteligencia Artificial con las mejores prácticas para ${nombreCurso}.`,
@@ -171,10 +207,10 @@ export async function crearCursoDesdeGeneradorIA(nombreCurso: string) {
         estado: 'ACTIVO',
         etapas: {
           create: [
-            { orden: 1, titulo: 'Preparación de Terreno', lecciones: { create: [{ orden: 1, titulo: 'El Suelo', tipo: 'VIDEO' }] } },
-            { orden: 2, titulo: 'Siembra y Nutrición', lecciones: { create: [{ orden: 1, titulo: 'La Semilla', tipo: 'VIDEO' }] } },
-            { orden: 3, titulo: 'Control de Plagas', lecciones: { create: [{ orden: 1, titulo: 'Manejo Integrado', tipo: 'VIDEO' }] } },
-            { orden: 4, titulo: 'Cosecha y Ventas', lecciones: { create: [{ orden: 1, titulo: 'Comercialización', tipo: 'VIDEO' }] } }
+            { orden: 1, titulo: 'Preparación de Terreno', lecciones: { create: [{ orden: 1, titulo: 'El Suelo', tipo: 'VIDEO', urlContenido: urlEtapa1 }] } },
+            { orden: 2, titulo: 'Siembra y Nutrición', lecciones: { create: [{ orden: 1, titulo: 'La Semilla', tipo: 'VIDEO', urlContenido: urlEtapa2 }] } },
+            { orden: 3, titulo: 'Control de Plagas', lecciones: { create: [{ orden: 1, titulo: 'Manejo Integrado', tipo: 'VIDEO', urlContenido: urlEtapa3 }] } },
+            { orden: 4, titulo: 'Cosecha y Ventas', lecciones: { create: [{ orden: 1, titulo: 'Comercialización', tipo: 'VIDEO', urlContenido: urlEtapa4 }] } }
           ]
         }
       }

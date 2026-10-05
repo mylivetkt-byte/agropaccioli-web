@@ -108,19 +108,20 @@ CREATE TABLE IF NOT EXISTS "Contrato" (
     "manifiestoCarga" TEXT
 );
 
--- 7. TABLA: AcademiaCultivo
-CREATE TABLE IF NOT EXISTS "AcademiaCultivo" (
+-- 7. TABLA: AcademiaCurso
+CREATE TABLE IF NOT EXISTS "AcademiaCurso" (
     "id" TEXT PRIMARY KEY DEFAULT uuid_generate_v4()::TEXT,
     "nombre" TEXT NOT NULL,
     "descripcion" TEXT,
     "icono" TEXT,
-    "estado" TEXT NOT NULL DEFAULT 'ACTIVO'
+    "estado" TEXT NOT NULL DEFAULT 'ACTIVO',
+    "sector" TEXT NOT NULL DEFAULT 'agricola'
 );
 
 -- 8. TABLA: AcademiaEtapa
 CREATE TABLE IF NOT EXISTS "AcademiaEtapa" (
     "id" TEXT PRIMARY KEY DEFAULT uuid_generate_v4()::TEXT,
-    "cultivoId" TEXT NOT NULL REFERENCES "AcademiaCultivo"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    "cursoId" TEXT NOT NULL REFERENCES "AcademiaCurso"("id") ON DELETE CASCADE ON UPDATE CASCADE,
     "orden" INTEGER NOT NULL,
     "titulo" TEXT NOT NULL,
     "descripcion" TEXT
@@ -152,11 +153,11 @@ CREATE TABLE IF NOT EXISTS "AcademiaProgreso" (
 CREATE TABLE IF NOT EXISTS "AcademiaDiploma" (
     "id" TEXT PRIMARY KEY DEFAULT uuid_generate_v4()::TEXT,
     "usuarioId" TEXT NOT NULL REFERENCES "Usuario"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    "cultivoId" TEXT NOT NULL REFERENCES "AcademiaCultivo"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    "cursoId" TEXT NOT NULL REFERENCES "AcademiaCurso"("id") ON DELETE CASCADE ON UPDATE CASCADE,
     "notaFinal" DOUBLE PRECISION NOT NULL,
     "fechaEmision" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
     "codigoVerificacion" TEXT UNIQUE DEFAULT uuid_generate_v4()::TEXT,
-    CONSTRAINT "AcademiaDiploma_usuarioId_cultivoId_key" UNIQUE ("usuarioId", "cultivoId")
+    CONSTRAINT "AcademiaDiploma_usuarioId_cursoId_key" UNIQUE ("usuarioId", "cursoId")
 );
 
 -- 12. TABLA: AlmacenInsumos

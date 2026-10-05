@@ -86,14 +86,14 @@ VALUES
 ON CONFLICT ("id") DO NOTHING;
 
 -- 3. Insertar Módulos de la Academia Rural
-INSERT INTO "AcademiaCultivo" ("id", "nombre", "descripcion", "icono", "estado")
+INSERT INTO "AcademiaCurso" ("id", "nombre", "descripcion", "icono", "estado", "sector")
 VALUES 
-  ('cultivo-cafe-01', 'Café de Especialidad y Sostenibilidad', 'Aprende las mejores prácticas agronómicas desde la siembra hasta la taza limpia.', '☕', 'ACTIVO')
+  ('curso-cafe-01', 'Café de Especialidad y Sostenibilidad', 'Aprende las mejores prácticas agronómicas desde la siembra hasta la taza limpia.', '☕', 'ACTIVO', 'agricola')
 ON CONFLICT ("id") DO NOTHING;
 
-INSERT INTO "AcademiaEtapa" ("id", "cultivoId", "orden", "titulo", "descripcion")
+INSERT INTO "AcademiaEtapa" ("id", "cursoId", "orden", "titulo", "descripcion")
 VALUES 
-  ('etapa-cafe-1', 'cultivo-cafe-01', 1, 'Etapa 1: Germinación y Preparación de Suelos', 'Selección de semillas certificadas y control de pH.')
+  ('etapa-cafe-1', 'curso-cafe-01', 1, 'Etapa 1: Germinación y Preparación de Suelos', 'Selección de semillas certificadas y control de pH.')
 ON CONFLICT ("id") DO NOTHING;
 
 INSERT INTO "AcademiaLeccion" ("id", "etapaId", "orden", "titulo", "tipo", "urlContenido", "duracionMinutos", "climaRecomendado")

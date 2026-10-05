@@ -8,7 +8,7 @@ export default async function DiplomaPage({ params }: { params: Promise<{ diplom
     where: { id: resolvedParams.diplomaId },
     include: {
       usuario: true,
-      cultivo: true
+      curso: true
     }
   });
 
@@ -73,7 +73,7 @@ export default async function DiplomaPage({ params }: { params: Promise<{ diplom
             </p>
 
             <h2 className="text-5xl font-black text-emerald-900 uppercase tracking-widest text-center m-0 my-4">
-              {diploma.cultivo.nombre}
+              {diploma.curso.nombre}
             </h2>
 
             {/* Fechas */}

@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, MapPin, ShieldCheck, MessageCircle, Phone, Sparkles, Loader2 } from 'lucide-react';
+import { Search, MapPin, ShieldCheck, MessageCircle, Phone, Sparkles, Loader2, Mic, MicOff } from 'lucide-react';
 import { getCosechasList } from '@/app/actions/cosechas';
 import { COSECHAS_DATA } from '@/lib/agro-data';
 import { CosechaItem, SectorType } from '@/types/agro';
@@ -13,6 +13,41 @@ export default function BuscadorCosechas() {
   const [limite, setLimite] = useState(8);
   const [cosechas, setCosechas] = useState<CosechaItem[]>(COSECHAS_DATA);
   const [loading, setLoading] = useState(false);
+  const [isListening, setIsListening] = useState(false);
+
+  const toggleListening = () => {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Tu navegador no soporta búsqueda por voz. Intenta usar Google Chrome.');
+      return;
+    }
+
+    if (isListening) {
+      setIsListening(false);
+      return;
+    }
+
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'es-CO';
+    recognition.continuous = false;
+    recognition.interimResults = false;
+
+    recognition.onstart = () => setIsListening(true);
+    
+    recognition.onresult = (event: any) => {
+      const transcript = event.results[0][0].transcript;
+      setBusqueda(transcript);
+    };
+
+    recognition.onerror = (event: any) => {
+      console.error('Error de reconocimiento de voz', event.error);
+      setIsListening(false);
+    };
+
+    recognition.onend = () => setIsListening(false);
+
+    recognition.start();
+  };
 
   useEffect(() => {
     async function load() {
@@ -89,15 +124,22 @@ export default function BuscadorCosechas() {
 
         <div className="bg-emerald-50/50 border border-emerald-200 rounded-2xl p-4 md:p-5 mb-8 space-y-4 max-w-3xl">
           {/* Barra de Búsqueda */}
-          <div className="relative">
-            <Search className="w-5 h-5 text-emerald-700 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+          <div className="relative flex items-center bg-white border border-emerald-300 rounded-2xl shadow-sm focus-within:ring-2 focus-within:ring-emerald-500 transition-shadow pr-2">
+            <Search className="w-5 h-5 text-emerald-700 absolute left-4 pointer-events-none" />
             <input
               type="text"
               value={busqueda}
               onChange={(e) => setBusqueda(e.target.value)}
               placeholder="¿Qué buscas? (ej: Aguacate, Novillos, Trucha, Antioquia...)"
-              className="w-full bg-white border border-emerald-300 rounded-2xl pl-5 pr-12 py-3 text-sm text-zinc-800 outline-none focus:ring-2 focus:ring-emerald-500 shadow-sm transition-shadow"
+              className="w-full bg-transparent pl-12 pr-4 py-3 text-sm text-zinc-800 outline-none"
             />
+            <button 
+              onClick={toggleListening}
+              className={`p-2 rounded-xl transition-all flex items-center justify-center shrink-0 ${isListening ? 'bg-red-100 text-red-600 animate-pulse' : 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200'}`}
+              title="Buscar por voz"
+            >
+              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+            </button>
           </div>
           
           {/* Botones de Filtro Rápido (Pills) */}

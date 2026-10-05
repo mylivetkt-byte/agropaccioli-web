@@ -74,11 +74,12 @@ async function main() {
   });
 
   // 2. Crear Cursos de la Escuela
-  const cursoCacao = await prisma.academiaCultivo.create({
+  const cursoCacao = await prisma.academiaCurso.create({
     data: {
       nombre: 'Cultivo de Cacao',
       descripcion: 'Aprenda todo sobre el cacao, desde la siembra hasta la cosecha.',
       icono: '🍫',
+      sector: 'agricola',
       etapas: {
         create: [
           {
@@ -95,11 +96,12 @@ async function main() {
     }
   });
 
-  const cursoRiego = await prisma.academiaCultivo.create({
+  const cursoRiego = await prisma.academiaCurso.create({
     data: {
       nombre: 'Riego por Goteo Casero',
       descripcion: 'Optimice el uso del agua en su finca de manera económica.',
       icono: '💧',
+      sector: 'agricola',
       etapas: {
         create: [
           {
@@ -116,11 +118,12 @@ async function main() {
     }
   });
 
-  const cursoBPA = await prisma.academiaCultivo.create({
+  const cursoBPA = await prisma.academiaCurso.create({
     data: {
       nombre: 'Buenas Prácticas Agrícolas (BPA)',
       descripcion: 'Normas y certificación oficial para exportar.',
       icono: '📜',
+      sector: 'agricola',
       etapas: {
         create: [
           {
@@ -150,7 +153,7 @@ async function main() {
   await prisma.academiaDiploma.create({
     data: {
       usuarioId: donCarlos.id,
-      cultivoId: cursoBPA.id,
+      cursoId: cursoBPA.id,
       notaFinal: 5.0,
       codigoVerificacion: 'BPA-2025-' + Math.floor(Math.random() * 10000)
     }

@@ -4,36 +4,46 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { BookOpen, Sprout, Fish, Smartphone, Headphones, PlayCircle, Award, Bot, Send } from 'lucide-react';
 
-interface ChatMessage {
-  remitente: 'usuario' | 'ia';
-  texto: string;
-}
+import { useChat } from '@ai-sdk/react';
 
 export default function AcademiaAgroIA() {
-  const [mensajes, setMensajes] = useState<ChatMessage[]>([
+  const [messages, setMessages] = useState<any[]>([
     {
-      remitente: 'ia',
-      texto: '¡Hola! Soy tu Asesor Agronómico Virtual. ¿Sobre qué cultivo o animal quieres aprender hoy? Ej: "Cómo abonar el café" o "¿Qué comen las tilapias?"'
+      id: '1',
+      role: 'assistant',
+      content: '¡Hola! Soy tu Asesor Agronómico Virtual con Inteligencia Artificial. ¿Sobre qué cultivo o animal quieres aprender hoy? Ej: "Cómo abonar el café" o "¿Qué plaga afecta el aguacate?"'
     }
   ]);
   const [input, setInput] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const enviar = (texto: string) => {
-    if (!texto.trim()) return;
-    setMensajes((prev) => [...prev, { remitente: 'usuario', texto }]);
+  const enviarMensaje = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
+
+    const userMessage = { id: Date.now().toString(), role: 'user', content: input };
+    setMessages((prev) => [...prev, userMessage]);
     setInput('');
-    setTimeout(() => {
-      let resp = 'Para este tema te recomiendo escuchar nuestro audiocurso "Fundamentos del Cultivo Seguro". Lo encuentras en la sección de La Escuela Rural.';
-      const q = texto.toLowerCase();
-      if (q.includes('cafe') || q.includes('café') || q.includes('broca')) {
-        resp = 'El café requiere nitrógeno y potasio. Para la broca, recoge siempre los granos caídos (Re-Re). ¡Tenemos un video de 2 minutos que te enseña a hacerlo!';
-      } else if (q.includes('aguacate')) {
-        resp = 'En aguacate Hass aplica Boro para que no se caigan las flores. Tenemos un módulo en audio gratis sobre el Aguacate Hass, ¿te gustaría escucharlo?';
-      } else if (q.includes('tilapia') || q.includes('pez')) {
-        resp = 'Las tilapias necesitan agua entre 26°C y 30°C. Si el agua se enfría, no comen. Revisa la "Escuela de Crianza" para ver el video completo.';
-      }
-      setMensajes((prev) => [...prev, { remitente: 'ia', texto: resp }]);
-    }, 600);
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: [...messages, userMessage].map(m => ({ role: m.role, content: m.content })) })
+      });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || 'Error desconocido');
+
+      setMessages((prev) => [...prev, { id: (Date.now() + 1).toString(), role: 'assistant', content: data.text }]);
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -114,27 +124,44 @@ export default function AcademiaAgroIA() {
           </div>
 
           <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] bg-emerald-50/30">
-            {mensajes.map((m, idx) => (
-              <div key={idx} className={`flex flex-col ${m.remitente === 'usuario' ? 'items-end' : 'items-start'}`}>
-                <div className={`max-w-[85%] rounded-2xl p-3.5 text-xs shadow-sm ${m.remitente === 'usuario' ? 'bg-emerald-600 text-white rounded-br-none' : 'bg-white text-zinc-800 border border-emerald-100 rounded-bl-none font-medium'}`}>
-                  {m.texto}
+            {messages.map((m) => (
+              <div key={m.id} className={`flex flex-col ${m.role === 'user' ? 'items-end' : 'items-start'}`}>
+                <div className={`max-w-[85%] rounded-2xl p-3.5 text-xs shadow-sm ${m.role === 'user' ? 'bg-emerald-600 text-white rounded-br-none' : 'bg-white text-zinc-800 border border-emerald-100 rounded-bl-none font-medium'}`}>
+                  {m.content}
                 </div>
               </div>
             ))}
+            {isLoading && (
+              <div className="flex flex-col items-start">
+                <div className="max-w-[85%] rounded-2xl p-3.5 text-xs shadow-sm bg-white text-zinc-500 border border-emerald-100 rounded-bl-none italic">
+                  Escribiendo respuesta...
+                </div>
+              </div>
+            )}
           </div>
 
-          <form onSubmit={(e) => { e.preventDefault(); enviar(input); }} className="p-3 bg-white border-t border-emerald-100 flex gap-2">
+          <form onSubmit={enviarMensaje} className="p-3 bg-white border-t border-emerald-100 flex gap-2">
             <input
+              name="prompt"
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Escribe tu duda aquí (ej: 'Mis tomates tienen gusanos')..."
+              placeholder="Escribe tu duda técnica aquí..."
               className="flex-1 bg-emerald-50/50 border border-emerald-200 rounded-xl px-4 py-3 text-xs outline-none focus:ring-2 focus:ring-emerald-500"
             />
-            <button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 rounded-xl transition-colors shadow-sm">
+            <button 
+              type="submit" 
+              disabled={isLoading || !input.trim()} 
+              className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-3 rounded-xl transition-colors shadow-sm disabled:opacity-50"
+            >
               <Send className="w-4 h-4" />
             </button>
           </form>
+          {error && (
+            <div className="bg-red-100 text-red-700 text-xs p-3 text-center font-bold">
+              Hubo un error de conexión con la IA. Asegúrate de que tu OPENAI_API_KEY sea correcta. ({error})
+            </div>
+          )}
         </div>
       </div>
     </section>

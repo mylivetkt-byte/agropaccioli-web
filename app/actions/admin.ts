@@ -10,7 +10,12 @@ export async function getUsuariosAdmin(password: string) {
     return { error: 'Clave incorrecta' };
   }
   const usuarios = await prisma.usuario.findMany({
-    orderBy: { nombre: 'asc' }
+    orderBy: { nombre: 'asc' },
+    include: {
+      cosechas: {
+        select: { municipio: true, departamento: true, titulo: true, estado: true }
+      }
+    }
   });
   return { usuarios };
 }

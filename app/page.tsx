@@ -15,6 +15,7 @@ const BuscadorPreciosNacional = dynamic(() => import('@/components/home/Buscador
 const PortalAlmacenesB2B = dynamic(() => import('@/components/home/PortalAlmacenesB2B'));
 const AcademiaAgroIA = dynamic(() => import('@/components/home/AcademiaAgroIA'));
 const RedTransportistas = dynamic(() => import('@/components/home/RedTransportistas'));
+const PoolCosechasB2B = dynamic(() => import('@/components/home/PoolCosechasB2B'));
 
 // Los modales NO necesitan SSR (Server Side Rendering), ahorramos más peso
 const FormularioCompradorModal = dynamic(() => import('@/components/mapa/FormularioComprador'));
@@ -33,6 +34,7 @@ export default function HomePage() {
         
         {/* Componentes pesados aplazados */}
         <BuscadorCosechas />
+        <PoolCosechasB2B />
         <BolsaEmpleosPreview />
         <BuscadorPreciosNacional />
         <PortalAlmacenesB2B />

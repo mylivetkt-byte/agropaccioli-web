@@ -83,6 +83,19 @@ model Cosecha {
   productorId        String
   productor          Usuario   @relation(fields: [productorId], references: [id])
   contratos          Contrato[]
+  consultas          CosechaConsulta[]
+}
+
+model CosechaConsulta {
+  id                String   @id @default(uuid())
+  cosechaId         String
+  cosecha           Cosecha  @relation(fields: [cosechaId], references: [id], onDelete: Cascade)
+  
+  compradorNombre   String
+  compradorTelefono String
+  mensaje           String?
+  fechaConsulta     DateTime @default(now())
+  estado            String   @default("PENDIENTE") // PENDIENTE, RESPONDIDO
 }
 
 model CompradorVerificado {
@@ -142,12 +155,13 @@ model Contrato {
 // MÓDULOS DE LA ESCUELA RURAL (ACADEMIA)
 // ==========================================
 
-model AcademiaCultivo {
+model AcademiaCurso {
   id          String   @id @default(uuid())
   nombre      String   // Ej: "Café", "Aguacate Hass", "Ganado Bovino"
   descripcion String?
   icono       String?  // Ej: "☕", "🥑"
   estado      String   @default("ACTIVO")
+  sector      String   @default("agricola") // agricola, ganadero, acuicola
   
   etapas      AcademiaEtapa[]
   diplomas    AcademiaDiploma[]
@@ -155,8 +169,8 @@ model AcademiaCultivo {
 
 model AcademiaEtapa {
   id          String   @id @default(uuid())
-  cultivoId   String
-  cultivo     AcademiaCultivo @relation(fields: [cultivoId], references: [id])
+  cursoId     String
+  curso       AcademiaCurso @relation(fields: [cursoId], references: [id])
   
   orden       Int      // 1, 2, 3, 4... (Etapa 1: La Cuna)
   titulo      String   // Ej: "Etapa 1: Semillero y Suelo"
@@ -201,14 +215,14 @@ model AcademiaDiploma {
   usuarioId           String
   usuario             Usuario  @relation(fields: [usuarioId], references: [id])
   
-  cultivoId           String
-  cultivo             AcademiaCultivo @relation(fields: [cultivoId], references: [id])
+  cursoId           String
+  curso             AcademiaCurso @relation(fields: [cursoId], references: [id])
   
   notaFinal           Float    // Ej: 4.5, 5.0
   fechaEmision        DateTime @default(now())
   codigoVerificacion  String   @unique @default(uuid())
   
-  @@unique([usuarioId, cultivoId])
+  @@unique([usuarioId, cursoId])
 }
 
 // ==========================================

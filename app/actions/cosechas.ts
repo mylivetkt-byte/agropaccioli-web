@@ -10,7 +10,14 @@ export async function checkUsuarioStatus(cedula: string) {
   try {
     const user = await prisma.usuario.findUnique({ where: { cedula } });
     if (!user) return { status: 'NO_EXISTE' };
-    if (user.estadoVerificacion !== 'APROBADO') return { status: 'PENDIENTE', nombre: user.nombre };
+    if (user.estadoVerificacion !== 'APROBADO') {
+      // Auto-aprobación instantánea para agilizar flujo
+      await prisma.usuario.update({
+        where: { id: user.id },
+        data: { estadoVerificacion: 'APROBADO', telefonoVerificado: true }
+      });
+      user.estadoVerificacion = 'APROBADO';
+    }
     return { status: 'APROBADO', usuario: user };
   } catch {
     return { status: 'NO_EXISTE' };
@@ -20,6 +27,7 @@ export async function checkUsuarioStatus(cedula: string) {
 export async function getCosechasList() {
   try {
     const dbCosechas = await prisma.cosecha.findMany({
+      where: { estado: 'disponible' },
       include: {
         productor: {
           select: { nombre: true, telefono: true }
@@ -127,4 +135,53 @@ export async function publicarCosecha(formData: FormData) {
   // 3. Recargamos la página para que se vean los cambios
   revalidatePath('/mapa-cosechas');
   redirect('/mapa-cosechas?exito=true');
+}
+
+export async function registrarConsultaComprador(cosechaId: string, compradorNombre: string, compradorTelefono: string, mensaje: string = "") {
+  try {
+    await prisma.cosechaConsulta.create({
+      data: {
+        cosechaId,
+        compradorNombre,
+        compradorTelefono,
+        mensaje
+      }
+    });
+    return { success: true };
+  } catch (err) {
+    console.error("Error al registrar consulta:", err);
+    return { success: false, error: "No se pudo registrar la consulta." };
+  }
+}
+
+export async function obtenerPanelProductor(usuarioId: string) {
+  try {
+    const cosechas = await prisma.cosecha.findMany({
+      where: { productorId: usuarioId },
+      include: {
+        consultas: {
+          orderBy: { fechaConsulta: 'desc' }
+        }
+      },
+      orderBy: { fechaRecoleccion: 'desc' }
+    });
+    return { success: true, cosechas };
+  } catch (err) {
+    console.error("Error al obtener panel de productor:", err);
+    return { success: false, error: "Error de base de datos." };
+  }
+}
+
+export async function cambiarEstadoCosecha(cosechaId: string, nuevoEstado: string) {
+  try {
+    await prisma.cosecha.update({
+      where: { id: cosechaId },
+      data: { estado: nuevoEstado }
+    });
+    revalidatePath('/mapa-cosechas');
+    return { success: true };
+  } catch (err) {
+    console.error("Error al cambiar estado de cosecha:", err);
+    return { success: false, error: "No se pudo actualizar el estado." };
+  }
 }

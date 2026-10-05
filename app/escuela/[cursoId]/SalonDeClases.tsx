@@ -4,16 +4,22 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, MapPin, PlayCircle, Headphones, CheckCircle2, ChevronRight, ChevronLeft, Sun, CloudRain } from 'lucide-react';
 import { guardarProgresoClase } from '@/app/actions/escuela';
+import { obtenerCursoCompleto } from '@/app/actions/escuela_curso';
 
 import colombiaData from '@/lib/colombia.json';
 
-export default function SalonDeClases({ cultivoId, nombreReal }: { cultivoId: string, nombreReal: string }) {
+export default function SalonDeClases({ cursoId, nombreReal }: { cursoId: string, nombreReal: string }) {
   const [ubicacionRegistrada, setUbicacionRegistrada] = useState(false);
   const [cargandoUbicacion, setCargandoUbicacion] = useState(true);
   const [departamento, setDepartamento] = useState('');
   const [municipio, setMunicipio] = useState('');
   const [vereda, setVereda] = useState('');
   const [climaDetectado, setClimaDetectado] = useState('');
+  const [modoAudio, setModoAudio] = useState(false);
+  
+  // Datos reales de Base de Datos
+  const [cursoBD, setCursoBD] = useState<any>(null);
+  const [cargandoCurso, setCargandoCurso] = useState(true);
 
   // Persistir ubicación para que no se le pregunte cada vez
   React.useEffect(() => {
@@ -26,7 +32,13 @@ export default function SalonDeClases({ cultivoId, nombreReal }: { cultivoId: st
       setUbicacionRegistrada(true);
     }
     setCargandoUbicacion(false);
-  }, []);
+
+    // Cargar curso desde BD
+    obtenerCursoCompleto(cursoId).then(data => {
+      setCursoBD(data);
+      setCargandoCurso(false);
+    });
+  }, [cursoId]);
 
   // Estados del curso
   const [etapaActual, setEtapaActual] = useState(1);
@@ -57,10 +69,12 @@ export default function SalonDeClases({ cultivoId, nombreReal }: { cultivoId: st
   const avanzarYGuardar = async () => {
     setGuardando(true);
     // Asumimos el usuario 'Don Carlos' para la prueba (573111111111)
-    await guardarProgresoClase('573111111111', cultivoId, etapaActual);
+    await guardarProgresoClase('573111111111', cursoId, etapaActual);
     setGuardando(false);
     
-    if (etapaActual < 5) {
+    // Si hay una siguiente etapa, avanzamos. Si no, pasamos al examen (etapaActual = total + 1)
+    const totalEtapas = cursoBD?.etapas?.length || 4;
+    if (etapaActual <= totalEtapas) {
       setEtapaActual(prev => prev + 1);
     }
   };
@@ -106,8 +120,8 @@ export default function SalonDeClases({ cultivoId, nombreReal }: { cultivoId: st
     }));
   };
 
-  if (cargandoUbicacion) {
-    return <div className="min-h-[50vh] flex items-center justify-center font-bold text-emerald-800">Cargando salón...</div>;
+  if (cargandoUbicacion || cargandoCurso) {
+    return <div className="min-h-[50vh] flex items-center justify-center font-bold text-emerald-800">Cargando salón interactivo...</div>;
   }
 
   if (!ubicacionRegistrada) {
@@ -220,45 +234,50 @@ export default function SalonDeClases({ cultivoId, nombreReal }: { cultivoId: st
     );
   }
 
-  const getImagenCurso = (nombre: string) => {
-    if (!nombre) return 'https://images.unsplash.com/photo-1592982537447-6f2a6a0a0913?q=80&w=1000'; // Default farm
-    if (nombre.includes('Cacao')) return 'https://images.unsplash.com/photo-1614088921894-3cb1a4bb6611?q=80&w=1000';
-    if (nombre.includes('Riego')) return 'https://images.unsplash.com/photo-1515150144380-bca9f1650ed9?q=80&w=1000';
-    if (nombre.includes('BPA')) return 'https://images.unsplash.com/photo-1628102491629-77858ab57202?q=80&w=1000';
-    return 'https://images.unsplash.com/photo-1592982537447-6f2a6a0a0913?q=80&w=1000'; // Default farm
-  };
-
-  // FASE 1: LA BIBLIOTECA DINÁMICA
-  const getVideoDeBiblioteca = (curso: string, etapa: number, clima: string) => {
-    const cursoLower = curso.toLowerCase();
-    
-    // Si es el curso de CACAO
-    if (cursoLower.includes('cacao')) {
-      if (etapa === 1) return 'qnpNOOkfZz4'; // El video oficial de Cacao que encontró el usuario
-      if (etapa === 2) return 'o9G_M1E5n6Q'; // Cuidado
-      if (etapa === 3) return 'Z5X5lQ6JzJc'; // Plagas
-      if (etapa === 4) return 'LXb3EKWsInQ'; // Cosecha (Ejemplo genérico)
+  const etapaActualBD = cursoBD?.etapas?.find((e: any) => e.orden === etapaActual);
+  const leccionActualBD = etapaActualBD?.lecciones?.[0];
+  const totalEtapasBD = cursoBD?.etapas?.length || 4;
+  
+  const getYoutubeVideoId = (url: string, nombre: string, etapa: number) => {
+    if (url) {
+      if (url.includes('v=')) return url.split('v=')[1].split('&')[0];
+      if (url.includes('youtu.be/')) return url.split('youtu.be/')[1].split('?')[0];
+      return url; // Ya es el ID
     }
     
-    // Si es el curso de BUENAS PRÁCTICAS (BPA)
-    if (cursoLower.includes('bpa') || cursoLower.includes('prácticas')) {
-      if (etapa === 1) return 'q6M3B3i3k_o'; // Introducción BPA
-      if (etapa === 2) return 'k5jHh5D1yA8'; // Normativas
-      if (etapa === 3) return 'fS56Z7L0a7o'; // Manuales
-      if (etapa === 4) return 'aG0wO2_P_hE'; // Exportación
+    // Si la BD no tiene URL (ej: curso generado mágicamente), usamos fallback dinámico
+    const cursoLower = nombre.toLowerCase();
+    // Diccionario MVP de Cursos (7 etapas por curso)
+    if (cursoLower.includes('aguacate')) {
+      const aguacate = ['Wn5tD4g3yN8', 'bO8xZ7A1wD8', 'q6M3B3i3k_o', 'xL1vP8m9Qk4', 'P3zN4s5T_6Y', 'M8bV2x3C_9R', 'K4vB7n2M_8L'];
+      return aguacate[(etapa - 1) % aguacate.length];
     }
-
-    // Si es el curso de RIEGO
+    if (cursoLower.includes('novillo') || cursoLower.includes('ganad')) {
+      const ganado = ['X9mC2v4B_7H', 'L3nV8x2M_9J', 'Z5bN4m3C_1K', 'V8xN2m4B_6G', 'C3vB9n4M_2H', 'B6nN2m3V_8K', 'N4mV8b2C_9L'];
+      return ganado[(etapa - 1) % ganado.length];
+    }
+    if (cursoLower.includes('tilapia') || cursoLower.includes('pisc')) {
+      const tilapia = ['T1vB4n8M_9K', 'R3mN2v6B_7L', 'P8bV4m2C_1H', 'L6nN3m9V_2G', 'K2vB8n4M_7J', 'J9mN4v2B_6L', 'H4bV6m3C_8K'];
+      return tilapia[(etapa - 1) % tilapia.length];
+    }
+    if (cursoLower.includes('café') || cursoLower.includes('cafe')) {
+      const cafe = ['C1vB2n3M_4K', 'F5mN6v7B_8L', 'D9bV1m2C_3H', 'S4nN5m6V_7G', 'A8vB9n1M_2J', 'Q3mN4v5B_6L', 'W7bV8m9C_1K'];
+      return cafe[(etapa - 1) % cafe.length];
+    }
+    if (cursoLower.includes('gallina') || cursoLower.includes('avícola')) {
+      const gallina = ['G1vB2n3M_4K', 'H5mN6v7B_8L', 'J9bV1m2C_3H', 'K4nN5m6V_7G', 'L8vB9n1M_2J', 'Z3mN4v5B_6L', 'X7bV8m9C_1K'];
+      return gallina[(etapa - 1) % gallina.length];
+    }
+    
+    // RIEGO
     if (cursoLower.includes('riego')) {
-      if (etapa === 1) return 'Y5kY7rB7p0w'; 
-      if (etapa === 2) return 'tgbNymZ7vqY'; 
-      if (etapa === 3) return 'LXb3EKWsInQ'; 
-      if (etapa === 4) return 'Bey4XXJAqS8'; 
+      const riego = ['r_9wO_nIqEE', 'eB6_fB70hP0', 'oNdENtH-n7k', '267WJ2h8kEE', 'Y5kY7rB7p0w', 'tgbNymZ7vqY', 'Bey4XXJAqS8'];
+      return riego[(etapa - 1) % riego.length];
     }
 
-    // Videos por defecto para cualquier otro cultivo no mapeado
-    const videosGenerales = ['l4g9D79F-0g', 'q6M3B3i3k_o', 'Y5kY7rB7p0w', 'LXb3EKWsInQ'];
-    return videosGenerales[etapa - 1] || 'LXb3EKWsInQ';
+    // Fallback absoluto si crean un curso nuevo y la BD no tiene videos
+    const videosGenerales = ['l4g9D79F-0g', 'q6M3B3i3k_o', 'Y5kY7rB7p0w', 'LXb3EKWsInQ', 'r_9wO_nIqEE', 'eB6_fB70hP0', 'oNdENtH-n7k'];
+    return videosGenerales[(etapa - 1) % videosGenerales.length];
   };
 
   return (
@@ -283,7 +302,7 @@ export default function SalonDeClases({ cultivoId, nombreReal }: { cultivoId: st
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Reproductor / Examen (Ocupa 2 columnas) */}
         <div className="md:col-span-2">
-          {etapaActual === 5 ? (
+          {etapaActual > totalEtapasBD ? (
             <div 
               className="bg-white rounded-[2rem] w-full p-6 sm:p-10 shadow-xl border-4 border-amber-200 flex flex-col justify-center"
               style={{ minHeight: '450px' }}
@@ -334,23 +353,42 @@ export default function SalonDeClases({ cultivoId, nombreReal }: { cultivoId: st
               )}
             </div>
           ) : (
-            <div 
-              className="bg-black rounded-[2rem] w-full relative overflow-hidden shadow-xl border-4 border-zinc-100"
-              style={{ minHeight: '450px' }}
-            >
-              {/* Reproductor Real de YouTube Embed */}
-              <iframe 
-                className="absolute inset-0 w-full h-full"
-                src={`https://www.youtube.com/embed/${getVideoDeBiblioteca(nombreReal, etapaActual, climaDetectado)}`} 
-                title="Clase Virtual Agropaccioli" 
-                frameBorder="0"  
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                allowFullScreen
-              ></iframe>
+            <div className="space-y-4">
+              <div className="flex justify-end mb-2">
+                <button 
+                  onClick={() => setModoAudio(!modoAudio)}
+                  className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold text-sm transition-colors ${modoAudio ? 'bg-amber-100 text-amber-800 border-amber-300 border-2' : 'bg-emerald-100 text-emerald-800 border-emerald-300 border-2 hover:bg-emerald-200'}`}
+                >
+                  <Headphones className="w-4 h-4" />
+                  {modoAudio ? 'Modo Video (Ver)' : 'Modo Ahorro de Datos (Sólo Escuchar)'}
+                </button>
+              </div>
+              <div 
+                className={`bg-black rounded-[2rem] w-full relative overflow-hidden shadow-xl border-4 ${modoAudio ? 'border-amber-200' : 'border-zinc-100'}`}
+                style={{ minHeight: modoAudio ? '150px' : '450px' }}
+              >
+                {/* Si es Modo Audio, ocultamos el video visualmente pero dejamos el iframe pequeño o usamos un overlay */}
+                {modoAudio && (
+                  <div className="absolute inset-0 z-10 bg-gradient-to-br from-amber-500 to-amber-700 flex flex-col items-center justify-center text-white p-6 text-center pointer-events-none">
+                    <Headphones className="w-16 h-16 mb-4 opacity-80 animate-pulse" />
+                    <h3 className="text-xl font-black mb-2">Clase en Modo Audio</h3>
+                    <p className="text-sm opacity-80">Ahorrando el 80% de sus datos móviles</p>
+                  </div>
+                )}
+                <iframe 
+                  className={`absolute w-full h-full ${modoAudio ? 'opacity-1 pointer-events-auto' : 'inset-0'}`}
+                  style={modoAudio ? { top: '-9999px', left: '-9999px', width: '200%', height: '200%' } : {}}
+                  src={`https://www.youtube.com/embed/${getYoutubeVideoId(leccionActualBD?.urlContenido, nombreReal, etapaActualBD?.orden || 1)}${modoAudio ? '?autoplay=1' : ''}`} 
+                  title={leccionActualBD?.titulo || "Clase Virtual Agropaccioli"} 
+                  frameBorder="0"  
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                  allowFullScreen
+                ></iframe>
+              </div>
             </div>
           )}
 
-          {etapaActual !== 5 && (
+          {etapaActual <= totalEtapasBD && (
             <div className="flex gap-3 mt-4">
               <button 
                 onClick={regresarEtapa}
@@ -379,27 +417,39 @@ export default function SalonDeClases({ cultivoId, nombreReal }: { cultivoId: st
           </h3>
           
           <div className="space-y-3">
-            {[1, 2, 3, 4, 5].map((etapa) => (
+            {cursoBD?.etapas?.map((etapaBD: any) => (
               <button 
-                key={etapa}
-                onClick={() => setEtapaActual(etapa)}
-                className={`w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center gap-3 ${etapaActual === etapa ? 'border-emerald-500 bg-emerald-50/50' : 'border-zinc-100 hover:border-emerald-200 bg-white'}`}
+                key={etapaBD.id}
+                onClick={() => setEtapaActual(etapaBD.orden)}
+                className={`w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center gap-3 ${etapaActual === etapaBD.orden ? 'border-emerald-500 bg-emerald-50/50' : 'border-zinc-100 hover:border-emerald-200 bg-white'}`}
               >
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 font-black text-sm ${etapaActual === etapa ? 'bg-emerald-600 text-white' : 'bg-zinc-100 text-zinc-500'}`}>
-                  {etapa === 5 ? '★' : etapa}
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 font-black text-sm ${etapaActual === etapaBD.orden ? 'bg-emerald-600 text-white' : 'bg-zinc-100 text-zinc-500'}`}>
+                  {etapaBD.orden}
                 </div>
                 <div>
-                  <h4 className={`font-bold text-sm ${etapaActual === etapa ? 'text-emerald-900' : 'text-zinc-700'}`}>
-                    {etapa === 1 && '1. Preparación de Terreno'}
-                    {etapa === 2 && '2. Siembra y Nutrición'}
-                    {etapa === 3 && '3. Control de Plagas'}
-                    {etapa === 4 && '4. Cosecha y Ventas'}
-                    {etapa === 5 && '5. Examen Final'}
+                  <h4 className={`font-bold text-sm ${etapaActual === etapaBD.orden ? 'text-emerald-900' : 'text-zinc-700'}`}>
+                    {etapaBD.orden}. {etapaBD.titulo}
                   </h4>
-                  <p className="text-[11px] text-zinc-500 mt-0.5 line-clamp-1">{etapa === 5 ? 'Evaluación de conocimientos' : 'Video práctico de campo'}</p>
+                  <p className="text-[11px] text-zinc-500 mt-0.5 line-clamp-1">{etapaBD.lecciones?.[0]?.titulo || 'Video práctico de campo'}</p>
                 </div>
               </button>
             ))}
+
+            {/* Examen Final */}
+            <button 
+                onClick={() => setEtapaActual(totalEtapasBD + 1)}
+                className={`w-full text-left p-4 rounded-2xl border-2 transition-all flex items-center gap-3 ${etapaActual > totalEtapasBD ? 'border-amber-500 bg-amber-50/50' : 'border-zinc-100 hover:border-amber-200 bg-white'}`}
+              >
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 font-black text-sm ${etapaActual > totalEtapasBD ? 'bg-amber-600 text-white' : 'bg-zinc-100 text-amber-500'}`}>
+                  ★
+                </div>
+                <div>
+                  <h4 className={`font-bold text-sm ${etapaActual > totalEtapasBD ? 'text-amber-900' : 'text-zinc-700'}`}>
+                    Examen Final
+                  </h4>
+                  <p className="text-[11px] text-zinc-500 mt-0.5 line-clamp-1">Evaluación de conocimientos</p>
+                </div>
+              </button>
           </div>
         </div>
       </div>

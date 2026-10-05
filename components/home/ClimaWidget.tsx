@@ -11,7 +11,10 @@ import {
   Sun, 
   CloudRain, 
   Compass,
-  Map
+  Map,
+  Bot,
+  Bug,
+  ShieldHalf
 } from 'lucide-react';
 import colombiaData from '@/lib/colombia.json';
 
@@ -27,6 +30,8 @@ interface WeatherData {
   alertaAgro: {
     tipo: 'normal' | 'alerta' | 'precaucion';
     mensaje: string;
+    plagaRiesgo: string;
+    recomendacionInsumo: string;
   };
   recomendacionAgronomica: string;
 }
@@ -52,17 +57,37 @@ const generateWeather = (dept: string, city: string): WeatherData => {
   const condiciones = ['Soleado', 'Parcialmente Nublado', 'Lluvia Moderada', 'Llovizna', 'Tormenta Eléctrica'] as const;
   const condicion = condiciones[hash % condiciones.length];
 
-  let alerta: WeatherData['alertaAgro'] = { tipo: 'normal', mensaje: 'Condiciones óptimas para labores culturales y de campo.' };
+  let alerta: WeatherData['alertaAgro'] = { 
+    tipo: 'normal', 
+    mensaje: 'Condiciones óptimas para labores culturales y de campo.',
+    plagaRiesgo: 'Bajo riesgo',
+    recomendacionInsumo: 'Continuar plan de fertilización estándar.'
+  };
   let rec = 'Buen día para aplicaciones foliares, siembra y revisión general de linderos.';
 
   if (condicion.includes('Lluvia') || condicion.includes('Tormenta')) {
-    alerta = { tipo: 'precaucion', mensaje: 'Humedad alta o lluvias. Vigilar aparición de hongos y evitar fumigación.' };
+    alerta = { 
+      tipo: 'precaucion', 
+      mensaje: 'Humedad alta o lluvias. Vigilar aparición de hongos y evitar fumigación.',
+      plagaRiesgo: tempFinal > 24 ? 'Alta propagación de Sigatoka o Monilia' : 'Botrytis y pudrición de raíz',
+      recomendacionInsumo: 'Aplicar fungicidas preventivos con adherente.'
+    };
     rec = 'Aplazar fertilización edáfica y aspersiones. Revisar sistemas de drenaje en lotes bajos.';
   } else if (tempFinal < 15) {
-    alerta = { tipo: 'precaucion', mensaje: 'Alerta por riesgo de heladas tempranas en madrugadas sobre los 2.700 msnm.' };
+    alerta = { 
+      tipo: 'precaucion', 
+      mensaje: 'Alerta por riesgo de heladas tempranas en madrugadas sobre los 2.700 msnm.',
+      plagaRiesgo: 'Gusano Blanco y quemadura de pastos',
+      recomendacionInsumo: 'Bioestimulantes a base de aminoácidos.'
+    };
     rec = 'Mantener riegos preventivos ligeros al atardecer para proteger cultivos de papa, hortalizas y flores.';
   } else if (tempFinal > 32) {
-    alerta = { tipo: 'precaucion', mensaje: 'Altas temperaturas y radiación. Riesgo de estrés hídrico.' };
+    alerta = { 
+      tipo: 'alerta', 
+      mensaje: 'Altas temperaturas y radiación. Riesgo de estrés hídrico severo.',
+      plagaRiesgo: 'Arañita roja y trips en proliferación',
+      recomendacionInsumo: 'Insecticidas específicos / riego por goteo activo.'
+    };
     rec = 'Garantizar sombra y agua constante al ganado. Evitar aplicaciones químicas a mediodía.';
   }
 
@@ -294,22 +319,39 @@ export default function ClimaWidget() {
 
       {/* Alerta y Recomendación Agronómica */}
       <div className={`mt-3 pt-3 border-t border-emerald-200/60 flex flex-col md:flex-row items-start md:items-center justify-between gap-2 text-xs transition-opacity duration-300 ${cargando ? 'opacity-50' : 'opacity-100'}`}>
-        <div className="flex items-center gap-2">
-          {clima.alertaAgro.tipo === 'precaucion' ? (
-            <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-900 px-2 py-0.5 rounded font-bold text-[11px] whitespace-nowrap">
-              <AlertTriangle className="w-3.5 h-3.5 text-amber-700" /> Alerta Agro
+        <div className="flex flex-col gap-2 w-full md:w-auto">
+          <div className="flex items-center gap-2">
+            {clima.alertaAgro.tipo === 'alerta' || clima.alertaAgro.tipo === 'precaucion' ? (
+              <span className={`inline-flex items-center gap-1 ${clima.alertaAgro.tipo === 'alerta' ? 'bg-red-100 text-red-900' : 'bg-amber-100 text-amber-900'} px-2 py-0.5 rounded font-bold text-[11px] whitespace-nowrap`}>
+                <AlertTriangle className={`w-3.5 h-3.5 ${clima.alertaAgro.tipo === 'alerta' ? 'text-red-700' : 'text-amber-700'}`} /> {clima.alertaAgro.tipo === 'alerta' ? 'Alerta Crítica' : 'Alerta Agro'}
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded font-bold text-[11px] whitespace-nowrap">
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" /> Clima Favorable
+              </span>
+            )}
+            <span className="text-zinc-700 font-medium">
+              {clima.alertaAgro.mensaje}
             </span>
-          ) : (
-            <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-900 px-2 py-0.5 rounded font-bold text-[11px] whitespace-nowrap">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-700" /> Clima Favorable
+          </div>
+          
+          {/* Alerta Hiperlocal de IA */}
+          <div className="flex flex-col sm:flex-row sm:items-center gap-2 mt-1">
+            <span className="inline-flex items-center gap-1 bg-indigo-100 text-indigo-900 px-2 py-0.5 rounded font-black text-[10px] whitespace-nowrap uppercase tracking-wider">
+              <Bot className="w-3 h-3 text-indigo-700" /> IA Satelital
             </span>
-          )}
-          <span className="text-zinc-700 font-medium">
-            {clima.alertaAgro.mensaje}
-          </span>
+            <span className="text-zinc-600 font-medium flex items-center gap-1">
+              <Bug className="w-3.5 h-3.5 text-zinc-500" /> 
+              Riesgo detectado: <strong className="text-zinc-800">{clima.alertaAgro.plagaRiesgo}</strong>
+            </span>
+            <span className="text-zinc-600 font-medium flex items-center gap-1">
+              <ShieldHalf className="w-3.5 h-3.5 text-emerald-600" /> 
+              Acción: <strong className="text-emerald-700">{clima.alertaAgro.recomendacionInsumo}</strong>
+            </span>
+          </div>
         </div>
         
-        <div className="text-emerald-800 bg-emerald-100/50 px-3 py-1.5 rounded-lg text-[11px] font-medium italic w-full md:w-auto">
+        <div className="text-emerald-800 bg-emerald-100/50 px-3 py-1.5 rounded-lg text-[11px] font-medium italic w-full md:w-64 shrink-0 text-center md:text-left mt-2 md:mt-0">
           💡 Tip agronómico: {clima.recomendacionAgronomica}
         </div>
       </div>
