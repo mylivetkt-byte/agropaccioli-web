@@ -102,25 +102,36 @@ export default function AdminPage() {
         <main className="flex-1 flex items-center justify-center p-4">
           <form onSubmit={handleLogin} className="bg-white p-8 rounded-3xl shadow-xl border border-emerald-100 max-w-sm w-full">
             <ShieldCheck className="w-12 h-12 text-emerald-600 mb-4 mx-auto" />
-            <h1 className="text-xl font-black text-emerald-950 text-center mb-6">Acceso Restringido</h1>
+            <h1 className="text-xl font-black text-emerald-950 text-center mb-2">Acceso Restringido</h1>
+            <p className="text-xs text-zinc-500 text-center mb-6 font-medium">Panel de Moderación y Control AgroPaccioli</p>
             <div className="space-y-4">
               <div>
-                <label className="text-xs font-bold text-zinc-700 block mb-1">Clave de Administrador</label>
+                <div className="flex justify-between items-center mb-1">
+                  <label className="text-xs font-bold text-zinc-700 block">Clave de Administrador</label>
+                  <button 
+                    type="button" 
+                    onClick={() => { setPassword('123456'); setErrorPass(''); }}
+                    className="text-[10px] font-bold text-emerald-600 hover:text-emerald-800 underline"
+                  >
+                    Usar clave demo (123456)
+                  </button>
+                </div>
                 <input 
                   type="password" 
                   value={password}
                   onChange={e => setPassword(e.target.value)}
-                  className="w-full border border-zinc-200 rounded-xl px-4 py-3 outline-none focus:border-emerald-500 bg-zinc-50"
+                  className="w-full border border-zinc-200 rounded-xl px-4 py-3 outline-none focus:border-emerald-500 bg-zinc-50 font-mono text-center tracking-widest text-lg"
                   placeholder="********"
+                  autoFocus
                 />
               </div>
-              {errorPass && <p className="text-xs text-red-500 font-bold text-center">{errorPass}</p>}
+              {errorPass && <p className="text-xs text-red-500 font-bold text-center bg-red-50 p-2.5 rounded-xl border border-red-100">{errorPass}</p>}
               <button 
                 type="submit" 
                 disabled={loadingUsuarios}
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-xl disabled:opacity-50"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 rounded-xl disabled:opacity-50 transition-colors shadow-md"
               >
-                {loadingUsuarios ? 'Verificando...' : 'Entrar al Panel'}
+                {loadingUsuarios ? 'Verificando...' : 'Entrar al Panel de Control'}
               </button>
             </div>
           </form>
