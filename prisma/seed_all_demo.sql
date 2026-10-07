@@ -153,42 +153,54 @@ VALUES ('cos-024', 'Alevinos de Tilapia Roja Revertida y Cachama', 'acuicola', '
 ON CONFLICT ("id") DO UPDATE SET "origen" = 'D', "titulo" = 'Alevinos de Tilapia Roja Revertida y Cachama', "precio" = 160, "imagenes" = 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=900&q=80';
 
 -- 3. TRANSPORTISTAS DEMO
+-- Nota: Se usa INSERT ... ON CONFLICT (id) para garantizar que el id fijo coincida
+-- con el que usa PerfilTransportista. Se limpia cedula/telefono duplicado primero.
+DELETE FROM "PerfilTransportista" WHERE "id" IN ('prf-demo-1','prf-demo-2','prf-demo-3','prf-demo-4','prf-demo-5','prf-demo-6');
+DELETE FROM "Usuario" WHERE "cedula" IN ('CC-TRP-100','CC-TRP-101','CC-TRP-102','CC-TRP-103','CC-TRP-104','CC-TRP-105') AND "id" NOT IN ('usr-demo-transp-001','usr-demo-transp-002','usr-demo-transp-003','usr-demo-transp-004','usr-demo-transp-005','usr-demo-transp-006');
+DELETE FROM "Usuario" WHERE "telefono" IN ('+573128899001','+573157766554','+573009988112','+573174455667','+573112233990','+573158877665') AND "id" NOT IN ('usr-demo-transp-001','usr-demo-transp-002','usr-demo-transp-003','usr-demo-transp-004','usr-demo-transp-005','usr-demo-transp-006');
+
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen")
 VALUES ('usr-demo-transp-001', 'Transportes Rápidos del Campo (Don Jaime Morales)', '+573128899001', true, 'CC-TRP-100', 'APROBADO', 'Transportista', 'D')
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "rol" = 'Transportista';
+ON CONFLICT ("id") DO UPDATE SET "origen" = 'D', "rol" = 'Transportista', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "PerfilTransportista" ("id", "usuarioId", "licenciaConduccion", "placaVehiculo", "tipoVehiculo", "capacidadToneladas", "aseguradoraCarga", "coberturaSeguro")
 VALUES ('prf-demo-1', 'usr-demo-transp-001', 'C2-NACIONAL', 'TRP-100', 'Turbo (4.5 Ton)', 4.5, 'Seguros SURA', 'Pérdida Total y Saqueo')
 ON CONFLICT ("usuarioId") DO NOTHING;
+
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen")
 VALUES ('usr-demo-transp-002', 'Logística Frigorífica de los Andes (Carlos Bedoya)', '+573157766554', true, 'CC-TRP-101', 'APROBADO', 'Transportista', 'D')
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "rol" = 'Transportista';
+ON CONFLICT ("id") DO UPDATE SET "origen" = 'D', "rol" = 'Transportista', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "PerfilTransportista" ("id", "usuarioId", "licenciaConduccion", "placaVehiculo", "tipoVehiculo", "capacidadToneladas", "aseguradoraCarga", "coberturaSeguro")
 VALUES ('prf-demo-2', 'usr-demo-transp-002', 'C2-NACIONAL', 'TRP-101', 'Termo King Refrigerado (10 Ton)', 10, 'Seguros SURA', 'Pérdida Total y Saqueo')
 ON CONFLICT ("usuarioId") DO NOTHING;
+
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen")
 VALUES ('usr-demo-transp-003', 'Camiones Ganaderos del Caribe (Jairo Fuentes)', '+573009988112', true, 'CC-TRP-102', 'APROBADO', 'Transportista', 'D')
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "rol" = 'Transportista';
+ON CONFLICT ("id") DO UPDATE SET "origen" = 'D', "rol" = 'Transportista', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "PerfilTransportista" ("id", "usuarioId", "licenciaConduccion", "placaVehiculo", "tipoVehiculo", "capacidadToneladas", "aseguradoraCarga", "coberturaSeguro")
 VALUES ('prf-demo-3', 'usr-demo-transp-003', 'C2-NACIONAL', 'TRP-102', 'Doble Troque Ganadero (17 Ton)', 17, 'Seguros SURA', 'Pérdida Total y Saqueo')
 ON CONFLICT ("usuarioId") DO NOTHING;
+
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen")
 VALUES ('usr-demo-transp-004', 'Carga Pesada & Tractomulas del Pacífico (Mauricio Henao)', '+573174455667', true, 'CC-TRP-103', 'APROBADO', 'Transportista', 'D')
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "rol" = 'Transportista';
+ON CONFLICT ("id") DO UPDATE SET "origen" = 'D', "rol" = 'Transportista', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "PerfilTransportista" ("id", "usuarioId", "licenciaConduccion", "placaVehiculo", "tipoVehiculo", "capacidadToneladas", "aseguradoraCarga", "coberturaSeguro")
 VALUES ('prf-demo-4', 'usr-demo-transp-004', 'C2-NACIONAL', 'TRP-103', 'Tractomula (35 Ton)', 35, 'Seguros SURA', 'Pérdida Total y Saqueo')
 ON CONFLICT ("usuarioId") DO NOTHING;
+
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen")
 VALUES ('usr-demo-transp-005', 'Fletes Boyacá & Páramo Express (Pedro Nel Albarracín)', '+573112233990', true, 'CC-TRP-104', 'APROBADO', 'Transportista', 'D')
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "rol" = 'Transportista';
+ON CONFLICT ("id") DO UPDATE SET "origen" = 'D', "rol" = 'Transportista', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "PerfilTransportista" ("id", "usuarioId", "licenciaConduccion", "placaVehiculo", "tipoVehiculo", "capacidadToneladas", "aseguradoraCarga", "coberturaSeguro")
 VALUES ('prf-demo-5', 'usr-demo-transp-005', 'C2-NACIONAL', 'TRP-104', 'Sencillo Estacas (8.5 Ton)', 8.5, 'Seguros SURA', 'Pérdida Total y Saqueo')
 ON CONFLICT ("usuarioId") DO NOTHING;
+
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen")
 VALUES ('usr-demo-transp-006', 'Transportes Acuícolas del Huila (Héctor Fabio Murcia)', '+573158877665', true, 'CC-TRP-105', 'APROBADO', 'Transportista', 'D')
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "rol" = 'Transportista';
+ON CONFLICT ("id") DO UPDATE SET "origen" = 'D', "rol" = 'Transportista', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "PerfilTransportista" ("id", "usuarioId", "licenciaConduccion", "placaVehiculo", "tipoVehiculo", "capacidadToneladas", "aseguradoraCarga", "coberturaSeguro")
 VALUES ('prf-demo-6', 'usr-demo-transp-006', 'C2-NACIONAL', 'TRP-105', 'Furgón Isotérmico con Oxígeno (6 Ton)', 6, 'Seguros SURA', 'Pérdida Total y Saqueo')
 ON CONFLICT ("usuarioId") DO NOTHING;
+
 
 -- 4. ALMACENES DE INSUMOS B2B DEMO
 INSERT INTO "AlmacenInsumos" ("id", "nombre", "departamento", "municipio", "direccion", "telefono", "whatsapp", "calificacion", "marcas", "categoria", "imagen", "descripcion", "origen")

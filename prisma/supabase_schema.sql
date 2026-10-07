@@ -29,14 +29,30 @@ CREATE TABLE IF NOT EXISTS "Usuario" (
 CREATE TABLE IF NOT EXISTS "PerfilTransportista" (
     "id" TEXT PRIMARY KEY DEFAULT uuid_generate_v4()::TEXT,
     "usuarioId" TEXT UNIQUE NOT NULL REFERENCES "Usuario"("id") ON DELETE CASCADE ON UPDATE CASCADE,
-    "licenciaConduccion" TEXT NOT NULL,
+    "licenciaConduccion" TEXT,
     "fotoLicencia" TEXT,
-    "placaVehiculo" TEXT NOT NULL,
+    "placaVehiculo" TEXT,
     "tipoVehiculo" TEXT NOT NULL,
     "capacidadToneladas" DOUBLE PRECISION NOT NULL,
     "aseguradoraCarga" TEXT,
     "numeroPoliza" TEXT,
-    "coberturaSeguro" TEXT
+    "coberturaSeguro" TEXT,
+    -- Seguridad Asimétrica: Veredal vs Nacional
+    "categoriaTransporte" TEXT NOT NULL DEFAULT 'NACIONAL',
+    "zonaOperacion" TEXT,
+    "recomendacionesComunidad" INTEGER NOT NULL DEFAULT 0,
+    "fotoVehiculoFrontal" TEXT
+);
+
+-- 5b. TABLA: CosechaConsulta (consultas/mensajes de compradores a cosechas)
+CREATE TABLE IF NOT EXISTS "CosechaConsulta" (
+    "id" TEXT PRIMARY KEY DEFAULT uuid_generate_v4()::TEXT,
+    "cosechaId" TEXT NOT NULL REFERENCES "Cosecha"("id") ON DELETE CASCADE ON UPDATE CASCADE,
+    "compradorNombre" TEXT NOT NULL,
+    "compradorTelefono" TEXT NOT NULL,
+    "mensaje" TEXT,
+    "fechaConsulta" TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    "estado" TEXT NOT NULL DEFAULT 'PENDIENTE' -- PENDIENTE, RESPONDIDO
 );
 
 -- 3. TABLA: CompradorVerificado
