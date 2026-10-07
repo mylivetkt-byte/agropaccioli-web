@@ -384,3 +384,103 @@ INSERT INTO "PoolCompra" ("id", "titulo", "proveedor", "tipo", "precioNormal", "
 VALUES ('pool-demo-02', 'Alquiler de Tractor John Deere', 'Consorcio Regional', 'maquinaria', 80000, 45000, 'Hora', 100, 15, 'Valle del Cauca', 'Palmira', 'Arrendamiento de tractor pesado para arado profundo en el Valle del Cauca (Zona Norte).', now() + interval '7 days', 'ABIERTO', 'D')
 ON CONFLICT ("id") DO UPDATE SET "origen" = 'D';
 
+-- 13. COMPRADORES VERIFICADOS B2B DEMO
+INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen")
+VALUES ('usr-demo-comp-001', 'Grupo Comercial Éxito Agro B2B', '+573001112233', true, 'NIT-890900608', 'APROBADO', 'Comprador', 'D')
+ON CONFLICT ("id") DO UPDATE SET "origen" = 'D', "rol" = 'Comprador';
+INSERT INTO "CompradorVerificado" ("id", "usuarioId", "tipoDocumento", "numeroDocumento", "rutDigital", "certificadoCamaraComercio", "estadoSarlaft", "firmaDigital")
+VALUES ('cmp-ver-001', 'usr-demo-comp-001', 'NIT', '890900608-1', 'https://agropaccioli.co/docs/rut-demo.pdf', 'https://agropaccioli.co/docs/cc-demo.pdf', true, 'HASH-SARLAFT-OK-890900608')
+ON CONFLICT ("usuarioId") DO NOTHING;
+
+INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen")
+VALUES ('usr-demo-comp-002', 'Frutales & Exportaciones del Eje S.A.S.', '+573147778899', true, 'NIT-900456123', 'APROBADO', 'Comprador', 'D')
+ON CONFLICT ("id") DO UPDATE SET "origen" = 'D', "rol" = 'Comprador';
+INSERT INTO "CompradorVerificado" ("id", "usuarioId", "tipoDocumento", "numeroDocumento", "rutDigital", "certificadoCamaraComercio", "estadoSarlaft", "firmaDigital")
+VALUES ('cmp-ver-002', 'usr-demo-comp-002', 'NIT', '900456123-5', 'https://agropaccioli.co/docs/rut-demo-2.pdf', 'https://agropaccioli.co/docs/cc-demo-2.pdf', true, 'HASH-SARLAFT-OK-900456123')
+ON CONFLICT ("usuarioId") DO NOTHING;
+
+-- 14. VEHÍCULOS LOGÍSTICOS DEMO
+INSERT INTO "VehiculoLogistico" ("id", "transportistaId", "resolucionMinTransporte", "placaVehiculo", "tipoVehiculo", "vencimientoSOAT", "vencimientoTecnicomecanica", "polizaSeguroCarga")
+VALUES ('veh-demo-001', 'prf-demo-1', 'RES-MIN-TRP-2024-8891', 'TRP-100', 'Turbo (4.5 Ton)', now() + interval '180 days', now() + interval '200 days', 'SURA #882109-A')
+ON CONFLICT ("placaVehiculo") DO NOTHING;
+INSERT INTO "VehiculoLogistico" ("id", "transportistaId", "resolucionMinTransporte", "placaVehiculo", "tipoVehiculo", "vencimientoSOAT", "vencimientoTecnicomecanica", "polizaSeguroCarga")
+VALUES ('veh-demo-002', 'prf-demo-2', 'RES-MIN-TRP-2024-9012', 'TRP-101', 'Termo King Refrigerado (10 Ton)', now() + interval '120 days', now() + interval '150 days', 'SURA #991023-B')
+ON CONFLICT ("placaVehiculo") DO NOTHING;
+
+-- 15. CONSULTAS DE COMPRADORES EN COSECHAS
+INSERT INTO "CosechaConsulta" ("id", "cosechaId", "compradorNombre", "compradorTelefono", "mensaje", "estado")
+VALUES ('con-cos-001', 'cos-001', 'Distribuidora Hortalizas del Sur', '+573104567890', 'Buenas tardes, requerimos 10 toneladas de Aguacate Hass puesto en bodega Corabastos para el viernes.', 'RESPONDIDO')
+ON CONFLICT ("id") DO NOTHING;
+INSERT INTO "CosechaConsulta" ("id", "cosechaId", "compradorNombre", "compradorTelefono", "mensaje", "estado")
+VALUES ('con-cos-002', 'cos-003', 'Frigorífico Central de Montería', '+573009876543', 'Interesados en el lote completo de 80 novillos Brahman. ¿Tienen el pesaje en báscula certificada?', 'PENDIENTE')
+ON CONFLICT ("id") DO NOTHING;
+
+-- 16. CONTRATOS DIGITALES LEY 527 DEMO
+INSERT INTO "Contrato" ("id", "cosechaId", "productorId", "compradorId", "vehiculoId", "volumen", "precioPactado", "lugarEntrega", "clausulaSaneamiento", "estadoContrato", "manifiestoCarga")
+VALUES ('ctr-demo-001', 'cos-001', 'usr-demo-prod-001', 'usr-demo-comp-002', 'veh-demo-001', 15.0, 5200.0, 'Sonsón, Antioquia (Bodega Exportación)', true, 'FIRMADO', 'MAN-CARGA-2026-00451')
+ON CONFLICT ("id") DO NOTHING;
+
+-- 17. ESCUELA RURAL Y ACADEMIA IA DEMO
+INSERT INTO "AcademiaCurso" ("id", "nombre", "descripcion", "icono", "estado", "sector")
+VALUES ('crs-001', 'Caficultura de Alta Precisión y Taza Limpia', 'Domina la fertilización foliar, el control biológico de broca y las curvas de secado solar para alcanzar tazas superiores a 86 puntos SCAA.', '☕', 'ACTIVO', 'agricola')
+ON CONFLICT ("id") DO NOTHING;
+INSERT INTO "AcademiaCurso" ("id", "nombre", "descripcion", "icono", "estado", "sector")
+VALUES ('crs-002', 'Ganadería Silvopastoril e Inseminación Artificial', 'Estrategias de pastoreo rotacional Voisin, nutrición con botón de oro y mejoramiento genético para doble propósito.', '🐄', 'ACTIVO', 'ganadero')
+ON CONFLICT ("id") DO NOTHING;
+INSERT INTO "AcademiaCurso" ("id", "nombre", "descripcion", "icono", "estado", "sector")
+VALUES ('crs-003', 'Piscicultura Intensiva en Jaulones y Biofloc', 'Manejo de calidad de agua, tablas de alimentación por temperatura y control sanitario en Tilapia y Trucha.', '🐟', 'ACTIVO', 'acuicola')
+ON CONFLICT ("id") DO NOTHING;
+
+INSERT INTO "AcademiaEtapa" ("id", "cursoId", "orden", "titulo", "descripcion")
+VALUES ('etp-001', 'crs-001', 1, 'Etapa 1: Análisis de Suelos y Germinación', 'Cómo muestrear el suelo y preparar enmiendas orgánicas con cal y compostaje.')
+ON CONFLICT ("id") DO NOTHING;
+INSERT INTO "AcademiaEtapa" ("id", "cursoId", "orden", "titulo", "descripcion")
+VALUES ('etp-002', 'crs-001', 2, 'Etapa 2: Beneficio Ecológico y Secado', 'Control de horas de fermentación en tanque lavado y manejo de marquesina solar.')
+ON CONFLICT ("id") DO NOTHING;
+
+INSERT INTO "AcademiaLeccion" ("id", "etapaId", "orden", "titulo", "tipo", "urlContenido", "duracionMinutos", "climaRecomendado")
+VALUES ('lcn-001', 'etp-001', 1, 'Muestreo en Zigzag y Corrección de Acidez del Suelo', 'AUDIO', 'https://agropaccioli.co/audio/leccion-suelos-cafe.mp3', 12, 'TEMPLADO')
+ON CONFLICT ("id") DO NOTHING;
+INSERT INTO "AcademiaLeccion" ("id", "etapaId", "orden", "titulo", "tipo", "urlContenido", "duracionMinutos", "climaRecomendado")
+VALUES ('lcn-002', 'etp-002', 2, 'Fermentación Controlada y Medición de Grados Brix', 'VIDEO', 'https://www.youtube.com/watch?v=demo-cafe-01', 18, 'TODOS')
+ON CONFLICT ("id") DO NOTHING;
+
+INSERT INTO "AcademiaDiploma" ("id", "usuarioId", "cursoId", "notaFinal", "codigoVerificacion")
+VALUES ('dip-demo-001', 'usr-demo-prod-001', 'crs-001', 4.9, 'AGRO-DIP-2026-CAF-001')
+ON CONFLICT ("id") DO NOTHING;
+
+-- 18. POSTULACIONES A LA BOLSA DE EMPLEO
+INSERT INTO "PostulacionEmpleo" ("id", "empleoId", "candidatoNombre", "candidatoTelefono", "cedula", "experienciaAnos", "mensaje", "estado", "origen")
+VALUES ('pst-demo-001', 'emp-001', 'Pedro Nel Albarracín', '+573112233990', 'CC-79456123', 8, 'Tengo 8 años administrando fincas en Huila y Tolima con certificado BPA ICA.', 'CONTACTADO', 'D')
+ON CONFLICT ("id") DO NOTHING;
+
+-- 19. PARTICIPACIONES EN CONTRATOS FUTUROS (DEMANDA B2B)
+INSERT INTO "ParticipacionContratoFuturo" ("id", "requerimientoId", "productorNombre", "productorTelefono", "cantidadComprometida", "unidad", "estado")
+VALUES ('par-fut-001', 'FUT-8821', 'Cultivos Don Álvaro Pinzón', '+573182233445', 20.0, 'Toneladas', 'PRE_FIRMADO')
+ON CONFLICT ("id") DO NOTHING;
+
+-- 20. PARTICIPACIONES EN POOLS DE COMPRA COMUNITARIOS
+INSERT INTO "PoolParticipacion" ("id", "poolId", "campesinoNombre", "campesinoTelefono", "cantidadAportada", "montoTotal", "estadoPago")
+VALUES ('par-pol-001', 'pool-demo-01', 'Don Hernando Gómez', '+573114567890', 5.0, 625000, 'PAGADO')
+ON CONFLICT ("id") DO NOTHING;
+INSERT INTO "PoolParticipacion" ("id", "poolId", "campesinoNombre", "campesinoTelefono", "cantidadAportada", "montoTotal", "estadoPago")
+VALUES ('par-pol-002', 'pool-demo-01', 'Cooperativa Agroplátano del Eje', '+573123344556', 10.0, 1250000, 'PAGADO')
+ON CONFLICT ("id") DO NOTHING;
+
+-- 21. CRÉDITOS DE INSUMOS (AGRO-FINTECH)
+INSERT INTO "CreditoInsumo" ("id", "productorNombre", "productorTelefono", "cedula", "montoSolicitado", "cupoAprobado", "almacenDestino", "estado")
+VALUES ('crd-demo-001', 'Don Hernando Gómez', '+573114567890', 'CC-DEMO-0001', 15000000, 15000000, 'Almacén Agropecuario Rionegro', 'APROBADO')
+ON CONFLICT ("id") DO NOTHING;
+INSERT INTO "CreditoInsumo" ("id", "productorNombre", "productorTelefono", "cedula", "montoSolicitado", "cupoAprobado", "almacenDestino", "estado")
+VALUES ('crd-demo-002', 'Piscícola Los Llanos (Ing. Diego Moreno)', '+573159988776', 'CC-DEMO-0019', 8000000, 8000000, 'Almacén Agropecuario Villavicencio', 'DESEMBOLSADO')
+ON CONFLICT ("id") DO NOTHING;
+
+-- 22. AUDITORÍAS KYC Y SARLAFT B2B
+INSERT INTO "SolicitudKYC" ("id", "razonSocial", "nit", "representanteNombre", "representanteCedula", "telefono", "correo", "rutUrl", "camaraComercioUrl", "estadoSarlaft", "scoreRiesgo", "observaciones")
+VALUES ('kyc-demo-001', 'AgroInsumos del Llano S.A.S.', '901.458.921-3', 'Diego Fernando Moreno', '1.121.890.123', '+573159988776', 'contacto@agrollano.co', 'https://agropaccioli.co/docs/rut-llano.pdf', 'https://agropaccioli.co/docs/cc-llano.pdf', 'APROBADO', 98.5, 'Verificación SARLAFT en listas restrictivas OK. Riesgo Bajo.')
+ON CONFLICT ("id") DO NOTHING;
+INSERT INTO "SolicitudKYC" ("id", "razonSocial", "nit", "representanteNombre", "representanteCedula", "telefono", "correo", "rutUrl", "camaraComercioUrl", "estadoSarlaft", "scoreRiesgo", "observaciones")
+VALUES ('kyc-demo-002', 'Supermercados AgroBastos S.A.', '890.301.122-8', 'Carolina Villegas', '52.345.678', '+573001112233', 'compras@agrobastos.com', 'https://agropaccioli.co/docs/rut-bastos.pdf', 'https://agropaccioli.co/docs/cc-bastos.pdf', 'APROBADO', 99.0, 'Empresa Mayorista Verificada. Código KYC-2026-COL.')
+ON CONFLICT ("id") DO NOTHING;
+
+
