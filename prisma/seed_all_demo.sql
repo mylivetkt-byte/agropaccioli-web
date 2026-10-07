@@ -344,3 +344,23 @@ ON CONFLICT ("id") DO NOTHING;
 INSERT INTO "TemporadaCosecha" ("id", "cultivo", "departamento", "mesesPico", "intensidad")
 VALUES ('temp-demo-004', 'Plátano Dominico, Banano & Cítricos', '', '', 'Alta')
 ON CONFLICT ("id") DO NOTHING;
+
+-- 11. REQUERIMIENTOS DE COSECHA A FUTURO (DEMO)
+INSERT INTO "RequerimientoCosecha" ("id", "compradorNombre", "compradorTipo", "producto", "cantidadNecesaria", "unidad", "precioOfrecido", "unidadPrecio", "fechaEntrega", "ubicacion", "garantia", "estado", "origen")
+VALUES ('FUT-8821', 'Corabastos (Bodega 45 - AgroSabana)', 'Mayorista', 'Papa Pastusa Calidad Primera', 50, 'Toneladas', 120000, 'Bulto (50kg)', '15 de Diciembre de 2026', 'Bogotá, D.C.', 'Fondo Nacional de Garantías', 'ABIERTO', 'D')
+ON CONFLICT ("id") DO UPDATE SET "origen" = 'D';
+INSERT INTO "RequerimientoCosecha" ("id", "compradorNombre", "compradorTipo", "producto", "cantidadNecesaria", "unidad", "precioOfrecido", "unidadPrecio", "fechaEntrega", "ubicacion", "garantia", "estado", "origen")
+VALUES ('FUT-9012', 'Restaurantes Wok & Crepes', 'Cadena de Restaurantes', 'Tomate Chonto (Larga Vida)', 2, 'Toneladas', 3500, 'Kilo', 'Mensual (Inicia Enero 2027)', 'Medellín, Antioquia', 'Contrato Escrow AgroPaccioli', 'ABIERTO', 'D')
+ON CONFLICT ("id") DO UPDATE SET "origen" = 'D';
+INSERT INTO "RequerimientoCosecha" ("id", "compradorNombre", "compradorTipo", "producto", "cantidadNecesaria", "unidad", "precioOfrecido", "unidadPrecio", "fechaEntrega", "ubicacion", "garantia", "estado", "origen")
+VALUES ('FUT-9055', 'Exportadores del Eje', 'Agroexportador', 'Aguacate Hass (Calibre 14-22)', 12, 'Toneladas', 4800, 'Kilo', 'Octubre 2026', 'Pereira, Risaralda', 'Carta de Crédito Bancolombia', 'CASI_LLENO', 'D')
+ON CONFLICT ("id") DO UPDATE SET "origen" = 'D';
+
+-- 12. POOLS DE COMPRA COMUNITARIOS (DEMO)
+INSERT INTO "PoolCompra" ("id", "titulo", "proveedor", "tipo", "precioNormal", "precioPool", "unidad", "metaCantidad", "cantidadActual", "departamento", "municipio", "descripcion", "fechaCierre", "estado", "origen")
+VALUES ('pool-demo-01', 'Urea YaraMila Integrador', 'Directo de Fábrica (Cartagena)', 'insumo', 180000, 125000, 'Bulto', 34, 22.1, 'Boyacá', 'Tunja', 'Lote destinado para entrega en Tunja, Boyacá. Faltan 11.9 toneladas para que despachen la tractomula.', now() + interval '2 days', 'ABIERTO', 'D')
+ON CONFLICT ("id") DO UPDATE SET "origen" = 'D';
+INSERT INTO "PoolCompra" ("id", "titulo", "proveedor", "tipo", "precioNormal", "precioPool", "unidad", "metaCantidad", "cantidadActual", "departamento", "municipio", "descripcion", "fechaCierre", "estado", "origen")
+VALUES ('pool-demo-02', 'Alquiler de Tractor John Deere', 'Consorcio Regional', 'maquinaria', 80000, 45000, 'Hora', 100, 15, 'Valle del Cauca', 'Palmira', 'Arrendamiento de tractor pesado para arado profundo en el Valle del Cauca (Zona Norte).', now() + interval '7 days', 'ABIERTO', 'D')
+ON CONFLICT ("id") DO UPDATE SET "origen" = 'D';
+

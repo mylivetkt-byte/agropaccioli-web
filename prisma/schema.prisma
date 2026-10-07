@@ -382,3 +382,117 @@ model TemporadaCosecha {
   observaciones     String?
 }
 
+// ==========================================
+// MÓDULO: AGRICULTURA POR CONTRATO (DEMANDA A FUTURO)
+// ==========================================
+
+model RequerimientoCosecha {
+  id                String   @id @default(uuid())
+  compradorId       String?
+  compradorNombre   String   // Ej: "Corabastos (Bodega 45)"
+  compradorTipo     String   @default("Mayorista") // Mayorista, Cadena de Restaurantes, Agroexportador, Supermercado
+  producto          String   // Ej: "Papa Pastusa", "Aguacate Hass"
+  variedad          String?
+  cantidadNecesaria Float
+  unidad            String   @default("Toneladas") // Toneladas, Kilos, Bultos
+  precioOfrecido    Float
+  unidadPrecio      String   @default("Bulto (50kg)")
+  fechaEntrega      String   // Ej: "15 de Diciembre de 2026"
+  fechaLimite       DateTime?
+  departamento      String?
+  municipio         String?
+  ubicacion         String   @default("Colombia")
+  garantia          String   @default("Contrato Escrow AgroPaccioli") // FNG, Escrow, Carta de Crédito
+  estado            String   @default("ABIERTO") // ABIERTO, CASI_LLENO, CERRADO, FINALIZADO
+  origen            String   @default("O") // O = Original, D = Demo
+  createdAt         DateTime @default(now())
+
+  participaciones   ParticipacionContratoFuturo[]
+}
+
+model ParticipacionContratoFuturo {
+  id                String   @id @default(uuid())
+  requerimientoId   String
+  requerimiento     RequerimientoCosecha @relation(fields: [requerimientoId], references: [id], onDelete: Cascade)
+  
+  productorId       String?
+  productorNombre   String
+  productorTelefono String
+  cantidadComprometida Float
+  unidad            String   @default("Toneladas")
+  estado            String   @default("PRE_FIRMADO") // PRE_FIRMADO, EN_PRODUCCION, COSECHADO, ENTREGADO, CANCELADO
+  fechaFirma        DateTime @default(now())
+}
+
+// ==========================================
+// MÓDULO: AGRO-FINTECH & POOLS DE COMPRA
+// ==========================================
+
+model PoolCompra {
+  id                String   @id @default(uuid())
+  titulo            String   // Ej: "Urea YaraMila Integrador"
+  proveedor         String   // Ej: "Directo de Fábrica (Cartagena)"
+  tipo              String   @default("insumo") // insumo, maquinaria, transporte
+  precioNormal      Float
+  precioPool        Float
+  unidad            String   @default("Bulto")
+  metaCantidad      Float
+  cantidadActual    Float    @default(0.0)
+  departamento      String
+  municipio         String
+  descripcion       String?
+  fechaCierre       DateTime
+  estado            String   @default("ABIERTO") // ABIERTO, COMPLETADO, CERRADO, DESPACHADO
+  origen            String   @default("O")
+  createdAt         DateTime @default(now())
+
+  participaciones   PoolParticipacion[]
+}
+
+model PoolParticipacion {
+  id                String   @id @default(uuid())
+  poolId            String
+  pool              PoolCompra @relation(fields: [poolId], references: [id], onDelete: Cascade)
+  
+  campesinoNombre   String
+  campesinoTelefono String
+  cantidadAportada  Float
+  montoTotal        Float
+  estadoPago        String   @default("PENDIENTE") // PENDIENTE, PAGADO, REEMBOLSADO
+  createdAt         DateTime @default(now())
+}
+
+model CreditoInsumo {
+  id                String   @id @default(uuid())
+  usuarioId         String?
+  productorNombre   String
+  productorTelefono String
+  cedula            String
+  montoSolicitado   Float
+  cupoAprobado      Float    @default(0)
+  almacenDestino    String?
+  estado            String   @default("PENDIENTE") // PENDIENTE, APROBADO, RECHAZADO, DESEMBOLSADO, PAGADO
+  fechaSolicitud    DateTime @default(now())
+}
+
+// ==========================================
+// MÓDULO: REGISTRO B2B Y AUDITORÍA KYC
+// ==========================================
+
+model SolicitudKYC {
+  id                  String   @id @default(uuid())
+  razonSocial         String
+  nit                 String   @unique
+  representanteNombre String
+  representanteCedula String
+  telefono            String
+  correo              String?
+  rutUrl              String?
+  camaraComercioUrl   String?
+  estadoSarlaft       String   @default("PENDIENTE") // PENDIENTE, APROBADO, RECHAZADO
+  scoreRiesgo         Float?   @default(0.0)
+  observaciones       String?
+  createdAt           DateTime @default(now())
+}
+
+

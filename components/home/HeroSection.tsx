@@ -28,19 +28,19 @@ export default function HeroSection() {
           {/* Badge Oficial Simplificado */}
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100/80 border border-emerald-300/80 text-emerald-900 text-xs md:text-sm font-bold tracking-wide shadow-sm animate-float-slow">
             <Sparkles className="w-4 h-4 text-emerald-600" />
-            <span>PLATAFORMA LÍDER EN COLOMBIA</span>
+            <span>PLATAFORMA AGTECH AUTOMATIZADA CON IA</span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
             <span className="text-emerald-700 font-black">100% SIN INTERMEDIARIOS</span>
           </div>
 
           {/* Título Principal Orientado al Beneficio */}
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-emerald-950 tracking-tight leading-[1.15]">
-            Vende tu cosecha <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-green-500 to-emerald-700">directo al comprador</span> al precio justo
+            Vende tu cosecha <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 via-green-500 to-emerald-700">directo al comprador</span> con Inteligencia Artificial
           </h1>
 
           {/* Subtítulo Claro y Conciso */}
           <p className="text-lg sm:text-xl text-zinc-600 max-w-2xl mx-auto font-medium leading-relaxed">
-            Únete a la red agrícola más segura. Los productores ganan más por su trabajo y los compradores obtienen calidad garantizada directo de la finca.
+            Ecosistema agropecuario 100% automatizado con IA. Conecta productores, mayoristas y transportistas al instante con contratos digitales, precios SIPSA en tiempo real y asesoría fitosanitaria inteligente.
           </p>
 
           {/* 2 Embudos Claros (Acción Principal) */}
