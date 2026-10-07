@@ -5,78 +5,94 @@
 -- Nuevos registros ingresados por usuarios tendrán origen = 'O' (Original).
 
 -- 1. PRODUCTORES DEMO
+-- Limpiar registros viejos/duplicados en orden para asegurar que los IDs fijos usr-demo-prod-XXX existan siempre
+DELETE FROM "Contrato" WHERE "productorId" IN (
+    SELECT "id" FROM "Usuario" WHERE ("cedula" LIKE 'CC-DEMO-%' OR "telefono" LIKE '+5731%') AND "id" NOT LIKE 'usr-demo-prod-%'
+) AND "id" NOT IN ('ctr-demo-001');
+
+DELETE FROM "Cosecha" WHERE "productorId" IN (
+    SELECT "id" FROM "Usuario" WHERE "cedula" LIKE 'CC-DEMO-%' AND "id" NOT LIKE 'usr-demo-prod-%'
+);
+
+DELETE FROM "Usuario" WHERE ("cedula" LIKE 'CC-DEMO-%' OR "telefono" IN (
+  '+573114567890', '+573138901234', '+573123344556', '+573182233445', '+573165544332', '+573012233445',
+  '+573154433221', '+573189900112', '+573176655443', '+573145566778', '+573128899776', '+573104433221',
+  '+573007654321', '+573142211990', '+573108899776', '+573153322110', '+573117766554', '+573205544332',
+  '+573159988776', '+573105556677', '+573004455667', '+573139988112', '+573167788990', '+573183344556'
+)) AND "id" NOT LIKE 'usr-demo-prod-%';
+
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-001', 'Don Hernando Gómez', '+573114567890', true, 'CC-DEMO-0001', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-002', 'Asociación Cafetera El Mirador', '+573138901234', true, 'CC-DEMO-0002', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-003', 'Cooperativa Agroplátano del Eje', '+573123344556', true, 'CC-DEMO-0003', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-004', 'Cultivos Don Álvaro Pinzón', '+573182233445', true, 'CC-DEMO-0004', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-005', 'Asocacao Yariguíes', '+573165544332', true, 'CC-DEMO-0005', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-006', 'Frutícola del Caribe', '+573012233445', true, 'CC-DEMO-0006', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-007', 'Asociación de Uchuveros de Boyacá', '+573154433221', true, 'CC-DEMO-0007', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-008', 'Agropecuaria Lago Verde', '+573189900112', true, 'CC-DEMO-0008', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-009', 'Hacienda Arrocera San Isidro', '+573176655443', true, 'CC-DEMO-0009', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-010', 'Cítricos del Chicamocha', '+573145566778', true, 'CC-DEMO-0010', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-011', 'Cooperativa Agrícola del Penderisco', '+573128899776', true, 'CC-DEMO-0011', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-012', 'Trapiche La Miel Dorada', '+573104433221', true, 'CC-DEMO-0012', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-013', 'Ganadería Santa Catalina (Carlos Restrepo)', '+573007654321', true, 'CC-DEMO-0013', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-014', 'Criadero & Finca El Remanso', '+573142211990', true, 'CC-DEMO-0014', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-015', 'Ganadería Llanos Orientales (Dr. Andrés Arango)', '+573108899776', true, 'CC-DEMO-0015', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-016', 'Bufalera del San Jorge', '+573153322110', true, 'CC-DEMO-0016', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-017', 'Ovinos del Valle del Cacique Upar', '+573117766554', true, 'CC-DEMO-0017', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-018', 'Hacienda Lechera Los Volcanes', '+573205544332', true, 'CC-DEMO-0018', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-019', 'Piscícola Los Llanos (Ing. Diego Moreno)', '+573159988776', true, 'CC-DEMO-0019', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-020', 'Acuícola Lago Sagrado', '+573105556677', true, 'CC-DEMO-0020', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-021', 'Acuícola del Caribe S.A.S.', '+573004455667', true, 'CC-DEMO-0021', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-022', 'Piscícola Betania Fish', '+573139988112', true, 'CC-DEMO-0022', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-023', 'Acuícola Embalse de Prado', '+573167788990', true, 'CC-DEMO-0023', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen", "nivelAcademia", "puntosAcademia")
 VALUES ('usr-demo-prod-024', 'Estación de Alevinaje del Valle', '+573183344556', true, 'CC-DEMO-0024', 'APROBADO', 'Productor', 'D', 3, 500)
-ON CONFLICT ("telefono") DO UPDATE SET "origen" = 'D', "estadoVerificacion" = 'APROBADO';
+ON CONFLICT ("id") DO UPDATE SET "nombre" = EXCLUDED."nombre", "telefono" = EXCLUDED."telefono", "cedula" = EXCLUDED."cedula", "origen" = 'D', "estadoVerificacion" = 'APROBADO';
 
 -- 2. COSECHAS Y LOTES DEMO (AGRÍCOLA, GANADERO, ACUÍCOLA)
 INSERT INTO "Cosecha" ("id", "titulo", "sector", "categoria", "variedad", "producto", "precio", "unidad", "cantidadDisponible", "departamento", "municipio", "vereda", "ubicacion", "latitud", "longitud", "descripcion", "imagenes", "certificaciones", "estado", "origen", "productorId")
