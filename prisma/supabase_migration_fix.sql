@@ -18,6 +18,12 @@ ALTER TABLE "PerfilTransportista"
   ADD COLUMN IF NOT EXISTS "recomendacionesComunidad" INTEGER NOT NULL DEFAULT 0,
   ADD COLUMN IF NOT EXISTS "fotoVehiculoFrontal" TEXT;
 
+-- Asegurar ON DELETE CASCADE en la FK de PerfilTransportista -> Usuario
+ALTER TABLE "PerfilTransportista" DROP CONSTRAINT IF EXISTS "PerfilTransportista_usuarioId_fkey";
+ALTER TABLE "PerfilTransportista"
+  ADD CONSTRAINT "PerfilTransportista_usuarioId_fkey"
+  FOREIGN KEY ("usuarioId") REFERENCES "Usuario"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
 -- ==========================================================
 -- PASO 2: Crear tabla CosechaConsulta (faltaba completamente)
 -- ==========================================================

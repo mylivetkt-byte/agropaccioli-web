@@ -153,11 +153,19 @@ VALUES ('cos-024', 'Alevinos de Tilapia Roja Revertida y Cachama', 'acuicola', '
 ON CONFLICT ("id") DO UPDATE SET "origen" = 'D', "titulo" = 'Alevinos de Tilapia Roja Revertida y Cachama', "precio" = 160, "imagenes" = 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=900&q=80';
 
 -- 3. TRANSPORTISTAS DEMO
--- Nota: Se usa INSERT ... ON CONFLICT (id) para garantizar que el id fijo coincida
--- con el que usa PerfilTransportista. Se limpia cedula/telefono duplicado primero.
-DELETE FROM "PerfilTransportista" WHERE "id" IN ('prf-demo-1','prf-demo-2','prf-demo-3','prf-demo-4','prf-demo-5','prf-demo-6');
-DELETE FROM "Usuario" WHERE "cedula" IN ('CC-TRP-100','CC-TRP-101','CC-TRP-102','CC-TRP-103','CC-TRP-104','CC-TRP-105') AND "id" NOT IN ('usr-demo-transp-001','usr-demo-transp-002','usr-demo-transp-003','usr-demo-transp-004','usr-demo-transp-005','usr-demo-transp-006');
-DELETE FROM "Usuario" WHERE "telefono" IN ('+573128899001','+573157766554','+573009988112','+573174455667','+573112233990','+573158877665') AND "id" NOT IN ('usr-demo-transp-001','usr-demo-transp-002','usr-demo-transp-003','usr-demo-transp-004','usr-demo-transp-005','usr-demo-transp-006');
+-- Limpiar registros viejos/duplicados en orden de dependencia FK (VehiculoLogistico -> PerfilTransportista -> Usuario)
+DELETE FROM "VehiculoLogistico" WHERE "transportistaId" IN (
+    SELECT p."id" FROM "PerfilTransportista" p
+    JOIN "Usuario" u ON p."usuarioId" = u."id"
+    WHERE u."cedula" LIKE 'CC-TRP-%' OR u."telefono" IN ('+573128899001','+573157766554','+573009988112','+573174455667','+573112233990','+573158877665')
+) OR "transportistaId" IN ('prf-demo-1','prf-demo-2','prf-demo-3','prf-demo-4','prf-demo-5','prf-demo-6');
+
+DELETE FROM "PerfilTransportista" WHERE "usuarioId" IN (
+    SELECT "id" FROM "Usuario" 
+    WHERE "cedula" LIKE 'CC-TRP-%' OR "telefono" IN ('+573128899001','+573157766554','+573009988112','+573174455667','+573112233990','+573158877665')
+) OR "id" IN ('prf-demo-1','prf-demo-2','prf-demo-3','prf-demo-4','prf-demo-5','prf-demo-6');
+
+DELETE FROM "Usuario" WHERE "cedula" LIKE 'CC-TRP-%' OR "telefono" IN ('+573128899001','+573157766554','+573009988112','+573174455667','+573112233990','+573158877665');
 
 INSERT INTO "Usuario" ("id", "nombre", "telefono", "telefonoVerificado", "cedula", "estadoVerificacion", "rol", "origen")
 VALUES ('usr-demo-transp-001', 'Transportes Rápidos del Campo (Don Jaime Morales)', '+573128899001', true, 'CC-TRP-100', 'APROBADO', 'Transportista', 'D')
