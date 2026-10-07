@@ -3,7 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/components/ui/Navbar';
 import Footer from '@/components/ui/Footer';
-import { ShieldCheck, Newspaper, DollarSign, Users, CheckCircle, Plus, Trash2, Scale, Search, XCircle, Clock } from 'lucide-react';
+import { ShieldCheck, Newspaper, DollarSign, Users, CheckCircle, Plus, Trash2, Scale, Search, XCircle, Clock, GraduationCap, Award, BookOpen, Sparkles, ArrowUpRight } from 'lucide-react';
+import Link from 'next/link';
 import { NOTICIAS_DATA, TRM_DATA } from '@/lib/agro-data';
 import { NoticiaAgraria } from '@/types/agro';
 import { getUsuariosAdmin, cambiarEstadoUsuario } from '@/app/actions/admin';
@@ -13,13 +14,15 @@ export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errorPass, setErrorPass] = useState('');
 
-  const [tab, setTab] = useState<'noticias' | 'kyc' | 'trm' | 'legales'>('kyc');
+  const [tab, setTab] = useState<'kyc' | 'escuela' | 'noticias' | 'trm' | 'legales'>('escuela');
   const [noticias, setNoticias] = useState<NoticiaAgraria[]>(NOTICIAS_DATA);
   const [modal, setModal] = useState(false);
   const [trmVal, setTrmVal] = useState(TRM_DATA.dolarCOP);
 
-  // KYC State
+  // KYC & Academia State
   const [usuarios, setUsuarios] = useState<any[]>([]);
+  const [diplomas, setDiplomas] = useState<any[]>([]);
+  const [cursosAcademia, setCursosAcademia] = useState<any[]>([]);
   const [search, setSearch] = useState('');
   const [loadingUsuarios, setLoadingUsuarios] = useState(false);
   
@@ -38,6 +41,8 @@ export default function AdminPage() {
     } else if (res.usuarios) {
       setIsAuthenticated(true);
       setUsuarios(res.usuarios);
+      setDiplomas(res.diplomas || []);
+      setCursosAcademia(res.cursos || []);
     }
   };
 
@@ -164,6 +169,13 @@ export default function AdminPage() {
 
         <div className="flex flex-wrap gap-2 mb-6">
           <button
+            onClick={() => setTab('escuela')}
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold ${tab === 'escuela' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white text-zinc-700'}`}
+          >
+            <GraduationCap className="w-4 h-4" />
+            <span>Escuela & Estudiantes ({diplomas.length} Diplomas)</span>
+          </button>
+          <button
             onClick={() => setTab('kyc')}
             className={`flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-bold ${tab === 'kyc' ? 'bg-emerald-600 text-white shadow-md' : 'bg-white text-zinc-700'}`}
           >
@@ -192,6 +204,221 @@ export default function AdminPage() {
             <span>Marco Legal</span>
           </button>
         </div>
+
+        {/* TAB ESCUELA RURAL & PROGRESOS DE ESTUDIANTES */}
+        {tab === 'escuela' && (
+          <div className="space-y-6">
+            {/* KPI Cards Academia */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="bg-white p-5 rounded-3xl border border-emerald-200 shadow-sm flex items-center gap-4">
+                <div className="p-3 bg-emerald-100 text-emerald-800 rounded-2xl">
+                  <Users className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-zinc-500">Estudiantes Registrados</p>
+                  <h3 className="text-2xl font-black text-emerald-950">{usuarios.length}</h3>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-amber-200 shadow-sm flex items-center gap-4">
+                <div className="p-3 bg-amber-100 text-amber-800 rounded-2xl">
+                  <BookOpen className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-zinc-500">Cursos de la Escuela</p>
+                  <h3 className="text-2xl font-black text-amber-950">{cursosAcademia.length || 6}</h3>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-purple-200 shadow-sm flex items-center gap-4">
+                <div className="p-3 bg-purple-100 text-purple-800 rounded-2xl">
+                  <Award className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-zinc-500">Diplomas Emitidos</p>
+                  <h3 className="text-2xl font-black text-purple-950">{diplomas.length}</h3>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-3xl border border-sky-200 shadow-sm flex items-center gap-4">
+                <div className="p-3 bg-sky-100 text-sky-800 rounded-2xl">
+                  <Sparkles className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-xs font-bold text-zinc-500">Generador de Cursos IA</p>
+                  <Link href="/admin/academia" className="text-xs font-black text-sky-600 hover:underline flex items-center gap-1 mt-0.5">
+                    Crear nuevo curso <ArrowUpRight className="w-3 h-3" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* TABLA DE PROGRESO DE ESTUDIANTES */}
+            <div className="bg-white rounded-3xl border border-emerald-200 p-6 shadow-sm overflow-hidden">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <div>
+                  <h2 className="text-lg font-bold text-emerald-950 flex items-center gap-2">
+                    <GraduationCap className="w-5 h-5 text-emerald-600" />
+                    Progresos de Estudiantes en Cursos
+                  </h2>
+                  <p className="text-xs text-zinc-500">Monitoreo en tiempo real de lecciones tomadas y estado de estudio.</p>
+                </div>
+                <Link
+                  href="/admin/academia"
+                  className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm flex items-center gap-2"
+                >
+                  <Sparkles className="w-4 h-4" />
+                  <span>Generar Curso con IA</span>
+                </Link>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <thead className="bg-zinc-50 border-b border-zinc-100 text-zinc-500 text-xs uppercase font-bold">
+                    <tr>
+                      <th className="px-4 py-3">Estudiante</th>
+                      <th className="px-4 py-3">Teléfono</th>
+                      <th className="px-4 py-3 text-center">Nivel / Puntos</th>
+                      <th className="px-4 py-3">Cursos / Lecciones Avanzadas</th>
+                      <th className="px-4 py-3 text-center">Diplomas Ganados</th>
+                      <th className="px-4 py-3 text-center">Estado Estudiante</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-100">
+                    {usuarios.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="text-center py-8 text-zinc-400 text-xs font-bold">
+                          No hay estudiantes registrados aún.
+                        </td>
+                      </tr>
+                    ) : (
+                      usuarios.map((u) => {
+                        const progresos = u.progresosAcademia || [];
+                        const diplomasUser = u.diplomasAcademia || [];
+                        const leccionesCompletadas = progresos.filter((p: any) => p.completado).length;
+
+                        // Agrupar progresos por curso
+                        const cursosSet = new Set();
+                        progresos.forEach((p: any) => {
+                          if (p.leccion?.etapa?.curso?.nombre) {
+                            cursosSet.add(p.leccion.etapa.curso.nombre);
+                          }
+                        });
+                        const cursosEstudiando = Array.from(cursosSet);
+
+                        return (
+                          <tr key={u.id} className="hover:bg-zinc-50 transition-colors">
+                            <td className="px-4 py-4 font-bold text-emerald-950">
+                              {u.nombre || 'Estudiante Anónimo'}
+                            </td>
+                            <td className="px-4 py-4 text-zinc-600 font-mono text-xs">{u.telefono}</td>
+                            <td className="px-4 py-4 text-center">
+                              <span className="bg-amber-100 text-amber-900 text-xs font-black px-2.5 py-1 rounded-full">
+                                Nivel {u.nivelAcademia || 1} • {u.puntosAcademia || 0} pts
+                              </span>
+                            </td>
+                            <td className="px-4 py-4 text-xs">
+                              {cursosEstudiando.length > 0 ? (
+                                <div className="space-y-1">
+                                  <span className="font-bold text-emerald-800">{cursosEstudiando.join(', ')}</span>
+                                  <p className="text-[10px] text-zinc-500 font-medium">
+                                    {leccionesCompletadas} lección(es) completada(s)
+                                  </p>
+                                </div>
+                              ) : (
+                                <span className="text-zinc-400 font-medium italic">Sin cursos iniciados</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-4 text-center">
+                              {diplomasUser.length > 0 ? (
+                                <span className="bg-purple-100 text-purple-900 text-xs font-bold px-2.5 py-1 rounded-full flex items-center justify-center gap-1 w-max mx-auto">
+                                  <Award className="w-3.5 h-3.5" /> {diplomasUser.length} Diploma(s)
+                                </span>
+                              ) : (
+                                <span className="text-zinc-400 text-xs font-medium">0</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-4 text-center">
+                              {diplomasUser.length > 0 ? (
+                                <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2.5 py-1 rounded-full uppercase">
+                                  Graduado 🎓
+                                </span>
+                              ) : leccionesCompletadas > 0 ? (
+                                <span className="bg-sky-100 text-sky-800 text-[10px] font-black px-2.5 py-1 rounded-full uppercase">
+                                  Estudiando 📖
+                                </span>
+                              ) : (
+                                <span className="bg-zinc-100 text-zinc-600 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase">
+                                  Registrado
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* REGISTRO DE DIPLOMAS EMITIDOS */}
+            <div className="bg-white rounded-3xl border border-emerald-200 p-6 shadow-sm overflow-hidden">
+              <h2 className="text-lg font-bold text-emerald-950 mb-1 flex items-center gap-2">
+                <Award className="w-5 h-5 text-purple-600" />
+                Registro Oficial de Diplomas Emitidos (Graduados)
+              </h2>
+              <p className="text-xs text-zinc-500 mb-6">Lista de diplomas expedidos con código de verificación legal Ley 527 de 1999.</p>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-sm whitespace-nowrap">
+                  <thead className="bg-zinc-50 border-b border-zinc-100 text-zinc-500 text-xs uppercase font-bold">
+                    <tr>
+                      <th className="px-4 py-3">Graduado</th>
+                      <th className="px-4 py-3">Curso Completado</th>
+                      <th className="px-4 py-3 text-center">Nota Final</th>
+                      <th className="px-4 py-3 text-center">Código Verificación</th>
+                      <th className="px-4 py-3 text-right">Fecha de Emisión</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-zinc-100">
+                    {diplomas.length === 0 ? (
+                      <tr>
+                        <td colSpan={5} className="text-center py-8 text-zinc-400 text-xs font-bold">
+                          Aún no se han emitido diplomas oficiales.
+                        </td>
+                      </tr>
+                    ) : (
+                      diplomas.map((d) => (
+                        <tr key={d.id} className="hover:bg-zinc-50 transition-colors">
+                          <td className="px-4 py-4 font-bold text-emerald-950">
+                            {d.usuario?.nombre || 'Graduado'}
+                            <p className="text-[10px] text-zinc-400 font-normal">{d.usuario?.telefono}</p>
+                          </td>
+                          <td className="px-4 py-4 text-xs font-bold text-emerald-800 flex items-center gap-2">
+                            <span>{d.curso?.icono || '📜'}</span>
+                            <span>{d.curso?.nombre || 'Curso de Capacitación Agrícola'}</span>
+                          </td>
+                          <td className="px-4 py-4 text-center">
+                            <span className="bg-emerald-100 text-emerald-800 font-black text-xs px-2.5 py-1 rounded-full">
+                              {d.notaFinal ? d.notaFinal.toFixed(1) : '5.0'} / 5.0
+                            </span>
+                          </td>
+                          <td className="px-4 py-4 text-center font-mono text-xs text-purple-700 font-bold">
+                            {d.codigoVerificacion || d.id}
+                          </td>
+                          <td className="px-4 py-4 text-right text-xs text-zinc-500">
+                            {new Date(d.fechaEmision).toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* TAB KYC: GRILLA DE USUARIOS */}
         {tab === 'kyc' && (

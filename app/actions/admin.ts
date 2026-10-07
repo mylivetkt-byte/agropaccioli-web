@@ -22,10 +22,45 @@ export async function getUsuariosAdmin(password: string) {
       include: {
         cosechas: {
           select: { municipio: true, departamento: true, titulo: true, estado: true }
+        },
+        progresosAcademia: {
+          include: {
+            leccion: {
+              include: {
+                etapa: {
+                  include: {
+                    curso: true
+                  }
+                }
+              }
+            }
+          }
+        },
+        diplomasAcademia: {
+          include: {
+            curso: true
+          }
         }
       }
     });
-    return { usuarios };
+
+    const diplomas = await prisma.academiaDiploma.findMany({
+      orderBy: { fechaEmision: 'desc' },
+      include: {
+        usuario: { select: { nombre: true, telefono: true, cedula: true } },
+        curso: { select: { nombre: true, icono: true } }
+      }
+    });
+
+    const cursos = await prisma.academiaCurso.findMany({
+      include: {
+        _count: {
+          select: { diplomas: true }
+        }
+      }
+    });
+
+    return { usuarios, diplomas, cursos };
   } catch (err: any) {
     console.error('Error al obtener usuarios admin:', err);
     return { error: 'Error al consultar la base de datos: ' + (err.message || 'Fallo de conexión') };
