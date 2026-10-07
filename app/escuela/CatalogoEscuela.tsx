@@ -39,12 +39,26 @@ export default function CatalogoEscuela({ cursos = [] }: { cursos?: any[] }) {
   const normalizeStr = (str: string) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
   const filtrados = cursos.filter(c => {
-    // Si tenemos recomendaciones de IA, mostrar solo esas y en ese orden
     if (recomendacionesIA.length > 0) {
       return recomendacionesIA.includes(c.id);
     }
-    const matchBusqueda = normalizeStr(c.nombre).includes(normalizeStr(busqueda));
-    const matchCategoria = categoriaSel === 'Todas' || (c.sector && c.sector.toLowerCase() === categoriaSel.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase());
+    const matchBusqueda = normalizeStr(c.nombre || '').includes(normalizeStr(busqueda));
+    
+    if (categoriaSel === 'Todas') {
+      return matchBusqueda;
+    }
+
+    const catNorm = normalizeStr(categoriaSel);
+    const secNorm = c.sector ? normalizeStr(c.sector) : '';
+    const catPropNorm = c.categoria ? normalizeStr(c.categoria) : '';
+
+    const matchCategoria = secNorm === catNorm || 
+                           catPropNorm === catNorm ||
+                           (catNorm.includes('agri') && secNorm.includes('agri')) ||
+                           (catNorm.includes('gana') && (secNorm.includes('gana') || catPropNorm.includes('gana'))) ||
+                           (catNorm.includes('pisc') && (secNorm.includes('pisc') || secNorm.includes('acui') || catPropNorm.includes('pisc'))) ||
+                           (catNorm.includes('avic') && (secNorm.includes('avic') || catPropNorm.includes('avic')));
+
     return matchBusqueda && matchCategoria;
   }).sort((a, b) => {
     if (recomendacionesIA.length > 0) {

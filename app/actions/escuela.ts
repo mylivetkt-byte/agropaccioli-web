@@ -86,6 +86,17 @@ export async function obtenerLibretaEstudiante(telefonoUsuario: string) {
 
 // Función para obtener todo el catálogo de cursos disponibles
 export async function obtenerCatalogoCursos() {
+  const fallbackCursos = [
+    { id: '1', nombre: 'Riego por Goteo Casero', descripcion: 'Módulo Agrícola: Aprenda a optimizar el agua.', icono: '💧', sector: 'agricola', categoria: 'Agrícola' },
+    { id: '2', nombre: 'Aguacate Hass (Exportación)', descripcion: 'Módulo Agrícola: BPA y requisitos ICA.', icono: '🥑', sector: 'agricola', categoria: 'Agrícola' },
+    { id: '3', nombre: 'Ceba de Novillos Brahman', descripcion: 'Módulo Ganadero: Nutrición y pasturas.', icono: '🐄', sector: 'ganadero', categoria: 'Ganadería' },
+    { id: '4', nombre: 'Cría de Tilapia Roja', descripcion: 'Módulo Piscícola: Oxigenación y estanques.', icono: '🐟', sector: 'acuicola', categoria: 'Piscícola' },
+    { id: '5', nombre: 'Café Especial (Taza Limpia)', descripcion: 'Módulo Agrícola: Beneficio y secado.', icono: '☕', sector: 'agricola', categoria: 'Agrícola' },
+    { id: '6', nombre: 'Gallinas Ponedoras', descripcion: 'Módulo Avícola: Galpones y bioseguridad.', icono: '🐔', sector: 'avicola', categoria: 'Avícola' }
+  ];
+
+  const colors = ['bg-amber-100 text-amber-800', 'bg-emerald-100 text-emerald-800', 'bg-sky-100 text-sky-800', 'bg-orange-100 text-orange-800', 'bg-purple-100 text-purple-800', 'bg-rose-100 text-rose-800'];
+
   try {
     let cursos = await prisma.academiaCurso.findMany({
       where: { estado: 'ACTIVO' },
@@ -93,39 +104,40 @@ export async function obtenerCatalogoCursos() {
         id: true,
         nombre: true,
         descripcion: true,
-        icono: true
+        icono: true,
+        sector: true
       }
     });
     
-    // Fallback de catálogo (Directorio Inicial MVP)
-    if (cursos.length === 0) {
-      cursos = [
-        { id: '1', nombre: 'Riego por Goteo Casero', descripcion: 'Módulo Agrícola: Aprenda a optimizar el agua.', icono: '💧' },
-        { id: '2', nombre: 'Aguacate Hass (Exportación)', descripcion: 'Módulo Agrícola: BPA y requisitos ICA.', icono: '🥑' },
-        { id: '3', nombre: 'Ceba de Novillos Brahman', descripcion: 'Módulo Ganadero: Nutrición y pasturas.', icono: '🐄' },
-        { id: '4', nombre: 'Cría de Tilapia Roja', descripcion: 'Módulo Piscícola: Oxigenación y estanques.', icono: '🐟' },
-        { id: '5', nombre: 'Café Especial (Taza Limpia)', descripcion: 'Módulo Agrícola: Beneficio y secado.', icono: '☕' },
-        { id: '6', nombre: 'Gallinas Ponedoras', descripcion: 'Módulo Avícola: Galpones y bioseguridad.', icono: '🐔' }
-      ] as any[];
+    // Fallback de catálogo (Directorio Inicial MVP si la BD aún no tiene registros)
+    if (!cursos || cursos.length === 0) {
+      cursos = fallbackCursos as any[];
     }
 
-    // Agregamos colores didácticos para la UI que no vienen de BD
-    const colors = ['bg-amber-100 text-amber-800', 'bg-emerald-100 text-emerald-800', 'bg-sky-100 text-sky-800', 'bg-orange-100 text-orange-800', 'bg-purple-100 text-purple-800', 'bg-rose-100 text-rose-800'];
-    
     return cursos.map((curso, i) => {
+      const parts = colors[i % colors.length].split(' ');
+      const sectorStr = (curso as any).sector ? (curso as any).sector.toLowerCase() : 'agricola';
+      return {
+        ...curso,
+        sector: sectorStr,
+        colorBg: parts[0],
+        colorText: parts[1],
+        categoria: sectorStr === 'ganadero' ? 'Ganadería' : 
+                   sectorStr === 'acuicola' || sectorStr === 'piscicola' ? 'Piscícola' : 
+                   sectorStr === 'avicola' ? 'Avícola' : 'Agrícola'
+      };
+    });
+  } catch (error) {
+    console.error("Error al obtener el catálogo de la BD:", error);
+    // Garantizar que la UI NUNCA salga vacía en producción si falla la conexión a BD
+    return fallbackCursos.map((curso, i) => {
       const parts = colors[i % colors.length].split(' ');
       return {
         ...curso,
         colorBg: parts[0],
-        colorText: parts[1],
-        categoria: curso.descripcion?.includes('Ganadero') ? 'Ganadería' : 
-                   curso.descripcion?.includes('Piscícola') ? 'Piscícola' : 
-                   curso.descripcion?.includes('Avícola') ? 'Avícola' : 'Agrícola'
+        colorText: parts[1]
       };
     });
-  } catch (error) {
-    console.error("Error al obtener el catálogo:", error);
-    return [];
   }
 }
 
